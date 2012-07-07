@@ -1,0 +1,12 @@
+This package is available under the GNU GPL 3.0.
+
+A full copy of the GNUS GPL 3.0 license can be found here:
+http://www.gnu.org/copyleft/gpl.html
+
+In addition this software made use of the following packages:
+
+Various artwork from the Liberated Pixel Cup (LPC).  Copies of the LPC artwork, and their associated licenses can be aquired here:
+http://lpc.opengameart.org/static/lpc-assets/lpc_full_assets.tar.gz
+
+PyTMXLoader:
+https://code.google.com/p/pytmxloader/
