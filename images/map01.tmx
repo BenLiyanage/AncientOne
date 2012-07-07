@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="grass" tilewidth="32" tileheight="32">
+  <image source="grass.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="19" name="dirt2" tilewidth="32" tileheight="32">
+  <image source="dirt2.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="37" name="dirt" tilewidth="32" tileheight="32">
+  <image source="dirt.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="55" name="collision" tilewidth="32" tileheight="32">
+  <image source="collision.png" width="64" height="32"/>
+ </tileset>
+ <tileset firstgid="57" name="cup" tilewidth="32" tileheight="32">
+  <image source="base_assets/cup.png" width="32" height="64"/>
+ </tileset>
+ <tileset firstgid="59" name="lavarock" tilewidth="32" tileheight="32">
+  <image source="base_assets/lavarock.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="77" name="mountains" tilewidth="32" tileheight="32">
+  <image source="base_assets/mountains.png" width="384" height="288"/>
+ </tileset>
+ <tileset firstgid="185" name="castlewalls" tilewidth="32" tileheight="32">
+  <image source="base_assets/castlewalls.png" width="384" height="480"/>
+ </tileset>
+ <tileset firstgid="365" name="house" tilewidth="32" tileheight="32">
+  <image source="base_assets/house.png" width="288" height="224"/>
+ </tileset>
+ <tileset firstgid="428" name="hole" tilewidth="32" tileheight="32">
+  <image source="base_assets/hole.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="446" name="trunk" tilewidth="32" tileheight="32">
+  <image source="base_assets/trunk.png" width="192" height="96"/>
+ </tileset>
+ <tileset firstgid="464" name="treetop" tilewidth="32" tileheight="32">
+  <image source="base_assets/treetop.png" width="192" height="224"/>
+ </tileset>
+ <layer name="ground" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztzzERACAQBLF39JLw74IKB8xwQIr0u11VDQAAAMB3RkDDro/ldMuuj5tfXnjwkcdHFh8AAAAkmzaA0Hw=
+  </data>
+ </layer>
+ <layer name="fringe" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztmdlOAyEUhtG6dtzqhYm7vobRC+u+vI/36utoNMYYb9Qb38uftCce8VDaGWCYdv7kTwoz0PNxKKHwMKbUe8X9CL/Bpib+VyWtVwuHb4Uel1gcoSVxTMMzXc8O0Ffedj4kcTThcbgBz7F6M06zbGsXQzaOSXjKiMeMUypL7WKoVz4W4EWjnscplaV2MWTjkMZzXnVipDjNsq1dDA3C4ZLU7gN9f8JfgddEiUOPc555YWv3HWFdlzhW4TV43dF2L1BMeSRxbMCb8FYZAeWUxLEN78C7rK7ffUVZ+7JY+5LQX2FyVG2fSxokHyt9vFPWlnOY97tVVM2RlmqOtFRzpKVR4TiE2/CR43nb8V5ouTiO4RP4tMfzS/gKvu7xXmi5OM7gc/jC8pw4U+dwqSr5cInydQDvK3veQsvXeqV5ymLQKmPd5eepvs6CQ3KY8ZL1+eMSsz6TLMoSgoPiN+PVzozPy93PRc8hfXHwsaf4W6oTZ8bKLZU2R1P9HXcdH3Fwmywpc/D4W8yUG8oPvZMShz7bbajf+cJZMqGOz7eUOLQ4i46Z5j/PTabkOZYShxbdiRAPnz/mb4ZylCIHycZDOchYOSTHTcF+SRIPxa5ZfN3DSRy38B18X7BvLn4Hx+3rHnFU/tdWRTVHWhomjif4peJ+hn8AaHqnzQ==
+  </data>
+ </layer>
+ <layer name="Object" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztwQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAnEAAB
+  </data>
+ </layer>
+ <layer name="overhang" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztz7ENgzAURVF7LNYAaqCG1IgNIwpgB0iRpAiMwCsYAMnFt6N7pCs3Lt53DgDwL1bv3KZe3npJmLf2f9Q38Tt+2r+rI+I7sht/ntf+MeI77pi0f1ZL4ncAAAAAAAAAQApyVajSekigStWqMd4RqlWdelgPCdRf72C6AgAQuxO7PBC4
+  </data>
+ </layer>
+ <layer name="collision" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt2rENwCAMAEHGYv/JsgApUkR6rHvJNZwEnfdaaw+Z2+NoxdGKoxXHtzP+jqP1Hv2PVhytOFpxtOJoxdGKoxVHK45WHK04WnG04mjF0Yqj1clx437Abfd9i6MVR6tpjgnzAG7yLDE=
+  </data>
+ </layer>
+</map>
