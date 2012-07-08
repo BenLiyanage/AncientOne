@@ -8,8 +8,8 @@ sys.path.append('/Library/Python/2.6/site-packages/')#this is for phong's comput
 import pygame
 from pygame.locals import*
 
-import sprites
-from sprites import AnimatedSprite
+#import sprites
+#from sprites import AnimatedSprite
 
 import tiledtmxloader #this reads .tmx files
 
@@ -54,7 +54,7 @@ def main_pygame(file_name):
 
     # 2d array of the map where collisions
     
-    collisionarray = [[False for i in range(tileheight)] for j in range(tileheight)]
+    #collisionarray = [[False for i in range(tileheight)] for j in range(tileheight)]
 
     pygame.init()
 
@@ -80,10 +80,10 @@ def main_pygame(file_name):
     resources.load(world_map)
 
     # load the sprites
-    PrincessImages = sprites.load_sliced_sprites(64,64,'images/princess-front.png')
+    #PrincessImages = sprites.load_sliced_sprites(64,64,'images/princess-front.png')
     #PrincessSprite = AnimatedSprite(PrincessImages, 5*tilesize-16, 12*tilesize-32)
     #PrincessSprite = AnimatedSprite(PrincessImages, 100, 100)
-    PrincessSprite = PrincessImages[1]
+    #PrincessSprite = PrincessImages[0]
 
     # load the cursorbox
     cursorbox= pygame.image.load("images/alpha_box.png")
@@ -119,14 +119,14 @@ def main_pygame(file_name):
     # create hero sprite (temporary until AnimatedSprite is up
     hero_pos_tile_x=14
     hero_pos_tile_y=10
-    hero_pos_x = hero_pos_tile_x*tilesize -4
-    hero_pos_y = hero_pos_tile_y*tilesize+tilesize/2
-    hero = create_hero(PrincessSprite, hero_pos_x, hero_pos_y)#creates a "hero" at the associated position.
+    hero_pos_x = hero_pos_tile_x*tilesize+tilesize/2
+    hero_pos_y = hero_pos_tile_y*tilesize+tilesize
+    hero = create_hero(hero_pos_x, hero_pos_y)#creates a "hero" at the associated position.
     #adds hero to the right layer
     sprite_layers[objectlayer].add_sprite(hero) #possibly wrong layer
 
     # variables for the main loop
-    frames_per_sec = 24.0# was 60.0
+    frames_per_sec = 30.0# was 60.0
     clock = pygame.time.Clock()
     running = True
     grid = False #variable controling the gridlines
@@ -175,8 +175,8 @@ def main_pygame(file_name):
             
             elif event.key ==K_g: grid= not grid #this toggles the grid
             #updates hero location
-            hero_pos_x = hero_pos_tile_x*tilesize -4
-            hero_pos_y = hero_pos_tile_y*tilesize+tilesize/2
+            hero_pos_x = hero_pos_tile_x*tilesize+tilesize/2
+            hero_pos_y = hero_pos_tile_y*tilesize+tilesize
             hero.rect.midbottom = (hero_pos_x, hero_pos_y)
 
             ##END KEYLOGGING
@@ -267,7 +267,7 @@ def main_pygame(file_name):
 #both of these will need to be reworked
 #  -----------------------------------------------------------------------------
 
-def create_hero(spriteimage, start_pos_x, start_pos_y):
+def create_hero(start_pos_x, start_pos_y):
     """
     Creates the hero sprite.
     """
@@ -275,7 +275,7 @@ def create_hero(spriteimage, start_pos_x, start_pos_y):
     image.fill((255, 0, 0, 200))
     rect = image.get_rect()
     rect.midbottom = (start_pos_x, start_pos_y)
-    return tiledtmxloader.helperspygame.SpriteLayer.Sprite(spriteimage, rect)
+    return tiledtmxloader.helperspygame.SpriteLayer.Sprite(image, rect)
     
 
 #this is a much more simple collision checker since were are in a fairly discrete world

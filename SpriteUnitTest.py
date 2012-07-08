@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/Library/Python/2.6/site-packages/')#this is for phong's computer
 import pygame
 from pygame.locals import *
 import sprites

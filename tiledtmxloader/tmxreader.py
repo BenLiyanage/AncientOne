@@ -1,7 +1,6 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-u"""
+"""
 TileMap loader for python for Tiled, a generic tile map editor
 from http://mapeditor.org/ .
 It loads the \*.tmx files produced by Tiled.
@@ -28,9 +27,9 @@ It loads the \*.tmx files produced by Tiled.
 #     * 1.2.3.0 instead of 1.2-r (commercial distribution)
 #     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)
 
-__revision__ = "$Rev: 114 $"
-__version__ = "3.0.3." + __revision__[6:-2]
-__author__ = u'DR0ID @ 2009-2011'
+__revision__ = "$Rev: 115 $"
+__version__ = "3.1.0." + __revision__[6:-2]
+__author__ = 'DR0ID @ 2009-2011'
 
 # import logging
 # #the following few lines are needed to use logging if this module used without
@@ -46,14 +45,18 @@ __author__ = u'DR0ID @ 2009-2011'
 
 import sys
 from xml.dom import minidom, Node
-import StringIO
+try:
+    import StringIO
+    from StringIO import StringIO
+except:
+    from io import StringIO
 import os.path
 import struct
 import array
 
 #  -----------------------------------------------------------------------------
 class TileMap(object):
-    u"""
+    """
 
     The TileMap holds all the map data.
 
@@ -96,7 +99,7 @@ class TileMap(object):
 #        Before calling convert most of the values are strings. Some additional
 #        values are also calculated, see convert() for details. After calling
 #        convert, most values are integers or floats where appropriat.
-        u"""
+        """
         The TileMap holds all the map data.
         """
         # set through parser
@@ -119,7 +122,7 @@ class TileMap(object):
         self.map_file_name = ""
 
     def convert(self):
-        u"""
+        """
         Converts numerical values from strings to numerical values.
         It also calculates or set additional data:
         pixel_width
@@ -153,7 +156,7 @@ class TileMap(object):
                                  int(img.trans[4:], 16))
 
     def decode(self):
-        u"""
+        """
         Decodes the TileLayer encoded_content and saves it in decoded_content.
         """
         for layer in self.layers:
@@ -163,7 +166,7 @@ class TileMap(object):
 
 
 class TileSet(object):
-    u"""
+    """
     A tileset holds the tiles and its images.
 
     :Ivariables:
@@ -207,7 +210,7 @@ class TileSet(object):
 #  -----------------------------------------------------------------------------
 
 class TileImage(object):
-    u"""
+    """
     An image of a tile or just an image.
 
     :Ivariables:
@@ -241,7 +244,7 @@ class TileImage(object):
 #  -----------------------------------------------------------------------------
 
 class Tile(object):
-    u"""
+    """
     A single tile.
 
     :Ivariables:
@@ -267,7 +270,7 @@ class Tile(object):
 #  -----------------------------------------------------------------------------
 
 class TileLayer(object):
-    u"""
+    """
     A layer of the world.
 
     :Ivariables:
@@ -325,7 +328,7 @@ class TileLayer(object):
 
 
     def decode(self):
-        u"""
+        """
         Converts the contents in a list of integers which are the gid of the 
         used tiles. If necessairy it decodes and uncompresses the contents.
         """
@@ -333,38 +336,38 @@ class TileLayer(object):
         if self.encoded_content:
             content = self.encoded_content
             if self.encoding:
-                if self.encoding.lower() == u'base64':
+                if self.encoding.lower() == 'base64':
                     content = decode_base64(content)
-                elif self.encoding.lower() == u'csv':
+                elif self.encoding.lower() == 'csv':
                     list_of_lines = content.split()
                     for line in list_of_lines:
                         self.decoded_content.extend(line.split(','))
-                    self.decoded_content = map(int, \
-                                [val for val in self.decoded_content if val])
+                    self.decoded_content = list(map(int, \
+                                [val for val in self.decoded_content if val]))
                     content = ""
                 else:
-                    raise Exception(u'unknown data encoding %s' % \
+                    raise Exception('unknown data encoding %s' % \
                                                                 (self.encoding))
             else:
                 # in the case of xml the encoded_content already contains a 
                 # list of integers
-                self.decoded_content = map(int, self.encoded_content)
+                self.decoded_content = list(map(int, self.encoded_content))
                 content = ""
             if self.compression:
-                if self.compression == u'gzip':
+                if self.compression == 'gzip':
                     content = decompress_gzip(content)
-                elif self.compression == u'zlib':
+                elif self.compression == 'zlib':
                     content = decompress_zlib(content)
                 else:
-                    raise Exception(u'unknown data compression %s' % \
+                    raise Exception('unknown data compression %s' % \
                                                             (self.compression))
         else:
-            raise Exception(u'no encoded content to decode')
+            raise Exception('no encoded content to decode')
 
         struc = struct.Struct("<" + "I" * self.width)
         struc_unpack_from = struc.unpack_from
         self_decoded_content_extend = self.decoded_content.extend
-        for idx in xrange(0, len(content), 4 * self.width):
+        for idx in range(0, len(content), 4 * self.width):
             val = struc_unpack_from(content, idx)
             self_decoded_content_extend(val)
 
@@ -380,20 +383,20 @@ class TileLayer(object):
         self.content2D = []
 
         # generate the needed lists and fill them
-        for xpos in xrange(self.width):
+        for xpos in range(self.width):
             self.content2D.append(array.array('I'))
-            for ypos in xrange(self.height):
+            for ypos in range(self.height):
                 self.content2D[xpos].append( \
                                 self.decoded_content[xpos + ypos * self.width])
 
     def pretty_print(self):
         num = 0
         for y in range(int(self.height)):
-            output = u""
+            output = ""
             for x in range(int(self.width)):
                 output += str(self.decoded_content[num])
                 num += 1
-            print output
+            print(output)
 
     def convert(self):
         self.opacity = float(self.opacity)
@@ -431,7 +434,7 @@ class TileLayer(object):
 
 
 class MapObjectGroupLayer(object):
-    u"""
+    """
     Group of objects on the map.
 
     :Ivariables:
@@ -475,7 +478,7 @@ class MapObjectGroupLayer(object):
 #  -----------------------------------------------------------------------------
 
 class MapObject(object):
-    u"""
+    """
     A single object on the map.
 
     :Ivariables:
@@ -507,7 +510,7 @@ class MapObject(object):
 
 #  -----------------------------------------------------------------------------
 def decode_base64(in_str):
-    u"""
+    """
     Decodes a base64 string and returns it.
 
     :Parameters:
@@ -517,11 +520,11 @@ def decode_base64(in_str):
     :returns: decoded string
     """
     import base64
-    return base64.decodestring(in_str)
+    return base64.decodestring(in_str.encode('latin-1'))
 
 #  -----------------------------------------------------------------------------
 def decompress_gzip(in_str):
-    u"""
+    """
     Uncompresses a gzip string and returns it.
 
     :Parameters:
@@ -531,8 +534,13 @@ def decompress_gzip(in_str):
     :returns: uncompressed string
     """
     import gzip
-    # gzip can only handle file object therefore using StringIO
-    copmressed_stream = StringIO.StringIO(in_str)
+    
+    if sys.version_info > (2, ):
+        from io import BytesIO
+        copmressed_stream = BytesIO(in_str)
+    else:
+        # gzip can only handle file object therefore using StringIO
+        copmressed_stream = StringIO(in_str.decode("latin-1"))
     gzipper = gzip.GzipFile(fileobj=copmressed_stream)
     content = gzipper.read()
     gzipper.close()
@@ -540,7 +548,7 @@ def decompress_gzip(in_str):
 
 #  -----------------------------------------------------------------------------
 def decompress_zlib(in_str):
-    u"""
+    """
     Uncompresses a zlib string and returns it.
 
     :Parameters:
@@ -554,24 +562,24 @@ def decompress_zlib(in_str):
     return content
 #  -----------------------------------------------------------------------------
 def printer(obj, ident=''):
-    u"""
+    """
     Helper function, prints a hirarchy of objects.
     """
     import inspect
-    print ident + obj.__class__.__name__.upper()
+    print(ident + obj.__class__.__name__.upper())
     ident += '    '
     lists = []
     for name in dir(obj):
         elem = getattr(obj, name)
-        if isinstance(elem, list) and name != u'decoded_content':
+        if isinstance(elem, list) and name != 'decoded_content':
             lists.append(elem)
         elif not inspect.ismethod(elem):
             if not name.startswith('__'):
-                if name == u'data' and elem:
-                    print ident + u'data = '
+                if name == 'data' and elem:
+                    print(ident + 'data = ')
                     printer(elem, ident + '    ')
                 else:
-                    print ident + u'%s\t= %s' % (name, getattr(obj, name))
+                    print(ident + '%s\t= %s' % (name, getattr(obj, name)))
     for objt_list in lists:
         for _obj in objt_list:
             printer(_obj, ident + '    ')
@@ -582,7 +590,7 @@ class VersionError(Exception): pass
 
 #  -----------------------------------------------------------------------------
 class TileMapParser(object):
-    u"""
+    """
     Allows to parse and decode map files for 'Tiled', a open source map editor
     written in java. It can be found here: http://mapeditor.org/
     """
@@ -618,9 +626,9 @@ class TileMapParser(object):
         return tile_set
 
     def _get_tile_set(self, tile_set_node, tile_set, base_path):
-        for node in self._get_nodes(tile_set_node.childNodes, u'image'):
+        for node in self._get_nodes(tile_set_node.childNodes, 'image'):
             self._build_tile_set_image(node, tile_set, base_path)
-        for node in self._get_nodes(tile_set_node.childNodes, u'tile'):
+        for node in self._get_nodes(tile_set_node.childNodes, 'tile'):
             self._build_tile_set_tile(node, tile_set)
         self._set_attributes(tile_set_node, tile_set)
         return tile_set
@@ -629,7 +637,7 @@ class TileMapParser(object):
         image = TileImage()
         self._set_attributes(image_node, image)
         # id of TileImage has to be set! -> Tile.TileImage will only have id set
-        for node in self._get_nodes(image_node.childNodes, u'data'):
+        for node in self._get_nodes(image_node.childNodes, 'data'):
             self._set_attributes(node, image)
             image.content = node.childNodes[0].nodeValue
         image.source = self._get_abs_path(base_path, image.source) # ISSUE 5
@@ -645,14 +653,14 @@ class TileMapParser(object):
     def _build_tile_set_tile(self, tile_set_node, tile_set):
         tile = Tile()
         self._set_attributes(tile_set_node, tile)
-        for node in self._get_nodes(tile_set_node.childNodes, u'image'):
+        for node in self._get_nodes(tile_set_node.childNodes, 'image'):
             self._build_tile_set_tile_image(node, tile)
         tile_set.tiles.append(tile)
 
     def _build_tile_set_tile_image(self, tile_node, tile):
         tile_image = TileImage()
         self._set_attributes(tile_node, tile_image)
-        for node in self._get_nodes(tile_node.childNodes, u'data'):
+        for node in self._get_nodes(tile_node.childNodes, 'data'):
             self._set_attributes(node, tile_image)
             tile_image.content = node.childNodes[0].nodeValue
         tile.images.append(tile_image)
@@ -660,7 +668,7 @@ class TileMapParser(object):
     def _build_layer(self, layer_node, world_map):
         layer = TileLayer()
         self._set_attributes(layer_node, layer)
-        for node in self._get_nodes(layer_node.childNodes, u'data'):
+        for node in self._get_nodes(layer_node.childNodes, 'data'):
             self._set_attributes(node, layer)
             if layer.encoding:
                 layer.encoded_content = node.lastChild.nodeValue
@@ -678,25 +686,25 @@ class TileMapParser(object):
     def _build_world_map(self, world_node):
         world_map = TileMap()
         self._set_attributes(world_node, world_map)
-        if world_map.version != u"1.0":
-            raise VersionError(u'this parser was made for maps of version 1.0, found version %s' % world_map.version)
-        for node in self._get_nodes(world_node.childNodes, u'tileset'):
+        if world_map.version != "1.0":
+            raise VersionError('this parser was made for maps of version 1.0, found version %s' % world_map.version)
+        for node in self._get_nodes(world_node.childNodes, 'tileset'):
             self._build_tile_set(node, world_map)
-        for node in self._get_nodes(world_node.childNodes, u'layer'):
+        for node in self._get_nodes(world_node.childNodes, 'layer'):
             self._build_layer(node, world_map)
-        for node in self._get_nodes(world_node.childNodes, u'objectgroup'):
+        for node in self._get_nodes(world_node.childNodes, 'objectgroup'):
             self._build_object_groups(node, world_map)
         return world_map
 
     def _build_object_groups(self, object_group_node, world_map):
         object_group = MapObjectGroupLayer()
         self._set_attributes(object_group_node,  object_group)
-        for node in self._get_nodes(object_group_node.childNodes, u'object'):
+        for node in self._get_nodes(object_group_node.childNodes, 'object'):
             tiled_object = MapObject()
             self._set_attributes(node, tiled_object)
-            for img_node in self._get_nodes(node.childNodes, u'image'):
+            for img_node in self._get_nodes(node.childNodes, 'image'):
                 tiled_object.image_source = \
-                                        img_node.attributes[u'source'].nodeValue
+                                        img_node.attributes['source'].nodeValue
             object_group.objects.append(tiled_object)
         # ISSUE 9
         world_map.layers.append(object_group)
@@ -709,26 +717,26 @@ class TileMapParser(object):
 
     def _set_attributes(self, node, obj):
         attrs = node.attributes
-        for attr_name in attrs.keys():
+        for attr_name in list(attrs.keys()):
             setattr(obj, attr_name, attrs.get(attr_name).nodeValue)
         self._get_properties(node, obj)
 
     def _get_properties(self, node, obj):
         props = {}
-        for properties_node in self._get_nodes(node.childNodes, u'properties'):
-            for property_node in self._get_nodes(properties_node.childNodes, u'property'):
+        for properties_node in self._get_nodes(node.childNodes, 'properties'):
+            for property_node in self._get_nodes(properties_node.childNodes, 'property'):
                 try:
-                    props[property_node.attributes[u'name'].nodeValue] = \
-                                    property_node.attributes[u'value'].nodeValue
+                    props[property_node.attributes['name'].nodeValue] = \
+                                    property_node.attributes['value'].nodeValue
                 except KeyError:
-                    props[property_node.attributes[u'name'].nodeValue] = \
+                    props[property_node.attributes['name'].nodeValue] = \
                                             property_node.lastChild.nodeValue
         obj.properties.update(props)
 
 
     # -- parsers -- #
     def parse(self, file_name):
-        u"""
+        """
         Parses the given map. Does no decoding nor loading of the data.
         :return: instance of TileMap
         """
@@ -750,7 +758,7 @@ class TileMapParser(object):
         return world_map
 
     def parse_decode(self, file_name):
-        u"""
+        """
         Parses the map but additionally decodes the data.
         :return: instance of TileMap
         """
@@ -776,7 +784,7 @@ class AbstractResourceLoader(object):
         self._img_cache = {}
 
     def _load_image(self, filename, colorkey=None): # -> image
-        u"""
+        """
         Load a single image.
 
         :Parameters:
@@ -790,10 +798,10 @@ class AbstractResourceLoader(object):
         :rtype: image
 
         """
-        raise NotImplementedError(u'This should be implemented in a inherited class')
+        raise NotImplementedError('This should be implemented in a inherited class')
 
     def _load_image_file_like(self, file_like_obj, colorkey=None): # -> image
-        u"""
+        """
         Load a image from a file like object.
 
         :Parameters:
@@ -806,10 +814,10 @@ class AbstractResourceLoader(object):
 
         :rtype: image
         """
-        raise NotImplementedError(u'This should be implemented in a inherited class')
+        raise NotImplementedError('This should be implemented in a inherited class')
 
     def _load_image_parts(self, filename, margin, spacing, tilewidth, tileheight, colorkey=None): #-> [images]
-        u"""
+        """
         Load different tile images from one source image.
 
         :Parameters:
@@ -838,10 +846,10 @@ class AbstractResourceLoader(object):
 
         :rtype: a list of images
         """
-        raise NotImplementedError(u'This should be implemented in a inherited class')
+        raise NotImplementedError('This should be implemented in a inherited class')
 
     def load(self, tile_map):
-        u"""
+        """
         """
         self.world_map = tile_map
         for tile_set in tile_map.tile_sets:
@@ -891,11 +899,11 @@ class AbstractResourceLoader(object):
     def _load_tile_image(self, a_tile_image):
         img_str = a_tile_image.content
         if a_tile_image.encoding:
-            if a_tile_image.encoding == u'base64':
+            if a_tile_image.encoding == 'base64':
                 img_str = decode_base64(a_tile_image.content)
             else:
-                raise Exception(u'unknown image encoding %s' % a_tile_image.encoding)
-        sio = StringIO.StringIO(img_str)
+                raise Exception('unknown image encoding %s' % a_tile_image.encoding)
+        sio = StringIO(img_str)
         new_image = self._load_image_file_like(sio, a_tile_image.trans)
         return new_image
 

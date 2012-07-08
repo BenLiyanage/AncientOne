@@ -10,3 +10,4 @@ http://lpc.opengameart.org/static/lpc-assets/lpc_full_assets.tar.gz
 
 PyTMXLoader:
 https://code.google.com/p/pytmxloader/
+(New BSD)

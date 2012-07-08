@@ -30,11 +30,11 @@ module there is a pygame specific loader and renderer.
 #     * 1.2.2.3 instead of 1.2-rc (release candidate)
 #     * 1.2.3.0 instead of 1.2-r (commercial distribution)
 #     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)
-from __future__ import division
 
-__revision__ = "$Rev: 107 $"
+
+__revision__ = "$Rev: 115 $"
 __version__ = "3.0.0." + __revision__[6:-2]
-__author__ = u'DR0ID @ 2009-2011'
+__author__ = 'DR0ID @ 2009-2011'
 
 
 #  -----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ from math import ceil
 
 import pygame
 
-import tmxreader
+from . import tmxreader
 
 #  -----------------------------------------------------------------------------
 
@@ -95,8 +95,8 @@ class ResourceLoaderPygame(tmxreader.AbstractResourceLoader):
         width = (width // tile_width) * tile_width
         height = (height // tile_height) * tile_height
         images = []
-        for ypos in xrange(margin, height, tile_height + spacing):
-            for xpos in xrange(margin, width, tile_width + spacing):
+        for ypos in range(margin, height, tile_height + spacing):
+            for xpos in range(margin, width, tile_width + spacing):
                 img_part = self._load_image_part(filename, xpos, ypos, \
                                             tile_width, tile_height, colorkey)
                 images.append(img_part)
@@ -247,14 +247,14 @@ class SpriteLayer(object):
             # self.content2D.append([None] * self.num_tiles_y)
 
         self.content2D = [None] * self.num_tiles_y
-        for ypos in xrange(self.num_tiles_y):
+        for ypos in range(self.num_tiles_y):
             self.content2D[ypos] = [None] * self.num_tiles_x
 
         # fill them
         _img_cache = {}
         _img_cache["hits"] = 0
-        for ypos_new in xrange(0, self.num_tiles_y):
-            for xpos_new in xrange(0, self.num_tiles_x):
+        for ypos_new in range(0, self.num_tiles_y):
+            for xpos_new in range(0, self.num_tiles_x):
                 coords = self._get_list_of_neighbour_coord(xpos_new, ypos_new, \
                                         1, self.num_tiles_x, self.num_tiles_y)
                 if coords:
@@ -271,8 +271,8 @@ class SpriteLayer(object):
                     self.content2D[ypos_new][xpos_new] = sprite
         self.bottom_margin = self._bottom_margin
         if __debug__:
-            print '%s: Sprite Cache hits: %d' % \
-                                (self.__class__.__name__, _img_cache["hits"])
+            print('%s: Sprite Cache hits: %d' % \
+                                (self.__class__.__name__, _img_cache["hits"]))
         del _img_cache
 
     def get_collapse_level(self):
@@ -401,8 +401,8 @@ class SpriteLayer(object):
             if new_layer is None:
                 new_layer = SpriteLayer(-2, layer._resource_loader)
 
-            for ypos_new in xrange(0, num_tiles_y):
-                for xpos_new in xrange(0, num_tiles_x):
+            for ypos_new in range(0, num_tiles_y):
+                for xpos_new in range(0, num_tiles_x):
                     sprite = layer.content2D[ypos_new][xpos_new]
                     if sprite:
                         new_sprite = new_layer.content2D[ypos_new][xpos_new]
@@ -469,14 +469,14 @@ class SpriteLayer(object):
         _content2D = [None] * new_num_tiles_y
         # generate the needed lists
 
-        for ypos in xrange(new_num_tiles_y):
+        for ypos in range(new_num_tiles_y):
             _content2D[ypos] = [None] * new_num_tiles_x
 
         # fill them
         _img_cache = {}
         _img_cache["hits"] = 0
-        for ypos_new in xrange(0, new_num_tiles_y):
-            for xpos_new in xrange(0, new_num_tiles_x):
+        for ypos_new in range(0, new_num_tiles_y):
+            for xpos_new in range(0, new_num_tiles_x):
                 coords = SpriteLayer._get_list_of_neighbour_coord(\
                                         xpos_new, ypos_new, level, \
                                         layer.num_tiles_x, layer.num_tiles_y)
@@ -500,7 +500,7 @@ class SpriteLayer(object):
         new_layer._level = layer._level * 2
 
         if __debug__ and level > 1:
-            print '%s: Sprite Cache hits: %d' % ("collapse", _img_cache["hits"])
+            print('%s: Sprite Cache hits: %d' % ("collapse", _img_cache["hits"]))
         return new_layer
 
     @staticmethod
@@ -527,8 +527,8 @@ class SpriteLayer(object):
         ypos = ypos_new * level
 
         coords = []
-        for y in xrange(ypos, ypos + level):
-            for x in xrange(xpos, xpos + level):
+        for y in range(ypos, ypos + level):
+            for x in range(xpos, xpos + level):
                 if x <= num_tiles_x and y <= num_tiles_y:
                     coords.append((x, y))
         return coords
