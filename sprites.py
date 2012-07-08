@@ -176,9 +176,16 @@ class Actor(AnimatedSprite):
 
 	def Attack(self, target):
 		damage = self._Power - target._Defense
-		target._Health = target._Health - damage
-		self.GetExperience(10 + (damage * .1))
+		experience = target.RecieveDamage(damage)
+		self.GetExperience(experience)
 
+	def RecieveDamage(self, damage)
+		self._Health = self._Health - damage
+		if self._Health <= 0:
+			# TODO: Need to get AnimationLayer from somewhere
+			self.Kill(self._AnimationLayer)
+		experience = 10 + (damage * .1)
+		return experience
 
 	def GetExperience(newExperience):
 		self._Experience = self._Experience + newExperience
