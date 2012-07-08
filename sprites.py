@@ -179,7 +179,7 @@ class Actor(AnimatedSprite):
 		experience = target.RecieveDamage(damage)
 		self.GetExperience(experience)
 
-	def RecieveDamage(self, damage)
+	def RecieveDamage(self, damage):
 		self._Health = self._Health - damage
 		if self._Health <= 0:
 			# TODO: Need to get AnimationLayer from somewhere
