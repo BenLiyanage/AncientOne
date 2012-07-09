@@ -13,15 +13,17 @@ from sprites import AnimatedSprite, Actor
 
 import tiledtmxloader #this reads .tmx files
 
-
+#Variables (WARNING: Does not necessarily follow standard python etiquette
 tilesize=32
+#Layers, lower renders first
 baselayer=0
 fringelayer=1
 objectlayer=2
 overhanglayer=3
 collisionlayer=4
+
 MAP="images/map01.tmx"
-#MAP = "images/smallmap.tmx" small map for testing
+#MAP = "images/smallmap.tmx" #small map for testing
 
 #  -----------------------------------------------------------------------------
 
@@ -48,7 +50,6 @@ def main_pygame(file_name):
     # parser the map (it is done here to initialize the
     # window the same size as the map if it is small enough)
     world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file_name)
-
     tilewidth = world_map.pixel_width/tilesize
     tileheight = world_map.pixel_height/tilesize
 
@@ -68,11 +69,14 @@ def main_pygame(file_name):
     screen = pygame.display.set_mode((screen_width, screen_height))
     #screen = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF, 32)
 
-    #Bounds for the camera
+    #Bounds for the camera so it does not go off the map (in pixels)
     cam_world_pos_xmin=0
     cam_world_pos_ymin=0
     cam_world_pos_xmax=world_map.pixel_width-screen_width
     cam_world_pos_ymax=world_map.pixel_height-screen_height
+    # initial camera position
+    cam_world_pos_x = 0
+    cam_world_pos_y = 0
     
     # load the map resources there are several layers, for things the sprite is
     #above, behind and including one for collision
@@ -82,16 +86,12 @@ def main_pygame(file_name):
     # load the cursorbox
     cursorbox= pygame.image.load("images/alpha_box.png")
 
-    
     # prepare map rendering
     assert world_map.orientation == "orthogonal"
 
     # renderer
     renderer = tiledtmxloader.helperspygame.RendererPygame()
 
-    # cam_offset is for scrolling
-    cam_world_pos_x = 0
-    cam_world_pos_y = 0
 
     # set initial cam position and size
     renderer.set_camera_position_and_size(cam_world_pos_x, cam_world_pos_y, \
@@ -100,7 +100,7 @@ def main_pygame(file_name):
     # retrieve the layers
     sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
 
-    # filter layers (A list of all the layers)
+    # Checks if there is a special "Object Layer" which we will not use.
     sprite_layers = [layer for layer in sprite_layers if not layer.is_object_group]
 
     # create hero sprite (temporary until AnimatedSprite is up
@@ -112,14 +112,19 @@ def main_pygame(file_name):
     #adds hero to the right layer
     sprite_layers[objectlayer].add_sprite(hero) #possibly wrong layer
 
+
+    #Loads images and creates Actors
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'princess.png')
-    PrincessSprite = Actor(PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
+    PrincessSprite = Actor(320,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
     Characters = pygame.sprite.RenderUpdates()
     Characters.add(PrincessSprite)
+    #print(PrincessSprite.rect.midbottom)
+    #PrincessSprite._destination=(200,200)
     sprite_layers[objectlayer].add_sprites(Characters)
+    
 
     # variables for the main loop
-    frames_per_sec = 30.0# was 60.0
+    frames_per_sec = 60.0# was 60.0
     clock = pygame.time.Clock()
     running = True
     grid = False #variable controling the gridlines
@@ -129,6 +134,7 @@ def main_pygame(file_name):
     while running:
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
+        disable_inputs=False#Disable mouse+keyboard except for hitting escape
         # event handling
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -140,8 +146,10 @@ def main_pygame(file_name):
             #elif event.type == pygame.KEYDOWN:
             #    if event.key == pygame.K_ESCAPE:#shuts down when you hit escape
             #        running = False
-            if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
+            disable_inputs=False
 
+            if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
+            if disable_inputs: continue
             #print(event.key)#Debugging
 
             #Camera Movement
@@ -149,21 +157,24 @@ def main_pygame(file_name):
             elif event.key == K_a: cam_world_pos_x -=tilesize#left
             elif event.key == K_w: cam_world_pos_y -=tilesize#up
             elif event.key == K_s: cam_world_pos_y +=tilesize#down
-            
+          
             #Hero Movement
             #elif event.key == K_RIGHT: hero_pos_tile_x +=1
-            elif event.key == K_RIGHT:
+            if event.key == K_RIGHT:
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x+1,hero_pos_tile_y)
                 PrincessSprite.Move("Right")
             #elif event.key == K_LEFT: hero_pos_tile_x -=1
             elif event.key == K_LEFT: 
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x-1,hero_pos_tile_y)
+                PrincessSprite.Move("Left")
             #elif event.key == K_UP: hero_pos_tile_y -=1
             elif event.key == K_UP:
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x,hero_pos_tile_y-1)
+                PrincessSprite.Move("Up")
             #elif event.key == K_DOWN: hero_pos_tile_y +=1
             elif event.key == K_DOWN:
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x,hero_pos_tile_y+1)
+                PrincessSprite.Move("Down")
             
             #Take this out later this is strictly for debugging purposes
             
@@ -178,11 +189,12 @@ def main_pygame(file_name):
         #Reading Mouse movements to help with screen scrolling
         #We may need to slow this down.  It is based on the game clock speed
         mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
+        '''
         if mouse_pos_x<tilesize: cam_world_pos_x -=tilesize
         if mouse_pos_y<tilesize: cam_world_pos_y -=tilesize
         if mouse_pos_x>screen_width-tilesize: cam_world_pos_x +=tilesize
         if mouse_pos_y>screen_height-tilesize: cam_world_pos_y +=tilesize
-                
+        '''        
             
         #checks if the camera has gone off the board and moves it back
         if cam_world_pos_x<cam_world_pos_xmin: cam_world_pos_x=cam_world_pos_xmin

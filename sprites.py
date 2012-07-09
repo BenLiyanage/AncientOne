@@ -110,8 +110,8 @@ def load_sliced_sprites(w, h, filename):
 
 
 class Actor(AnimatedSprite):
-	def __init__(self, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
-		super(Actor, self).__init__(MoveDownImages, 50,100)
+	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
+		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y)
                 #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
 		self._MoveLeftImages = MoveLeftImages

@@ -12,7 +12,7 @@ background = pygame.Surface([800,600])
 background.fill([0,0,0]) #'''black background'''
 
 PrincessImageSet = sprites.load_sliced_sprites(64,64,'princess.png')
-PrincessSprite = Actor(PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
+PrincessSprite = Actor(150,100,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
 
 Characters = pygame.sprite.RenderUpdates()
 Characters.add(PrincessSprite)
