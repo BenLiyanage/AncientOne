@@ -52,6 +52,7 @@ def main_pygame(file_name):
     world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file_name)
     tilewidth = world_map.pixel_width/tilesize
     tileheight = world_map.pixel_height/tilesize
+    print("tilewidth:",tilewidth,"tileheight:", tileheight)
 
     # 2d array of the map where collisions
     
@@ -121,7 +122,15 @@ def main_pygame(file_name):
     #print(PrincessSprite.rect.midbottom)
     #PrincessSprite._destination=(200,200)
     sprite_layers[objectlayer].add_sprites(Characters)
-    
+
+    #keep in mind the sample map is 50x50
+    print(sprite_layers[baselayer].content2D[0][0])
+    print(sprite_layers[baselayer].content2D[1][1])
+    print(world_map.layers[0].decoded_content[0])
+    print(world_map.layers[0].decoded_content[50])
+    print(world_map.layers[0].content2D[1][0])
+    print(world_map.layers[0])
+    print("grass" in world_map.named_tile_sets)#this should be something like it!
 
     # variables for the main loop
     frames_per_sec = 60.0# was 60.0
