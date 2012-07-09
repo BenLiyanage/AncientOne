@@ -8,8 +8,8 @@ sys.path.append('/Library/Python/2.6/site-packages/')#this is for phong's comput
 import pygame
 from pygame.locals import*
 
-#import sprites
-#from sprites import AnimatedSprite
+import sprites
+from sprites import AnimatedSprite, Actor
 
 import tiledtmxloader #this reads .tmx files
 
@@ -79,20 +79,12 @@ def main_pygame(file_name):
     resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
     resources.load(world_map)
 
-    # load the sprites
-    #PrincessImages = sprites.load_sliced_sprites(64,64,'images/princess-front.png')
-    #PrincessSprite = AnimatedSprite(PrincessImages, 5*tilesize-16, 12*tilesize-32)
-    #PrincessSprite = AnimatedSprite(PrincessImages, 100, 100)
-    #PrincessSprite = PrincessImages[0]
-
     # load the cursorbox
     cursorbox= pygame.image.load("images/alpha_box.png")
 
     
     # prepare map rendering
     assert world_map.orientation == "orthogonal"
-
-    
 
     # renderer
     renderer = tiledtmxloader.helperspygame.RendererPygame()
@@ -111,11 +103,6 @@ def main_pygame(file_name):
     # filter layers (A list of all the layers)
     sprite_layers = [layer for layer in sprite_layers if not layer.is_object_group]
 
-    # Characters Commented out until AnimatedSprite talks to tiledtmxloader 
-    #Characters = pygame.sprite.RenderUpdates()
-    #Characters.add(PrincessSprite)
-
-
     # create hero sprite (temporary until AnimatedSprite is up
     hero_pos_tile_x=14
     hero_pos_tile_y=10
@@ -124,6 +111,12 @@ def main_pygame(file_name):
     hero = create_hero(hero_pos_x, hero_pos_y)#creates a "hero" at the associated position.
     #adds hero to the right layer
     sprite_layers[objectlayer].add_sprite(hero) #possibly wrong layer
+
+    PrincessImageSet = sprites.load_sliced_sprites(64,64,'princess.png')
+    PrincessSprite = Actor(PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
+    Characters = pygame.sprite.RenderUpdates()
+    Characters.add(PrincessSprite)
+    sprite_layers[objectlayer].add_sprites(Characters)
 
     # variables for the main loop
     frames_per_sec = 30.0# was 60.0
@@ -161,6 +154,7 @@ def main_pygame(file_name):
             #elif event.key == K_RIGHT: hero_pos_tile_x +=1
             elif event.key == K_RIGHT:
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x+1,hero_pos_tile_y)
+                PrincessSprite.Move("Right")
             #elif event.key == K_LEFT: hero_pos_tile_x -=1
             elif event.key == K_LEFT: 
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x-1,hero_pos_tile_y)
@@ -227,6 +221,7 @@ def main_pygame(file_name):
                 # you should filter them out if not needed
                 continue
             else:
+                Characters.update(time)
                 renderer.render_layer(screen, sprite_layer)
 
 

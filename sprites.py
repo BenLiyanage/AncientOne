@@ -1,8 +1,10 @@
 import pygame
-
-class AnimatedSprite(pygame.sprite.Sprite):
-	def __init__(self, images, x, y, fps = 10):
-		pygame.sprite.Sprite.__init__(self)
+import tiledtmxloader
+#class AnimatedSprite(pygame.sprite.Sprite):
+class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modification
+	def __init__(self, images, x, y, fps = 10):             
+		#pygame.sprite.Sprite.__init__(self)
+                tiledtmxloader.helperspygame.SpriteLayer.Sprite.__init__(self,x,y)#PLE
 		self._images = images
 
 		# Track the time we started, and the time between updates.
@@ -26,7 +28,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
 		self._destination = pygame.Rect(x, y, self._height, self._width)
 
 
-		print "finisted loading AnimatedSprite"
+		print "finished loading AnimatedSprite"
 
 	def update(self, t):
 		# Note that this doesn't work if it's been more that self._delay
@@ -79,7 +81,8 @@ class AnimatedSprite(pygame.sprite.Sprite):
 		self._images = imageSet
 		self._postAnimationAction = postAnimationAction
 		self._frame = -1; #next update will force a redraw of the first frame
-		
+
+
 
 
 def load_sliced_sprites(w, h, filename):
@@ -109,7 +112,7 @@ def load_sliced_sprites(w, h, filename):
 class Actor(AnimatedSprite):
 	def __init__(self, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
 		super(Actor, self).__init__(MoveDownImages, 50,100)
-
+                #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
 		self._MoveLeftImages = MoveLeftImages
 		self._MoveUpImages = MoveUpImages
@@ -126,26 +129,29 @@ class Actor(AnimatedSprite):
 		self._MaxHealth = MaxHealth
 		self._Initiative = 0
 		self._Actions = {}
-
-
+		
+		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
+                self.tilesize=32
+                
 		self.RegisterAction("wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
-	
+
+        
 	def Move(self, direction):
 		if not self._MidAnimation:
 			self._MidAnimation = 1;
 				# TODO Need to accomodate for centering on the screen/not centering on the screen
 			if direction == "Left":
 				self._images = self._MoveLeftImages
-				self._destination.move_ip(-64, 0)
+				self._destination.move_ip(-self.tilesize, 0)
 			elif direction == "Up":
 				self._images = self._MoveUpImages
-				self._destination.move_ip(0, -64)
+				self._destination.move_ip(0, -self.tilesize)
 			elif direction == "Down":
 				self._images = self._MoveDownImages
-				self._destination.move_ip(0, +64)
+				self._destination.move_ip(0, +self.tilesize)
 			elif direction == "Right":
 				self._images = self._MoveRightImages
-				self._destination.move_ip(64, 0)
+				self._destination.move_ip(self.tilesize, 0)
 
 	def RegisterAction(self, actionName, actionDescription, actionMethod, actionAnimation, actionSkillLevel=-1):
 
@@ -199,6 +205,13 @@ class Actor(AnimatedSprite):
 			HealthBonus = self._MaxHealth + 10 + (self._MaxHealth * .1)
 			self._MaxHealth = self._MaxHealth + HealthBonus
 			self._Health = self._Health + HealthBonus
+
+# These need to be in any extension of the Sprite Class.  see http://www.pygame.org/docs/tut/SpriteIntro.html .(PLE)
+        def add_internal(self, group):
+                self.__g[group] = 0
+
+        def remove_internal(self, group):
+                del self.__g[group]
 
 '''
 	def update(self, t):
