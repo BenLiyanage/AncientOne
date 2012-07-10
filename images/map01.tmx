@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="32" tileheight="32">
+ <properties>
+  <property name="MoveCost" value="99"/>
+ </properties>
  <tileset firstgid="1" name="grass" tilewidth="32" tileheight="32">
   <image source="grass.png" width="96" height="192"/>
   <tile id="10">
@@ -52,6 +55,9 @@
   <image source="base_assets/treetop.png" width="192" height="224"/>
  </tileset>
  <layer name="ground" width="50" height="50">
+  <properties>
+   <property name="MoveCost" value="21"/>
+  </properties>
   <data encoding="base64" compression="zlib">
    eJztzzENACAQBMH3Q4Ek/LugwgEJx2eK6XdHVc0GRkADAAAAwE9WQMOtj+N1y62Pn186PPjI4yOLDwAAAJJtARHQdA==
   </data>

@@ -1,11 +1,11 @@
-
-
 import sys
 import os
 import array
-import math
-sys.path.append('/Library/Python/2.6/site-packages/')#this is for phong's computer
+import numpy
 import pygame
+import collision
+from collision import CollisionFinder
+
 from pygame.locals import*
 
 import sprites
@@ -52,7 +52,7 @@ def main_pygame(file_name):
     world_map = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file_name)
     tilewidth = world_map.pixel_width/tilesize
     tileheight = world_map.pixel_height/tilesize
-    print("tilewidth:",tilewidth,"tileheight:", tileheight)
+    #print("tilewidth:",tilewidth,"tileheight:", tileheight)
 
     # 2d array of the map where collisions
     
@@ -115,22 +115,22 @@ def main_pygame(file_name):
 
 
     #Loads images and creates Actors
-    PrincessImageSet = sprites.load_sliced_sprites(64,64,'princess.png')
-    PrincessSprite = Actor(320,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
     Characters = pygame.sprite.RenderUpdates()
+    #Obligatory Female Supporting Character (with sassyness!)
+    PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
+    PrincessSprite = Actor(320+16,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
     Characters.add(PrincessSprite)
-    #print(PrincessSprite.rect.midbottom)
-    #PrincessSprite._destination=(200,200)
+
+    #Bebop's Legacy
+    PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
+    PigSprite = Actor(352+16,320,PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 0, 0, 0)
+    Characters.add(PigSprite)
+    
     sprite_layers[objectlayer].add_sprites(Characters)
 
-    #keep in mind the sample map is 50x50
-    print(sprite_layers[baselayer].content2D[0][0])
-    print(sprite_layers[baselayer].content2D[1][1])
-    print(world_map.layers[0].decoded_content[0])
-    print(world_map.layers[0].decoded_content[50])
-    print(world_map.layers[0].content2D[1][0])
-    print(world_map.layers[0])
-    print("grass" in world_map.named_tile_sets)#this should be something like it!
+
+    Collider= CollisionFinder(sprite_layers)
+    print(Collider.PossibleMoves(3,3,2))
 
     # variables for the main loop
     frames_per_sec = 60.0# was 60.0
@@ -252,16 +252,6 @@ def main_pygame(file_name):
                 pygame.draw.line(screen, (0,0,0), (i*tilesize,0),(i*tilesize,world_map.pixel_width))
             for j in range(tileheight):#draw horizontal lines
                 pygame.draw.line(screen, (20,0,20), (0,j*tilesize),(world_map.pixel_height,j*tilesize))
-
-
-
-
-
- 
-        #Characters.clear(screen, background)
-        
-        #Characters.update(time)
-        
     
 
         #Text
