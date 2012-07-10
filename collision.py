@@ -27,11 +27,11 @@ class CollisionFinder(object):
             for diry in (-1 , 0,1):
                 for dirx in (-1,0, 1):
                     #print("checking",tile_x+dirx,tile_y + diry)
-                    if self._coll_layer.content2D[tile_y + diry][tile_x + dirx] is None and movement_value>0:
+                    look_tile=self._coll_layer.content2D[tile_y + diry][tile_x + dirx]
+                    if look_tile is None and movement_value>0 and [tile_x + dirx,tile_y + diry] not in tile_rects:
                         tile_rects.append([tile_x + dirx, tile_y + diry])
-                        return tile_rects+self.PossibleMoves(tile_x + dirx, tile_y + diry, movement_value-1)
-                    else:
-                        return tile_rects
+                        tile_rects+self.PossibleMoves(tile_x + dirx, tile_y + diry, movement_value-1)
+            return tile_rects
 
     #makes a path
     #def pathlist
