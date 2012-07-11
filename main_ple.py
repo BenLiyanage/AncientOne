@@ -139,16 +139,18 @@ def main_pygame(file_name):
 
     #collision 
     Collider= CollisionFinder(sprite_layers)
-    moves=Collider.PossibleMoves(14,10,3)
-    print("number of possible moves:",len(moves))
-    WalkBox=pygame.sprite.RenderUpdates()
-    #print(moves[0][0])
+    moves=Collider.PathList(14,10,5)
+    #moves=Collider.PossibleMovesPath(14,10,3)
+    #print("number of possible moves:",len(moves))
+    #WalkBox=pygame.sprite.RenderUpdates()
+    #for m in moves:
+    #    print(m)
     for i in range(len(moves)):
        BoxImage=pygame.image.load("images/alpha_box.png")
        BoxRect=BoxImage.get_rect()
        BoxRect.midbottom=(moves[i][0]*tilesize+tilesize/2,moves[i][1]*tilesize+tilesize)
        sprite_layers[overhanglayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
-      
+  
     #print(Collider.PossibleMoves(3,3,2))
 
 
