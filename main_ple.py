@@ -105,8 +105,8 @@ def main_pygame(file_name):
 
 
     # create hero sprite (We will leave this for debugging
-    hero_pos_tile_x=14
-    hero_pos_tile_y=10
+    hero_pos_tile_x=12
+    hero_pos_tile_y=9
     hero_pos_x = hero_pos_tile_x*tilesize+tilesize/2
     hero_pos_y = hero_pos_tile_y*tilesize+tilesize
     hero = create_hero(hero_pos_x, hero_pos_y)#creates a "hero" at the associated position.
@@ -130,21 +130,19 @@ def main_pygame(file_name):
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor(352+16,320,PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 0, 0, 0)
+    PigSprite = Actor((12-.5)*tilesize, (11-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 0, 0, 0)
     Characters.add(PigSprite)
     sprite_layers[objectlayer].add_sprites(Characters)
-
-
-    #print(Characters.sprites()[0].rect.y)
-
+ 
     #collision 
-    Collider= CollisionFinder(sprite_layers)
-    moves=Collider.PathList(14,10,5)
+    Collider= CollisionFinder(Characters, sprite_layers)
+    moves=Collider.PathList(11,10,5)
     #moves=Collider.PossibleMovesPath(14,10,3)
     #print("number of possible moves:",len(moves))
     #WalkBox=pygame.sprite.RenderUpdates()
     #for m in moves:
     #    print(m)
+    #marks spots that can be visited.
     for i in range(len(moves)):
        BoxImage=pygame.image.load("images/alpha_box.png")
        BoxRect=BoxImage.get_rect()
@@ -224,12 +222,12 @@ def main_pygame(file_name):
         #Reading Mouse movements to help with screen scrolling
         #We may need to slow this down.  It is based on the game clock speed
         mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
-        '''
+        
         if mouse_pos_x<tilesize: cam_world_pos_x -=tilesize
         if mouse_pos_y<tilesize: cam_world_pos_y -=tilesize
         if mouse_pos_x>screen_width-tilesize: cam_world_pos_x +=tilesize
         if mouse_pos_y>screen_height-tilesize: cam_world_pos_y +=tilesize
-        '''        
+               
             
         #checks if the camera has gone off the board and moves it back
         if cam_world_pos_x<cam_world_pos_xmin: cam_world_pos_x=cam_world_pos_xmin

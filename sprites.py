@@ -19,10 +19,13 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		self._MidAnimation = 0
 		self._revertImageOnAnimationComplete = 0
 		self._postAnimationAction = ""
-
 		self.image = self._images[0]
 		self._height = self.image.get_height()
-		self._width = self.image.get_width() 
+		self._width = self.image.get_width()
+
+		self._tilesize=32
+		self.tile_x=int((x+self._tilesize/2) //self._tilesize)
+                self.tile_y=int((y+self._tilesize) //self._tilesize)
 
 		self.rect = pygame.Rect(x, y, self._height, self._width)
 		self._destination = pygame.Rect(x, y, self._height, self._width)
@@ -131,7 +134,7 @@ class Actor(AnimatedSprite):
 		self._Actions = {}
 		
 		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
-                self.tilesize=32
+                
                 
 		self.RegisterAction("wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
 
@@ -142,16 +145,16 @@ class Actor(AnimatedSprite):
 				# TODO Need to accomodate for centering on the screen/not centering on the screen
 			if direction == "Left":
 				self._images = self._MoveLeftImages
-				self._destination.move_ip(-self.tilesize, 0)
+				self._destination.move_ip(-self._tilesize, 0)
 			elif direction == "Up":
 				self._images = self._MoveUpImages
-				self._destination.move_ip(0, -self.tilesize)
+				self._destination.move_ip(0, -self._tilesize)
 			elif direction == "Down":
 				self._images = self._MoveDownImages
-				self._destination.move_ip(0, +self.tilesize)
+				self._destination.move_ip(0, +self._tilesize)
 			elif direction == "Right":
 				self._images = self._MoveRightImages
-				self._destination.move_ip(self.tilesize, 0)
+				self._destination.move_ip(self._tilesize, 0)
 
 	def RegisterAction(self, actionName, actionDescription, actionMethod, actionAnimation, actionSkillLevel=-1):
 
