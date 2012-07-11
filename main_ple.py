@@ -3,7 +3,7 @@ import os
 import array
 import pygame
 import collision
-from collision import CollisionFinder
+from collision import CollisionFinder, PopBestPath
 
 from pygame.locals import*
 
@@ -17,9 +17,10 @@ tilesize=32
 #Layers, lower renders first
 baselayer=0
 fringelayer=1
-objectlayer=2
-overhanglayer=3
-collisionlayer=4
+shadowlayer=2
+objectlayer=3
+overhanglayer=4
+collisionlayer=5
 
 global cam_world_pos_xmin, cam_world_pos_xmax, cam_world_pos_ymin, cam_world_pos_ymax, cam_world_pos_x, cam_world_pos_y
 
@@ -125,31 +126,30 @@ def main_pygame(file_name):
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor(320+16,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
+    PrincessSprite = Actor(320+16,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 3, 0)
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((12-.5)*tilesize, (11-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 0, 0, 0)
+    PigSprite = Actor((23-.5)*tilesize, (10-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 0, 6, 0)
     Characters.add(PigSprite)
     sprite_layers[objectlayer].add_sprites(Characters)
- 
-    #collision 
+
+    
+    ''' 
+    #Crash testing
     Collider= CollisionFinder(Characters, sprite_layers)
-    moves=Collider.PathList(11,10,5)
+    moves=Collider.PathList(11,10,3)
+    DrawPossibleMoves(moves,objectlayer,sprite_layers)
     #moves=Collider.PossibleMovesPath(14,10,3)
     #print("number of possible moves:",len(moves))
     #WalkBox=pygame.sprite.RenderUpdates()
     #for m in moves:
     #    print(m)
-    #marks spots that can be visited.
-    for i in range(len(moves)):
-       BoxImage=pygame.image.load("images/alpha_box.png")
-       BoxRect=BoxImage.get_rect()
-       BoxRect.midbottom=(moves[i][0]*tilesize+tilesize/2,moves[i][1]*tilesize+tilesize)
-       sprite_layers[overhanglayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
-  
-    #print(Collider.PossibleMoves(3,3,2))
+    #print(PopBestPath(10, 8, moves))#testing out moves
+    #Temporary: marks spots that can be visited.
+    DrawPossibleMoves(moves,objectlayer,sprite_layers)
+    '''
 
 
     # mainloop variables
@@ -158,6 +158,12 @@ def main_pygame(file_name):
     running = True
     grid = False #variable controling the gridlines
     keypressed = "No Key Pressed"
+    path_drawn=False#checks if there is a path already drawn.
+    CurrentSprite=[] #DEBUG for now we start with the princess sprite
+
+    #these are mostly for animations.
+    DisableKeyboard=False
+    EnableMouse=True
 
     # mainloop
     while running:
@@ -165,8 +171,6 @@ def main_pygame(file_name):
         time = pygame.time.get_ticks()
         disable_inputs=False#Disable mouse+keyboard except for hitting escape
         # event handling
-
-        
         
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -218,16 +222,59 @@ def main_pygame(file_name):
             hero.rect.midbottom = (hero_pos_x, hero_pos_y)
 
             ##END KEYLOGGING
-            
-        #Reading Mouse movements to help with screen scrolling
-        #We may need to slow this down.  It is based on the game clock speed
+
+        ##BEGIN MOUSELOGGING
         mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
+        x_tile, y_tile = (mouse_pos_x//tilesize), (mouse_pos_y//tilesize)
         
+        if pygame.mouse.get_pressed()[0] and EnableMouse:
+            
+            print("Mouse button 1 is pressed at:",x_tile, y_tile)
+            if path_drawn==False:
+                #If no path is drawn then look to see if a character was clicked on
+                for actor in Characters:               
+                    if actor.tile_x==x_tile and actor.tile_y==y_tile:
+                        CurrentSprite=actor
+                        path_drawn=True
+                        Collider= CollisionFinder(Characters, sprite_layers)
+                        moves=Collider.PathList(x_tile,y_tile,actor._Movement)
+                        DrawPossibleMoves(moves,shadowlayer,sprite_layers)
+                        print("Found Someone!")
+            #If there is already a map drawn, then we want to tell the focused actor to walk there.
+            elif actor.tile_x==x_tile and actor.tile_y==y_tile:
+                pass
+                #do something else like maybe a menu screen
+            else:
+                #look to see if you are away from the path
+                path = PopBestPath(x_tile, y_tile, moves)
+                if path== []:#no path found then erase path and start over
+                    
+                    ClearLayer(shadowlayer,sprite_layers)
+                    path_drawn=False
+                else:
+                    EnableMouse=False
+                    #print(path)
+                    for i in path:
+                        CurrentSprite.Move(i)
+                        print(i)
+                        Characters.update(time)
+                        renderer.render_layer(screen, sprite_layer)
+                    print(CurrentSprite.tile_x, CurrentSprite.tile_y)
+                    EnableMouse=True
+                    path_drawn=False
+                    ClearLayer(shadowlayer,sprite_layers)
+                    CurrentSprite=[]#resets again
+                    #pass
+                    #for i in PopBestPath(x_tile, y_tile, moves):
+                    #actor
+                
+        '''
+        #Mouse moves the camera at the end of the screen
         if mouse_pos_x<tilesize: cam_world_pos_x -=tilesize
         if mouse_pos_y<tilesize: cam_world_pos_y -=tilesize
         if mouse_pos_x>screen_width-tilesize: cam_world_pos_x +=tilesize
         if mouse_pos_y>screen_height-tilesize: cam_world_pos_y +=tilesize
-               
+        '''       
             
         #checks if the camera has gone off the board and moves it back
         if cam_world_pos_x<cam_world_pos_xmin: cam_world_pos_x=cam_world_pos_xmin
@@ -235,16 +282,11 @@ def main_pygame(file_name):
         if cam_world_pos_x>cam_world_pos_xmax: cam_world_pos_x=cam_world_pos_xmax
         if cam_world_pos_y>cam_world_pos_ymax: cam_world_pos_y=cam_world_pos_ymax
          
-    # Reading the Mouse
-        #mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
-        x_tile, y_tile = tilesize*(mouse_pos_x//tilesize), tilesize*(mouse_pos_y//tilesize)
-        
-        
     # Text (Mostly for Debugging)
         label =myfont.render(" 'Working Title: Ancient Juan' ",1,(0,255,255))
         coordinates = myfont.render("Mouse Coordinates:("+str(mouse_pos_x)+","+str(mouse_pos_y)+")",1, (255,255,255))
         tilecoordinates = myfont.render("Tile Coordinates:("+str(int(mouse_pos_x/tilesize))+","+str(int(mouse_pos_y/tilesize))+")",1, (255,255,255))
-        gameclock = myfont.render("Game clock:"+str(time),1,(0,255,0))
+        #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
 
 
         #RENDERING PHASE (Make sure you are adding the right element to the right layer)
@@ -278,10 +320,10 @@ def main_pygame(file_name):
         screen.blit(label, (32,0))
         screen.blit(coordinates, (32,32))
         screen.blit(tilecoordinates, (32,64))
-        screen.blit(gameclock,(32,96))
+        #screen.blit(gameclock,(32,96))
 
         #cursorbox
-        screen.blit(cursorbox, (x_tile,y_tile))
+        screen.blit(cursorbox, (tilesize*x_tile,tilesize*y_tile))
 
         #Draw stuff
         pygame.display.flip()
@@ -322,11 +364,26 @@ def camerafocus(start_x, start_y, end_x, end_y,steps): #moves the camera slowly 
     #if cam_world_pos_y<cam_world_pos_ymin: cam_world_pos_y=cam_world_pos_ymin
     #if cam_world_pos_x>cam_world_pos_xmax: cam_world_pos_x=cam_world_pos_xmax
     #if cam_world_pos_y>cam_world_pos_ymax: cam_world_pos_y=cam_world_pos_ymax
-  
-
+#  -----------------------------------------------------------------------------
+def DrawPossibleMoves(moves, layer,sprite_layers):
+    for i in range(len(moves)):
+        BoxImage=pygame.image.load("images/alpha_box.png")
+        BoxRect=BoxImage.get_rect()  
+        BoxRect.midbottom=(moves[i][0]*tilesize+tilesize/2,moves[i][1]*tilesize+tilesize)#again we need to translate 
+        sprite_layers[layer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
     
 #  -----------------------------------------------------------------------------
 
+def ClearLayer(old_layer, sprite_layers):
+    
+    #reset_layers=tiledtmxloader.helperspygame.get_layers_from_map(resources)
+    #reset_layers = [layer for layer in sprite_layers if not layer.is_object_group]
+    #sprite_layers[old_layer]=reset_layers[old_layer]
+
+    #for sprite in sprite_layers[old_layer].sprites:
+    #    sprite_layers[old_layer].sprites.remove(sprite)
+
+    sprite_layers[old_layer].sprites=[]
 if __name__ == '__main__':
 
     main()

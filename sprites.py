@@ -74,6 +74,10 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 				self._frame = 0
 		    	self.image = self._images[self._frame]
 		    	self._lastImageRotation = t
+                        
+		    	#Updates the tile coordinates (with the offset)
+			self.tile_x=int((self.rect.x+self._tilesize/2) //self._tilesize)
+                        self.tile_y=int((self.rect.y+self._tilesize) //self._tilesize)	    	
 
 	def setImageSet(self, imageSet, postAnimationAction):
 

@@ -6,9 +6,10 @@ class CollisionFinder(object):
         self.tilesize=32 
         self.baselayer=0
         self.fringelayer=1
-        self.objectlayer=2
-        self.overhanglayer=3
-        self.collisionlayer=4
+        self.shadowlayer=2
+        self.objectlayer=3
+        self.overhanglayer=4
+        self.collisionlayer=5
         self._characters=characters
         self.layers=layers
         self._coll_layer=layers[self.collisionlayer]
@@ -39,8 +40,11 @@ class CollisionFinder(object):
 
             for (dirx,diry) in [(1,0), (-1,0), (0,1), (0,-1)]:
                 isClear = self._coll_layer.content2D[tile_y+diry][tile_x + dirx] is None
-                
-                isFree =  self._obj_layer.content2D[tile_y+diry][tile_x + dirx] is None
+                isFree=True
+                for actor in self._characters:
+                    if actor.tile_x==tile_x + dirx and actor.tile_y==tile_y + diry:
+                        isFree=False
+                    #isFree =  self._obj_layer.content2D[tile_y+diry][tile_x + dirx] is None
                 #print("from",(tile_x,tile_y),"look if",(dirx,diry), "isClear is:", isClear)
                 isEfficient=True
                 #checks if there was a previously discovered more expensive path, which it will remove
@@ -92,19 +96,26 @@ def cleanPathList(path_list):#removes bad entries from a list
     return new_list
             
     
-#def popBestPath(x,y,path_list): returns a list of directions that is the best way to get to x,y from a list.
-
-#def combinePathLists(list1, list2):
-    #the function combines two pathlists whose entries look like #(endx,endy,cost,directionslist)
-    #this looks through both lists and finds the entries that are most efficient pathways
-#    newlist=[]
+def PopBestPath(x,y,path_list): #returns a list of directions that is the best way to get to x,y from a list.
+    #first find it
+    path=[]
+    for i in path_list:
+        if x==i[0] and y==i[1]:
+            path=i[3]
+    #return path
+    #then turn it into "(1,0), (-1,0), (0,1), (0,-1)" -> ("Right","Left", "Down", "Up")    
+    if path !=[]:
+        for n, j in enumerate(path):
+            if j==(1,0):
+                path[n]="Right"
+            elif j==(-1,0):
+                path[n]="Left"
+            elif j==(0,1):
+                path[n]="Down"
+            elif j==(0,-1):
+                path[n]="Up"
+            else:
+                print("Error in PopBestPath list translation. Found a ",j,"at", n)
+    return path
     
-
-    
-    
-            
-            
-
-    #makes a path
-    #def pathlist
 
