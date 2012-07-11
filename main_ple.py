@@ -225,7 +225,7 @@ def main_pygame(file_name):
 
         ##BEGIN MOUSELOGGING
         mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
-        x_tile, y_tile = (mouse_pos_x//tilesize), (mouse_pos_y//tilesize)
+        x_tile, y_tile = (mouse_pos_x+cam_world_pos_x)//tilesize, (mouse_pos_y+cam_world_pos_x)//tilesize
         
         if pygame.mouse.get_pressed()[0] and EnableMouse:
             
@@ -240,6 +240,7 @@ def main_pygame(file_name):
                         moves=Collider.PathList(x_tile,y_tile,actor._Movement)
                         DrawPossibleMoves(moves,shadowlayer,sprite_layers)
                         print("Found Someone!")
+                        #cam_world_pos_x, cam_world_pos_y = actor.tile_x, actor.tile_y# should move this to a smoother transition later
             #If there is already a map drawn, then we want to tell the focused actor to walk there.
             elif actor.tile_x==x_tile and actor.tile_y==y_tile:
                 pass
@@ -285,7 +286,8 @@ def main_pygame(file_name):
     # Text (Mostly for Debugging)
         label =myfont.render(" 'Working Title: Ancient Juan' ",1,(0,255,255))
         coordinates = myfont.render("Mouse Coordinates:("+str(mouse_pos_x)+","+str(mouse_pos_y)+")",1, (255,255,255))
-        tilecoordinates = myfont.render("Tile Coordinates:("+str(int(mouse_pos_x/tilesize))+","+str(int(mouse_pos_y/tilesize))+")",1, (255,255,255))
+        tilecoordinates = myfont.render("Tile Coordinates:("+str(x_tile)+","+str(y_tile)+")",1, (255,255,255))
+        cameracoords = myfont.render("Camera Coordinates:("+str(cam_world_pos_x)+","+str(cam_world_pos_y)+")",1,(255,100,255))
         #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
 
 
@@ -320,10 +322,10 @@ def main_pygame(file_name):
         screen.blit(label, (32,0))
         screen.blit(coordinates, (32,32))
         screen.blit(tilecoordinates, (32,64))
-        #screen.blit(gameclock,(32,96))
+        screen.blit(cameracoords,(32,96))
 
         #cursorbox
-        screen.blit(cursorbox, (tilesize*x_tile,tilesize*y_tile))
+        screen.blit(cursorbox, (tilesize*(x_tile)-cam_world_pos_x,tilesize*(y_tile)-cam_world_pos_x))
 
         #Draw stuff
         pygame.display.flip()
