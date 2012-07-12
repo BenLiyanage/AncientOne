@@ -64,7 +64,8 @@ class CollisionFinder(object):
                     #if (tile_x + dirx, tile_y+diry,movement_value-1,dirs+[(dirx,diry)]) not in tile_rects:
                     #    tile_rects.append((tile_x + dirx, tile_y+diry,movement_value-1,dirs+[(dirx,diry)]))
 
-                    tile_rects=tile_rects+self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
+                    #tile_rects=tile_rects+self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
+                    tile_rects=cleanPathList(tile_rects+self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)]))
 
                     #currently the "+" above does not clean out less efficient paths,  we need to do this, the below code tries to do this but is too messy
                     #new_branch=self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])

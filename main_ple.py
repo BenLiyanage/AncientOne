@@ -15,12 +15,12 @@ import tiledtmxloader #this reads .tmx files
 #Variables (WARNING: Does not necessarily follow standard python etiquette)
 tilesize=32
 #Layers, lower renders first
-baselayer=0
-fringelayer=1
-shadowlayer=2
-objectlayer=3
-overhanglayer=4
-collisionlayer=5
+baselayer=0 # the ground
+fringelayer=1 #grass etc
+shadowlayer=2 # mostly to render below Actors but above the ground
+objectlayer=3 #where the Actors (Characters) go
+overhanglayer=4 # things that render over the characters
+collisionlayer=5 #in the release version this will be invisible, (Red Blocks)
 
 initiative_threshold = 50# When someone's initiative is above this cutoff their turn is up.  We just need this to be much bigger than anyone's speed.
 
@@ -131,12 +131,12 @@ def main_pygame(file_name):
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor(320+16,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 2, 3, 0)
+    PrincessSprite = Actor(320+16,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 2, 6, 0)
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((23-.5)*tilesize, (10-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 4, 0)
+    PigSprite = Actor((23-.5)*tilesize, (10-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 5, 0)
     Characters.add(PigSprite)
     sprite_layers[objectlayer].add_sprites(Characters)
 
@@ -151,11 +151,11 @@ def main_pygame(file_name):
     CurrentSprite=[] #this is a basic way to track the current turn
 
     #these are mostly for animations.
-    EnableKeyboard=False
+    EnableKeyboard=True
     EnableMouse=True
     GameTimerOn=True
 
-    # mainloop
+    ##The Main Game Loop 
     while running:
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
@@ -164,6 +164,7 @@ def main_pygame(file_name):
                 #print("We are in the Middle of Animation")
                 EnableKeyboard=False
                 EnableMouse=False
+                clock.tick(frames_per_sec)
             elif actor._MidAnimation==0:
                 EnableKeyboard=True
                 EnableMouse=True
@@ -279,7 +280,8 @@ def main_pygame(file_name):
                     EnableMouse=False#this is a bit redundant and possibly dangerous
                     print(path)
                     for i in path:
-                       CurrentSprite.Move(i)#somehow this only makes the first move.  I think we have to wait somehow                              
+                       CurrentSprite.Move(i)#somehow this only makes the first move.  I think we have to wait somehow
+                       clock.tick(frames_per_sec)
                     #print(CurrentSprite.tile_x, CurrentSprite.tile_y)
                     #EnableMouse=True
                     path_drawn=False
