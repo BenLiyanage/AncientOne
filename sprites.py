@@ -146,7 +146,7 @@ class Actor(AnimatedSprite):
 	def Move(self, direction):
 		if not self._MidAnimation:
 			self._MidAnimation = 1;
-				# TODO Need to accomodate for centering on the screen/not centering on the screen
+				# TODO Need to accomodate for centering on the screen/not centering on the screen. PLE-made some adjustment in the gameboard to fix this
 			if direction == "Left":
 				self._images = self._MoveLeftImages
 				self._destination.move_ip(-self._tilesize, 0)
