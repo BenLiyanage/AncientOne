@@ -223,12 +223,7 @@ def main_pygame(file_name):
             elif event.key == K_d: cam_world_pos_x +=tilesize #right
             elif event.key == K_a: cam_world_pos_x -=tilesize#left
             elif event.key == K_w: cam_world_pos_y -=tilesize#up
-            elif event.key == K_s: cam_world_pos_y +=tilesize#down
-
-            elif pressedkeys[K_w]:
-                print(pressedkeys)
-          
-    
+            elif event.key == K_s: cam_world_pos_y +=tilesize#down    
 
             #Debugging. If you need to take manual control of a sprite here is how you do it
             '''
@@ -248,17 +243,28 @@ def main_pygame(file_name):
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x,hero_pos_tile_y+1)
                 PrincessSprite.Move("Down")
             '''        
+
+            if event.key == K_RIGHT:
+                pygame.mouse.set_pos([mouse_pos_x+tilesize, mouse_pos_y])
+            elif event.key == K_LEFT:
+                pygame.mouse.set_pos([mouse_pos_x-tilesize, mouse_pos_y])
+            elif event.key == K_UP:
+                pygame.mouse.set_pos([mouse_pos_x, mouse_pos_y-tilesize])
+            elif event.key == K_DOWN:
+                pygame.mouse.set_pos([mouse_pos_x, mouse_pos_y+tilesize])
             
             #Take this out later this is strictly for debugging purposes            
             if event.key ==K_g: grid= not grid #this toggles the grid
 
 
+            if pressedkeys[K_RETURN]:
+                print("Enter Hit")
             ##END KEYLOGGING
 
         ##BEGIN MOUSELOGGING
 
         
-        if pygame.mouse.get_pressed()[0] and EnableMouse:
+        if (pygame.mouse.get_pressed()[0] and EnableMouse) or (pressedkeys[K_RETURN]):
             #print("Mouse button 1 is pressed at:",tile_x, tile_y)
             '''
                 #If no path is drawn then look to see if a character was clicked on
@@ -291,38 +297,27 @@ def main_pygame(file_name):
                     arget_tile_y = tile_y
                     ClearLayer(shadowlayer,sprite_layers)
                     EnableMouse=False#this is a bit redundant and possibly dangerous
-                    print(path)
+                    #print(path)
                     path.reverse()#since pop() pulls the last element
                     nextmove=path.pop()
                     
-                    print("popped", nextmove)
+                    #print("popped", nextmove)
                     CurrentSprite.Move(nextmove)
                     
-                    while path != []:
-                        print("The path is nonempty. Look:",path)
-                        #waittimer=1000#int(1000/frames_per_sec)
-                        while CurrentSprite._MidAnimation==1:# and waittimer>0:
-                            #waittimer -=1
-                            #print("tick")
+                    while path != []:   
+                        while CurrentSprite._MidAnimation==1:
                             clock.tick(frames_per_sec)
                             time = pygame.time.get_ticks()
                             Characters.update(time)                            
                             for sprite_layer in sprite_layers:
                                 renderer.render_layer(screen, sprite_layer)
                             pygame.display.flip()
-                            #print(CurrentSprite.tile_x, CurrentSprite.tile_y)
                         nextmove=path.pop()
                         CurrentSprite.Move(nextmove)
-                        print("popped", nextmove)
 
                     EnableMouse=True
                     
                     GameTimerOn=True
-                    
-                    #CurrentSprite=[]#resets again
-                    #pass
-                    #for i in PopBestPath(tile_x, tile_y, moves):
-                    #actor
                 
         '''
         #Mouse moves the camera at the end of the screen
