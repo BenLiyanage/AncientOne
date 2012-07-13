@@ -64,20 +64,22 @@ def main_pygame(file_name):
     tileheight = world_map.pixel_height // tilesize
     #print("tilewidth:",tilewidth,"tileheight:", tileheight)
 
-    #Bounds for the camera so it does not go off the map (in pixels)
-    cam_world_pos_xmin=0
-    cam_world_pos_ymin=0
+    #Bounds for the camera so it does not go off the map (in pixels)  Note the camera coordinate is always the top left so plan accordingly
+    cam_world_pos_xmin= 0
+    cam_world_pos_ymin= 0
     cam_world_pos_xmax=world_map.pixel_width-screen_width
     cam_world_pos_ymax=world_map.pixel_height-screen_height
+    
     # initial camera position
-    cam_world_pos_x = 10*tilesize
-    cam_world_pos_y = 10*tilesize
+    cam_world_pos_x = 16*tilesize
+    cam_world_pos_y = 13*tilesize
 
 
     pygame.init()
 
     #Set the Global Font
-    myfont = pygame.font.SysFont("Futura", 15)
+    #myfont = pygame.font.SysFont("Futura", 15)
+    myfont = pygame.font.Font("petme/petme128.ttf", 10)
     #pygame.display.set_caption("tiledtmxloader - " + file_name + " - keys: arrows" )
     pygame.display.set_caption("Ancient Juan")
 
@@ -99,7 +101,7 @@ def main_pygame(file_name):
 
     # set initial cam position and size
     renderer.set_camera_position_and_size(cam_world_pos_x, cam_world_pos_y, \
-                                        screen_width, screen_height, "center")
+                                        screen_width, screen_height)
 
     # retrieve the layers
     sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
@@ -108,22 +110,34 @@ def main_pygame(file_name):
 
     #Characters contains all the dynamic sprites
     Characters = pygame.sprite.RenderUpdates()
+
+    #CHARACTERS!
+    #
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((24-.5)*tilesize, (22-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 2, 6, 0)
+    PrincessSprite = Actor((23-.5)*tilesize, (21-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 3, 2, 2, 6, 60)
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((23-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 5, 0)
+    PigSprite = Actor((24-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 2, 2, 5, 5, 60)
     Characters.add(PigSprite)
     
-
     #Solider of Fortune
     SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], 0, 0, 3, 3, 0)
+    SoldierSprite = Actor((25-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], 3, 4, 3, 3, 80)
     Characters.add(SoldierSprite)
+
+    #www.whoisthemask.com
+    MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
+    MaskSprite = Actor((26-.5)*tilesize, (21-1)*tilesize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3], 2, 2, 5, 5, 75)
+    Characters.add(MaskSprite)
+
+    #Skeletastic
+    SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton.png')
+    SkeletonSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], 4, 3, 2, 6, 50)
+    Characters.add(SkeletonSprite)
     
     sprite_layers[objectlayer].add_sprites(Characters)
     
@@ -136,11 +150,10 @@ def main_pygame(file_name):
     keypressed = "No Key Pressed"
 
     ##Turn Variables. These are variables used when it is someone's turn.
-    #path_drawn=False#checks if there is a path already drawn.
-    CurrentSprite=[] #this is a basic way to track the current turn
+    CurrentSprite=[] #this is a basic way to track whose turn it is.
     
 
-    #these are mostly for animations.
+    #these are mostly so you do not mess with the game while it is animating.
     EnableKeyboard=True
     EnableMouse=True
     GameTimerOn=True
@@ -155,50 +168,64 @@ def main_pygame(file_name):
         #updates the mouse position
         mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
         tile_x, tile_y = (mouse_pos_x+cam_world_pos_x)//tilesize, (mouse_pos_y+cam_world_pos_y)//tilesize
-    
-
          
         # Text (Mostly for Debugging)
         label =myfont.render(" 'Working Title: Ancient Juan' ",1,(0,255,255))
         coordinates = myfont.render("Mouse Coordinates:("+str(mouse_pos_x)+","+str(mouse_pos_y)+")",1, (255,255,255))
         tilecoordinates = myfont.render("Tile Coordinates:("+str(tile_x)+","+str(tile_y)+")",1, (255,255,255))
-        cameracoords = myfont.render("Camera Coordinates:("+str(cam_world_pos_x)+","+str(cam_world_pos_y)+")",1,(255,200,255))
+        cameracoords = myfont.render("Camera Coordinates:("+str(cam_world_pos_x)+","+str(cam_world_pos_y)+")",1,(0,0,0))
         #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
 
+
         '''
-        
         for actor in Characters:
             if actor._MidAnimation==1:
                 #print("We are in the Middle of Animation")
                 EnableKeyboard=False
                 EnableMouse=False
-                clock.tick(frames_per_sec)
+                GameTimerOn=False
             elif actor._MidAnimation==0:
                 EnableKeyboard=True
                 EnableMouse=True
+                if CurrentSprite==[]:
+                    GameTimerOn=True
         '''
 
         #Part 2 If an animation is occuring none of this should happen
         # event handling
         
         ##Game Turns
-        # W we will bring up the next
+        # We will bring up the next
         if GameTimerOn and (CurrentSprite==[] or CurrentSprite._MidAnimation==0):
             NextTurn(Characters)
         for actor in Characters:
             
             if actor._Initiative>initiative_threshold and GameTimerOn==True:
+                print("Found Someone!  Its",actor,"'s turn!") 
                 #print(actor, actor._Initiative)
                 actor._Initiative=0  #resets initiative to 0 after moving.  we could decrement this based on how far you walk later.
                 GameTimerOn=False
                 CurrentSprite=actor
+                
+                cam_world_pos_x, cam_world_pos_y = CameraFocus(cam_world_pos_x, cam_world_pos_y, int(CurrentSprite.tile_x-screen_tile_width/2)*tilesize, \
+                    (CurrentSprite.tile_y-screen_tile_height/2)*tilesize, 4, cam_world_pos_xmin, cam_world_pos_ymin, cam_world_pos_xmax, cam_world_pos_ymax, sprite_layers, renderer, screen, clock, frames_per_sec)
+                
+                #CameraFocus(cam_world_pos_x, cam_world_pos_y, cam_world_pos_x, cam_world_pos_y, 20, sprite_layers, renderer, screen, clock, frames_per_sec)
+
                 #cam_world_pos_x, cam_world_pos_y = (CurrentSprite.tile_x -screen_tile_width/2)*tilesize, (CurrentSprite.tile_y-screen_tile_height/2)*tilesize
                 
                 Collider= CollisionFinder(Characters, sprite_layers)
                 moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
                 DrawPossibleMoves(moves,shadowlayer,sprite_layers)
-                #print("Found Someone!",actor)            
-        
+                print("Found Someone!",actor)            
+                EnableMouse=True
+                CurrentSprite_Name_label = myfont.render("Name:"+str(CurrentSprite), 1, (0,0,0))
+                CurrentSprite_Power_label = myfont.render("Power:"+ str(CurrentSprite._Power), 1, (0,0,0))
+                CurrentSprite_Defense_label = myfont.render("Defense:"+ str(CurrentSprite._Defense), 1, (0,0,0))
+                CurrentSprite_Health_label = myfont.render("Health:"+ str(CurrentSprite._Health)+"/"+str(CurrentSprite._MaxHealth), 1, (0,0,0))
+
+
+                
 
         ##Events include Mouse and Keyboard actions
 
@@ -214,16 +241,27 @@ def main_pygame(file_name):
             pygame.display.update()
             if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
             #if EnableKeyboard: continue
-            print(event.key)#Debugging
+            #print(event.key)#Debugging
 
             if pressedkeys[K_w] and pressedkeys[K_LMETA]:
                 pygame.quit()
                 sys.exit()
-            #Camera Movement using "wasd"
-            elif event.key == K_d: cam_world_pos_x +=tilesize #right
-            elif event.key == K_a: cam_world_pos_x -=tilesize#left
-            elif event.key == K_w: cam_world_pos_y -=tilesize#up
-            elif event.key == K_s: cam_world_pos_y +=tilesize#down    
+            #Camera Movement using "wasd"'
+            if EnableKeyboard:
+                if event.key == K_d: cam_world_pos_x +=tilesize #right
+                elif event.key == K_a: cam_world_pos_x -=tilesize#left
+                elif event.key == K_w: cam_world_pos_y -=tilesize#up
+                elif event.key == K_s: cam_world_pos_y +=tilesize#down
+
+                #Debugging Spawn a PigMan
+                #Bebop's Brood
+                elif event.key == K_1: 
+                    NewPigSprite = Actor((20-.5)*tilesize, (20-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 2, 2, 5, 5, 60)
+                    Characters.add(NewPigSprite)                  
+                    sprite_layers[objectlayer].add_sprites(Characters)
+                elif event.key == K_2:
+                    Characters.remove(NewPigSprite)
+                    sprite_layers[objectlayer].remove_sprite(NewPigSprite)
 
             #Debugging. If you need to take manual control of a sprite here is how you do it
             '''
@@ -257,8 +295,8 @@ def main_pygame(file_name):
             if event.key ==K_g: grid= not grid #this toggles the grid
 
 
-            if pressedkeys[K_RETURN]:
-                print("Enter Hit")
+            #if pressedkeys[K_RETURN]:
+            #    print("Enter Hit")
             ##END KEYLOGGING
 
         ##BEGIN MOUSELOGGING
@@ -290,35 +328,17 @@ def main_pygame(file_name):
                 path = PopBestPath(tile_x, tile_y, moves)
                 if path== []:#no path found then erase path and start over
                     pass
-                    #ClearLayer(shadowlayer,sprite_layers)
-                    #path_drawn=False
                 else: #The player has clicked on a shaded tile, Now we move the Actor
                     target_tile_x = tile_x
                     arget_tile_y = tile_y
                     ClearLayer(shadowlayer,sprite_layers)
                     EnableMouse=False#this is a bit redundant and possibly dangerous
-                    #print(path)
-                    path.reverse()#since pop() pulls the last element
-                    nextmove=path.pop()
-                    
-                    #print("popped", nextmove)
-                    CurrentSprite.Move(nextmove)
-                    
-                    while path != []:   
-                        while CurrentSprite._MidAnimation==1:
-                            clock.tick(frames_per_sec)
-                            time = pygame.time.get_ticks()
-                            Characters.update(time)                            
-                            for sprite_layer in sprite_layers:
-                                renderer.render_layer(screen, sprite_layer)
-                            pygame.display.flip()
-                        nextmove=path.pop()
-                        CurrentSprite.Move(nextmove)
+                    print("startmove")
+                    MultiMove(path, Characters, CurrentSprite, sprite_layers, renderer, screen, clock, frames_per_sec)
+                    print("endmove")
 
-                    EnableMouse=True
-                    
                     GameTimerOn=True
-                
+                    CurrentSprite=[]
         '''
         #Mouse moves the camera at the end of the screen
         if mouse_pos_x<tilesize: cam_world_pos_x -=tilesize
@@ -337,9 +357,14 @@ def main_pygame(file_name):
         if cam_world_pos_y<cam_world_pos_ymin: cam_world_pos_y=cam_world_pos_ymin
         if cam_world_pos_x>cam_world_pos_xmax: cam_world_pos_x=cam_world_pos_xmax
         if cam_world_pos_y>cam_world_pos_ymax: cam_world_pos_y=cam_world_pos_ymax
-        
-        renderer.set_camera_position(cam_world_pos_x, \
-                                     cam_world_pos_y, "topleft")
+
+        #Focus on active character
+        #if CurrentSprite !=[]:
+        #    CameraFocus(mouse_pos_x, mouse_pos_y, (CurrentSprite.tile_x)*tilesize, (CurrentSprite.tile_y)*tilesize, 10, sprite_layers, renderer, screen, clock, frames_per_sec)
+        #else:
+        #renderer.set_camera_position(cam_world_pos_x, cam_world_pos_y, "topleft")
+
+
 
         # clear screen, might be left out if every pixel is redrawn anyway
         screen.fill((0, 0, 0))
@@ -368,11 +393,19 @@ def main_pygame(file_name):
         screen.blit(coordinates, (32,32))
         screen.blit(tilecoordinates, (32,64))
         screen.blit(cameracoords,(32,96))
+        if CurrentSprite !=[]:
+            screen.blit(CurrentSprite_Name_label, (tilesize, (screen_tile_height-4)*tilesize))
+            screen.blit(CurrentSprite_Power_label, (tilesize, (screen_tile_height-3.5)*tilesize))
+            screen.blit(CurrentSprite_Defense_label, (tilesize, (screen_tile_height-3)*tilesize))
+            screen.blit(CurrentSprite_Health_label, (tilesize, (screen_tile_height-2.5)*tilesize))
+
 
         #cursorbox
         screen.blit(cursorbox, (tilesize*(tile_x)-cam_world_pos_x,tilesize*(tile_y)-cam_world_pos_y))
 
+
         #Draw stuff
+        #print("camera at:",cam_world_pos_x,cam_world_pos_x)
         pygame.display.flip()
 
 
@@ -391,26 +424,66 @@ def create_hero(start_pos_x, start_pos_y):
 
 #  ------------------
 #note used (yet)
-def camerafocus(start_x, start_y, end_x, end_y,steps): #moves the camera slowly from one place to another, frames is how many steps
-    #first makes sure you are not trying to look off the map:
+def CameraFocus(start_x, start_y, end_x, end_y, speed, cam_world_pos_xmin, cam_world_pos_ymin, cam_world_pos_xmax, cam_world_pos_ymax, sprite_layers, renderer, screen, clock, frames_per_sec): #moves the camera slowly from one place to another, frames is how many steps
+    print("CameraFocus called to move a camera from",start_x, start_y, "to", end_x, end_y)
 
-    #if end_x<cam_world_pos_xmin: end_x=cam_world_pos_xmin
-    #if end_y<cam_world_pos_ymin: end_y=cam_world_pos_ymin
-    #if end_x>cam_world_pos_xmax: end_x=cam_world_pos_xmax
-    #if end_y>cam_world_pos_ymax: end_y=cam_world_pos_ymax
+    if end_x<cam_world_pos_xmin: end_x=cam_world_pos_xmin
+    if end_y<cam_world_pos_ymin: end_y=cam_world_pos_ymin
+    if end_x>cam_world_pos_xmax: end_x=cam_world_pos_xmax
+    if end_y>cam_world_pos_ymax: end_y=cam_world_pos_ymax
 
+    
+    dx=0
+    dy=0
     #records for posterity the original camera positions
-    dx, dy = end_x-start_x, end_y-start_y
+    #dx, dy = int((end_x-start_x)/steps), int((end_y-start_y)/steps)
+    print(dx, dy)
+    
+    if end_x>start_x:
+        dx=speed
+    else:
+        dx=-speed
+    
+    if end_y>start_y:
+        dy=speed
+    else:
+        dy=-speed
+    
     #dist= sqrt((dx)**2+(dy)**2)
     
-    return start_x+dx/steps, start_y+dy/steps
+    cam_world_pos_x, cam_world_pos_y = start_x, start_y
+    while abs(cam_world_pos_x-end_x) > 0 or abs(cam_world_pos_y-end_y) > 0:
+        
+    #for i in range(steps-2):
+        if abs(cam_world_pos_x-end_x) >= abs(dx):
+            cam_world_pos_x += dx
+        if abs(cam_world_pos_y-end_y) >= abs(dy):
+            cam_world_pos_y += dy
+        #print("camera at:",cam_world_pos_x,cam_world_pos_x)
+        
+        clock.tick(frames_per_sec)
+        time = pygame.time.get_ticks()
+        for sprite_layer in sprite_layers:
+            renderer.render_layer(screen, sprite_layer)
+        renderer.set_camera_position(cam_world_pos_x, \
+                                     cam_world_pos_y, "topleft")
+        pygame.display.flip()
+        
+    #one last camera assignment just to make sure
+    
+    cam_world_pos_x = end_x
+    cam_world_pos_y = end_y
+    print("camera at:",cam_world_pos_x,cam_world_pos_x)
+    clock.tick(frames_per_sec)
+    time = pygame.time.get_ticks()
+    for sprite_layer in sprite_layers:
+        renderer.render_layer(screen, sprite_layer)
+    renderer.set_camera_position(cam_world_pos_x, \
+                                 cam_world_pos_y, "topleft")
+    
+    #needs to remind the world this is where we are
+    return end_x, end_y
 
-      
-    #checks if the camera has gone off the board and moves it back
-    #if cam_world_pos_x<cam_world_pos_xmin: cam_world_pos_x=cam_world_pos_xmin
-    #if cam_world_pos_y<cam_world_pos_ymin: cam_world_pos_y=cam_world_pos_ymin
-    #if cam_world_pos_x>cam_world_pos_xmax: cam_world_pos_x=cam_world_pos_xmax
-    #if cam_world_pos_y>cam_world_pos_ymax: cam_world_pos_y=cam_world_pos_ymax
 
 #  -----------------------------------------------------------------------------
 def DrawPossibleMoves(moves, layer,sprite_layers):
@@ -432,7 +505,39 @@ def NextTurn(Characters):
     #increments the initiative of each character by speed.  If you have above 100 speed, your turn is up.
     for actor in Characters:
         actor._Initiative+=actor._Speed
+
+def MultiMove(path, Characters, CurrentSprite, sprite_layers, renderer, screen, clock, frames_per_sec):
+
+    path.reverse()#since pop() pulls the last element
+    nextmove=path.pop()
+                    
+    #print("popped", nextmove)
+    CurrentSprite.Move(nextmove)
     
+    while path != []:   
+        while CurrentSprite._MidAnimation==1:
+            clock.tick(frames_per_sec)
+            time = pygame.time.get_ticks()
+            Characters.update(time)                            
+            for sprite_layer in sprite_layers:
+                renderer.render_layer(screen, sprite_layer)
+            pygame.display.flip()
+            
+        nextmove=path.pop()     
+        CurrentSprite.Move(nextmove)
+        
+    #this last loop is to make sure the character is done moving before the next turn begins
+    while CurrentSprite._MidAnimation==1:
+        clock.tick(frames_per_sec)
+        time = pygame.time.get_ticks()
+        Characters.update(time)
+        for sprite_layer in sprite_layers:
+            renderer.render_layer(screen, sprite_layer)
+        pygame.display.flip()
+
+    #this sets the characters animation to looking down
+    CurrentSprite._images = CurrentSprite._MoveDownImages
+     
 #  -----------------------------------------------------------------------------
     
 #  -----------------------------------------------------------------------------
