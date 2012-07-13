@@ -119,17 +119,17 @@ def main_pygame(file_name):
     PigSprite = Actor((23-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 5, 0)
     Characters.add(PigSprite)
     sprite_layers[objectlayer].add_sprites(Characters)
-
+    
 
     # mainloop variables
-    frames_per_sec = 60.0# was 60.0
+    frames_per_sec = 30.0# was 60.0
     clock = pygame.time.Clock()
     running = True
     grid = False #variable controling the gridlines
     keypressed = "No Key Pressed"
 
     ##Turn Variables. These are variables used when it is someone's turn.
-    path_drawn=False#checks if there is a path already drawn.
+    #path_drawn=False#checks if there is a path already drawn.
     CurrentSprite=[] #this is a basic way to track the current turn
     
 
@@ -144,6 +144,22 @@ def main_pygame(file_name):
         #Part 1: These are things that should always happen regardless of what is going on in the game
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
+
+        #updates the mouse position
+        mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
+        tile_x, tile_y = (mouse_pos_x+cam_world_pos_x)//tilesize, (mouse_pos_y+cam_world_pos_y)//tilesize
+    
+
+         
+        # Text (Mostly for Debugging)
+        label =myfont.render(" 'Working Title: Ancient Juan' ",1,(0,255,255))
+        coordinates = myfont.render("Mouse Coordinates:("+str(mouse_pos_x)+","+str(mouse_pos_y)+")",1, (255,255,255))
+        tilecoordinates = myfont.render("Tile Coordinates:("+str(tile_x)+","+str(tile_y)+")",1, (255,255,255))
+        cameracoords = myfont.render("Camera Coordinates:("+str(cam_world_pos_x)+","+str(cam_world_pos_y)+")",1,(255,200,255))
+        #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
+
+        '''
+        
         for actor in Characters:
             if actor._MidAnimation==1:
                 #print("We are in the Middle of Animation")
@@ -153,14 +169,14 @@ def main_pygame(file_name):
             elif actor._MidAnimation==0:
                 EnableKeyboard=True
                 EnableMouse=True
-
+        '''
 
         #Part 2 If an animation is occuring none of this should happen
         # event handling
         
         ##Game Turns
         # W we will bring up the next
-        if GameTimerOn:
+        if GameTimerOn and (CurrentSprite==[] or CurrentSprite._MidAnimation==0):
             NextTurn(Characters)
         for actor in Characters:
             
@@ -170,7 +186,7 @@ def main_pygame(file_name):
                 GameTimerOn=False
                 CurrentSprite=actor
                 #cam_world_pos_x, cam_world_pos_y = (CurrentSprite.tile_x -screen_tile_width/2)*tilesize, (CurrentSprite.tile_y-screen_tile_height/2)*tilesize
-                path_drawn=True
+                
                 Collider= CollisionFinder(Characters, sprite_layers)
                 moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
                 DrawPossibleMoves(moves,shadowlayer,sprite_layers)
@@ -233,16 +249,11 @@ def main_pygame(file_name):
             ##END KEYLOGGING
 
         ##BEGIN MOUSELOGGING
-        mouse_pos_x,mouse_pos_y=pygame.mouse.get_pos()
-        tile_x, tile_y = (mouse_pos_x+cam_world_pos_x)//tilesize, (mouse_pos_y+cam_world_pos_y)//tilesize
+
         
         if pygame.mouse.get_pressed()[0] and EnableMouse:
             #print("Mouse button 1 is pressed at:",tile_x, tile_y)
-
-            ##This section below is for click moving.
-            if path_drawn==False:
-                #This is for clicking to start a turn
-                '''
+            '''
                 #If no path is drawn then look to see if a character was clicked on
                 for actor in Characters:               
                     if actor.tile_x==tile_x and actor.tile_y==tile_y:
@@ -255,30 +266,53 @@ def main_pygame(file_name):
                         moves=Collider.PathList(tile_x,tile_y,actor._Movement)
                         DrawPossibleMoves(moves,shadowlayer,sprite_layers)
                         print("Found Someone!",actor)
-                '''
-            #If there is already a map drawn, then we want to tell the focused actor to walk there.
-            elif CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y:
+            '''
+            #If there is already path options drawn, then we want to tell the focused actor to walk there.
+            if CurrentSprite !=[] and CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y:
                 pass
                 #do something else like maybe a menu screen
             else:
+                
                 #look to see if you are away from the path
                 path = PopBestPath(tile_x, tile_y, moves)
                 if path== []:#no path found then erase path and start over
                     pass
                     #ClearLayer(shadowlayer,sprite_layers)
                     #path_drawn=False
-                else:
+                else: #The player has clicked on a shaded tile, Now we move the Actor
+                    target_tile_x = tile_x
+                    arget_tile_y = tile_y
+                    ClearLayer(shadowlayer,sprite_layers)
                     EnableMouse=False#this is a bit redundant and possibly dangerous
                     print(path)
-                    for i in path:
-                       CurrentSprite.Move(i)#somehow this only makes the first move.  I think we have to wait somehow
-                       clock.tick(frames_per_sec)
-                    #print(CurrentSprite.tile_x, CurrentSprite.tile_y)
-                    #EnableMouse=True
-                    path_drawn=False
+                    path.reverse()#since pop() pulls the last element
+                    nextmove=path.pop()
+                    
+                    print("popped", nextmove)
+                    CurrentSprite.Move(nextmove)
+                    
+                    while path != []:
+                        print("The path is nonempty. Look:",path)
+                        #waittimer=1000#int(1000/frames_per_sec)
+                        while CurrentSprite._MidAnimation==1:# and waittimer>0:
+                            #waittimer -=1
+                            #print("tick")
+                            clock.tick(frames_per_sec)
+                            time = pygame.time.get_ticks()
+                            Characters.update(time)                            
+                            for sprite_layer in sprite_layers:
+                                renderer.render_layer(screen, sprite_layer)
+                            pygame.display.flip()
+                            #print(CurrentSprite.tile_x, CurrentSprite.tile_y)
+                        nextmove=path.pop()
+                        CurrentSprite.Move(nextmove)
+                        print("popped", nextmove)
+
+                    EnableMouse=True
+                    
                     GameTimerOn=True
-                    ClearLayer(shadowlayer,sprite_layers)
-                    CurrentSprite=[]#resets again
+                    
+                    #CurrentSprite=[]#resets again
                     #pass
                     #for i in PopBestPath(tile_x, tile_y, moves):
                     #actor
@@ -290,24 +324,18 @@ def main_pygame(file_name):
         if mouse_pos_x>screen_width-tilesize: cam_world_pos_x +=tilesize
         if mouse_pos_y>screen_height-tilesize: cam_world_pos_y +=tilesize
         '''       
-        ##Part 3: Other checks/Infos
-    
+
+
+
+        #Part 4: RENDERING PHASE (Make sure you are adding the right element to the right layer)
+        # adjust camera to position according to the keypresses "wasd"
+
         #checks if the camera has gone off the board and moves it back
         if cam_world_pos_x<cam_world_pos_xmin: cam_world_pos_x=cam_world_pos_xmin
         if cam_world_pos_y<cam_world_pos_ymin: cam_world_pos_y=cam_world_pos_ymin
         if cam_world_pos_x>cam_world_pos_xmax: cam_world_pos_x=cam_world_pos_xmax
         if cam_world_pos_y>cam_world_pos_ymax: cam_world_pos_y=cam_world_pos_ymax
-         
-        # Text (Mostly for Debugging)
-        label =myfont.render(" 'Working Title: Ancient Juan' ",1,(0,255,255))
-        coordinates = myfont.render("Mouse Coordinates:("+str(mouse_pos_x)+","+str(mouse_pos_y)+")",1, (255,255,255))
-        tilecoordinates = myfont.render("Tile Coordinates:("+str(tile_x)+","+str(tile_y)+")",1, (255,255,255))
-        cameracoords = myfont.render("Camera Coordinates:("+str(cam_world_pos_x)+","+str(cam_world_pos_y)+")",1,(255,200,255))
-        #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
-
-
-        #Part 4: RENDERING PHASE (Make sure you are adding the right element to the right layer)
-        # adjust camera to position according to the keypresses "wasd"
+        
         renderer.set_camera_position(cam_world_pos_x, \
                                      cam_world_pos_y, "topleft")
 

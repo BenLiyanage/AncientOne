@@ -82,7 +82,7 @@
    eJzt1DEOgkAURdGZZbkNoFZqEemIOyQUwB7QQi2UJfgKKiuSKf4MuSe5oaF4vxnnAAB7MXvn7urhrZeEeWr/S70Tv+Oj/V+1RHzHYcM/3bq/j/iOLQbtH9WU+B0AkLpa7/D1r4a3GQAAAACA3clUrgrrIYGO6qRK4x2hzqpSF+shgdr1ezNdAQCI3Q+BFhNS
   </data>
  </layer>
- <layer name="collision" width="50" height="50">
+ <layer name="collision" width="50" height="50" visible="0">
   <data encoding="base64" compression="zlib">
    eJzt2kEKgCAUQEGP1f1P1gVqEWQ9ZR641oHvQvAYYxybrNXjaMXRiqMVx7M9ZsfRmkf3oxVHK45WMx1fvtn+crxtNFetOFpxtOJoxdGKoxVHK45WHK04WnG0unKs+D9gtfPexdGKo9Vujh3WCTDjMCE=
   </data>
