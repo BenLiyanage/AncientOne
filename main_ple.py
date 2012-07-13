@@ -118,11 +118,18 @@ def main_pygame(file_name):
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
     PigSprite = Actor((23-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 5, 0)
     Characters.add(PigSprite)
+    
+
+    #Solider of Fortune
+    SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
+    SoldierSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], 0, 0, 3, 3, 0)
+    Characters.add(SoldierSprite)
+    
     sprite_layers[objectlayer].add_sprites(Characters)
     
 
     # mainloop variables
-    frames_per_sec = 30.0# was 60.0
+    frames_per_sec = 60.0# was 60.0
     clock = pygame.time.Clock()
     running = True
     grid = False #variable controling the gridlines

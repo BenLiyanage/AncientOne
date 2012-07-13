@@ -2,7 +2,7 @@ import pygame
 import tiledtmxloader
 #class AnimatedSprite(pygame.sprite.Sprite):
 class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modification
-	def __init__(self, images, x, y, fps = 10):             
+	def __init__(self, images, x, y, fps = 20):             
 		#pygame.sprite.Sprite.__init__(self)
                 tiledtmxloader.helperspygame.SpriteLayer.Sprite.__init__(self,x,y)#PLE
 		self._images = images
