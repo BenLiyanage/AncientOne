@@ -28,7 +28,7 @@ global cam_world_pos_xmin, cam_world_pos_xmax, cam_world_pos_ymin, cam_world_pos
 
 
 MAP="images/map01.tmx"
-#MAP = "images/smallmap.tmx" #small map for testing
+#MAP = "images/citysample.tmx" #small map for testing
 
 #  -----------------------------------------------------------------------------
 
@@ -70,8 +70,8 @@ def main_pygame(file_name):
     cam_world_pos_xmax=world_map.pixel_width-screen_width
     cam_world_pos_ymax=world_map.pixel_height-screen_height
     # initial camera position
-    cam_world_pos_x = 0
-    cam_world_pos_y = 0
+    cam_world_pos_x = 10*tilesize
+    cam_world_pos_y = 10*tilesize
 
 
     pygame.init()
@@ -95,10 +95,7 @@ def main_pygame(file_name):
 
     # prepare map rendering
     assert world_map.orientation == "orthogonal"
-
-    # renderer
     renderer = tiledtmxloader.helperspygame.RendererPygame()
-
 
     # set initial cam position and size
     renderer.set_camera_position_and_size(cam_world_pos_x, cam_world_pos_y, \
@@ -109,34 +106,17 @@ def main_pygame(file_name):
     # Checks if there is a special "Object Layer" which we will not use.
     sprite_layers = [layer for layer in sprite_layers if not layer.is_object_group]
 
-
-    # create hero sprite (We will leave this for debugging
-    hero_pos_tile_x=12
-    hero_pos_tile_y=9
-    hero_pos_x = hero_pos_tile_x*tilesize+tilesize/2
-    hero_pos_y = hero_pos_tile_y*tilesize+tilesize
-    hero = create_hero(hero_pos_x, hero_pos_y)#creates a "hero" at the associated position.
-    sprite_layers[objectlayer].add_sprite(hero) #possibly wrong layer
-
-
     #Characters contains all the dynamic sprites
     Characters = pygame.sprite.RenderUpdates()
-
-    #Camera Animated Sprite
-    #CamImage = pygame.Surface((tilesize, tilesize), pygame.SRCALPHA)
-    #CamImage.fill((255, 0, 0, 200))
-    #CamRect = CamImage.get_rect()
-    #CamRect.midbottom = (cam_world_pos_x, cam_world_pos_y)
-
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor(320+16,320,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 2, 6, 0)
+    PrincessSprite = Actor((24-.5)*tilesize, (22-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 2, 6, 0)
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((23-.5)*tilesize, (10-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 5, 0)
+    PigSprite = Actor((23-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 0, 0, 5, 5, 0)
     Characters.add(PigSprite)
     sprite_layers[objectlayer].add_sprites(Characters)
 
@@ -147,8 +127,11 @@ def main_pygame(file_name):
     running = True
     grid = False #variable controling the gridlines
     keypressed = "No Key Pressed"
+
+    ##Turn Variables. These are variables used when it is someone's turn.
     path_drawn=False#checks if there is a path already drawn.
     CurrentSprite=[] #this is a basic way to track the current turn
+    
 
     #these are mostly for animations.
     EnableKeyboard=True
@@ -157,6 +140,8 @@ def main_pygame(file_name):
 
     ##The Main Game Loop 
     while running:
+
+        #Part 1: These are things that should always happen regardless of what is going on in the game
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
         for actor in Characters:
@@ -168,7 +153,9 @@ def main_pygame(file_name):
             elif actor._MidAnimation==0:
                 EnableKeyboard=True
                 EnableMouse=True
-        
+
+
+        #Part 2 If an animation is occuring none of this should happen
         # event handling
         
         ##Game Turns
@@ -178,7 +165,7 @@ def main_pygame(file_name):
         for actor in Characters:
             
             if actor._Initiative>initiative_threshold and GameTimerOn==True:
-                print(actor, actor._Initiative)
+                #print(actor, actor._Initiative)
                 actor._Initiative=0  #resets initiative to 0 after moving.  we could decrement this based on how far you walk later.
                 GameTimerOn=False
                 CurrentSprite=actor
@@ -191,29 +178,36 @@ def main_pygame(file_name):
         
 
         ##Events include Mouse and Keyboard actions
+
         for event in pygame.event.get():
+            pressedkeys=pygame.key.get_pressed()
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            pygame.display.update()
-            if event.type == pygame.QUIT:
+            
+            elif event.type == pygame.QUIT:
                 running = False
-            #elif event.type == pygame.KEYDOWN:
-            #    if event.key == pygame.K_ESCAPE:#shuts down when you hit escape
-            #        running = False
 
+            pygame.display.update()
             if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
-            if disable_inputs: continue
-            #print(event.key)#Debugging
+            #if EnableKeyboard: continue
+            print(event.key)#Debugging
 
+            if pressedkeys[K_w] and pressedkeys[K_LMETA]:
+                pygame.quit()
+                sys.exit()
             #Camera Movement using "wasd"
-            if event.key == K_d: cam_world_pos_x +=tilesize #right
+            elif event.key == K_d: cam_world_pos_x +=tilesize #right
             elif event.key == K_a: cam_world_pos_x -=tilesize#left
             elif event.key == K_w: cam_world_pos_y -=tilesize#up
             elif event.key == K_s: cam_world_pos_y +=tilesize#down
+
+            elif pressedkeys[K_w]:
+                print(pressedkeys)
           
-            #debug movement
-            #elif event.key == K_RIGHT: hero_pos_tile_x +=1
+    
+
+            #Debugging. If you need to take manual control of a sprite here is how you do it
             '''
             if event.key == K_RIGHT:
                 hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x+1,hero_pos_tile_y)
@@ -234,10 +228,7 @@ def main_pygame(file_name):
             
             #Take this out later this is strictly for debugging purposes            
             if event.key ==K_g: grid= not grid #this toggles the grid
-            #updates hero location
-            hero_pos_x = hero_pos_tile_x*tilesize+tilesize/2
-            hero_pos_y = hero_pos_tile_y*tilesize+tilesize
-            hero.rect.midbottom = (hero_pos_x, hero_pos_y)
+
 
             ##END KEYLOGGING
 
@@ -299,7 +290,7 @@ def main_pygame(file_name):
         if mouse_pos_x>screen_width-tilesize: cam_world_pos_x +=tilesize
         if mouse_pos_y>screen_height-tilesize: cam_world_pos_y +=tilesize
         '''       
-
+        ##Part 3: Other checks/Infos
     
         #checks if the camera has gone off the board and moves it back
         if cam_world_pos_x<cam_world_pos_xmin: cam_world_pos_x=cam_world_pos_xmin
@@ -315,7 +306,7 @@ def main_pygame(file_name):
         #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
 
 
-        #RENDERING PHASE (Make sure you are adding the right element to the right layer)
+        #Part 4: RENDERING PHASE (Make sure you are adding the right element to the right layer)
         # adjust camera to position according to the keypresses "wasd"
         renderer.set_camera_position(cam_world_pos_x, \
                                      cam_world_pos_y, "topleft")

@@ -14,6 +14,8 @@ class CollisionFinder(object):
         self.layers=layers
         self._coll_layer=layers[self.collisionlayer]
         self._obj_layer=layers[self.objectlayer]
+        self._map_tile_x = len(self.layers[self.collisionlayer].content2D[0])
+        self._map_tile_y = len(layers[self.collisionlayer].content2D)
         
 
     def PossibleMoves(self, tile_x, tile_y, movement_value):
@@ -30,6 +32,11 @@ class CollisionFinder(object):
                     tile_rects=list(set(tile_rects+self.PossibleMoves(tile_x + dirx, tile_y+diry, movement_value-1)))
             return tile_rects
 
+    #def PossibleMoves2(self, tile_x, tile_y, movement_value):
+    #    #a simple way to do this we make a matrix, then just flip adjacent tiles with numbers in them
+    #    tilearray=[][]
+    #    for i 
+
 #this will be an improved(more efficient) possibleMoves that will also determine the best path.
     def PossibleMovesPath(self, tile_x, tile_y, movement_value,dirs=[]):
     #returns a list of possible move positions, their cost and the best path there.  Note the cost may be redundant
@@ -37,35 +44,47 @@ class CollisionFinder(object):
         if movement_value==0:
             return tile_rects          
         else:
-
-            for (dirx,diry) in [(1,0), (-1,0), (0,1), (0,-1)]:
+            lookset=[(1,0), (-1,0), (0,1), (0,-1)]
+            if dirs != []:
+                i=len(dirs)
+                lookset.remove((-dirs[i-1][0],-dirs[i-1][1])) #takes out the last place you visited (since it is always better)
+            
+            for (dirx,diry) in lookset: #[(1,0), (-1,0), (0,1), (0,-1)]:
+                #If one of isClear, isFree, isEfficient does not hold then we shouldn't check the others.
                 isClear = self._coll_layer.content2D[tile_y+diry][tile_x + dirx] is None
-                isFree=True
-                for actor in self._characters:
-                    if actor.tile_x==tile_x + dirx and actor.tile_y==tile_y + diry:
-                        isFree=False
-                    #isFree =  self._obj_layer.content2D[tile_y+diry][tile_x + dirx] is None
-                #print("from",(tile_x,tile_y),"look if",(dirx,diry), "isClear is:", isClear)
+                
+                isFree=True #may be set to be true even though it is not because it doesn't matter if isClear is false
+                if isClear:
+                    for actor in self._characters:
+                        if actor.tile_x==tile_x + dirx and actor.tile_y==tile_y + diry:
+                            isFree=False
+                            break
+                    
                 isEfficient=True
+                
                 #checks if there was a previously discovered more expensive path, which it will remove
-                for t in tile_rects:
-                    #print("comparing:",tile_x+dirx, tile_y+diry,"to",t)
-                    #print(t[0]==tile_x + dirx, t[1]==tile_y+diry, t[2]>movement_value)
-                    if t[0]==tile_x + dirx and t[1]==tile_y+diry:
-                        if t[2]>movement_value:
-                            isEfficient=False
-                        else:
-                            #print("removing",t)
-                            tile_rects.remove(t)
-                        #print(t in tile_rects)
-                #If it is clear and cheap then add it to the list
+                if isFree and isClear:
+                    for t in tile_rects:
+                        #print("comparing:",tile_x+dirx, tile_y+diry,"to",t)
+                        #print(t[0]==tile_x + dirx, t[1]==tile_y+diry, t[2]>movement_value)
+                        if t[0]==tile_x + dirx and t[1]==tile_y+diry:
+                            if t[2]>movement_value:
+                                isEfficient=False
+                                break
+                            else:
+                                #removing is likely not very important since we will clean the list later.
+                                #print("removing",t)
+                                tile_rects.remove(t)
+                            #print(t in tile_rects)
+                           
+                
                 if isClear and isFree and isEfficient:
                     #dirs.append((dirx,diry))
                     #if (tile_x + dirx, tile_y+diry,movement_value-1,dirs+[(dirx,diry)]) not in tile_rects:
                     #    tile_rects.append((tile_x + dirx, tile_y+diry,movement_value-1,dirs+[(dirx,diry)]))
 
                     #tile_rects=tile_rects+self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
-                    tile_rects=cleanPathList(tile_rects+self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)]))
+                    tile_rects=tile_rects+self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
 
                     #currently the "+" above does not clean out less efficient paths,  we need to do this, the below code tries to do this but is too messy
                     #new_branch=self.PossibleMovesPath(tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
