@@ -79,7 +79,7 @@ def main_pygame(file_name):
 
     #Set the Global Font
     #myfont = pygame.font.SysFont("Futura", 15)
-    myfont = pygame.font.Font("petme/petme128.ttf", 10)
+    myfont = pygame.font.Font("petme/PetMe128.ttf", 10)
     #pygame.display.set_caption("tiledtmxloader - " + file_name + " - keys: arrows" )
     pygame.display.set_caption("Ancient Juan")
 
