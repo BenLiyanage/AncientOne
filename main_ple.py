@@ -110,6 +110,8 @@ def main_pygame(file_name):
 
     #Characters contains all the dynamic sprites
     Characters = pygame.sprite.RenderUpdates()
+    #UI sprite container
+    UImenu = pygame.sprite.RenderUpdates()
 
     #CHARACTERS!
     #
@@ -151,7 +153,10 @@ def main_pygame(file_name):
 
     ##Turn Variables. These are variables used when it is someone's turn.
     CurrentSprite=[] #this is a basic way to track whose turn it is.
-    
+    CanAttack=False
+    CanMove=False
+    AttackMode=False
+    MoveMode=False
 
     #these are mostly so you do not mess with the game while it is animating.
     EnableKeyboard=True
@@ -202,24 +207,21 @@ def main_pygame(file_name):
             
             if actor._Initiative>initiative_threshold and GameTimerOn==True:
                 
-                print("Found Someone!  Its",actor,"'s turn!") 
+                print("Found Someone!  Its",actor._Name,"'s turn!") 
                 #print(actor, actor._Initiative)
                 actor._Initiative=0  #resets initiative to 0 after moving.  we could decrement this based on how far you walk later.
-                GameTimerOn=False
+                GameTimerOn=False#stop looking for whose turn it is
                 CurrentSprite=actor
                 cam_world_pos_x, cam_world_pos_y = CameraFocus(cam_world_pos_x, cam_world_pos_y, int(CurrentSprite.tile_x-screen_tile_width/2)*tilesize, \
                     (CurrentSprite.tile_y-screen_tile_height/2)*tilesize, 4, cam_world_pos_xmin, cam_world_pos_ymin, cam_world_pos_xmax, cam_world_pos_ymax, sprite_layers, renderer, screen, clock, frames_per_sec)
-                
-                #CameraFocus(cam_world_pos_x, cam_world_pos_y, cam_world_pos_x, cam_world_pos_y, 20, sprite_layers, renderer, screen, clock, frames_per_sec)
-
-                #cam_world_pos_x, cam_world_pos_y = (CurrentSprite.tile_x -screen_tile_width/2)*tilesize, (CurrentSprite.tile_y-screen_tile_height/2)*tilesize
-                
-                Collider= CollisionFinder(Characters, sprite_layers)
-                moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
-                DrawPossibleMoves(moves,shadowlayer,sprite_layers)
-                print("Found Someone!",actor)            
+                CanMove=True
+                CanAttack=True
+                #Collider= CollisionFinder(Characters, sprite_layers)
+                #moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
+                #DrawPossibleMoves(moves,shadowlayer,sprite_layers)
+                          
                 EnableMouse=True
-                CurrentSprite_Name_label = myfont.render("Name:"+str(CurrentSprite._Name), 1, (100, 100, 100))
+                CurrentSprite_Name_label = myfont.render("Name:"+str(CurrentSprite.Name()), 1, (100, 100, 100))
                 CurrentSprite_Power_label = myfont.render("Power:"+ str(CurrentSprite._Power), 1, (100,100,100))
                 CurrentSprite_Defense_label = myfont.render("Defense:"+ str(CurrentSprite._Defense), 1, (100,100,100))
                 CurrentSprite_Health_label = myfont.render("Health:"+ str(CurrentSprite._Health)+"/"+str(CurrentSprite._MaxHealth), 1, (100,100,100))
@@ -254,6 +256,31 @@ def main_pygame(file_name):
                 elif event.key == K_w: cam_world_pos_y -=tilesize#up
                 elif event.key == K_s: cam_world_pos_y +=tilesize#down
 
+                elif pressedkeys[K_z] and CanAttack and AttackMode==False and MoveMode==False:#attack
+                    print("Entering Attack Mode")
+                    AttackMode=True #now we will wait for mouse imput on who to attack # we also need a way to cancel the attack
+
+                elif pressedkeys[K_x] and CanMove and MoveMode==False and AttackMode==False:#move
+                    print("Entering Move Mode")
+                    MoveMode=True
+                    Collider= CollisionFinder(Characters, sprite_layers)
+                    moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
+                    DrawPossibleMoves(moves,shadowlayer,sprite_layers)
+                    
+                elif pressedkeys[K_c]:#skipturn/wait
+                    ClearLayer(shadowlayer,sprite_layers) 
+                    CurrentSprite._Initiative=0# or something smaller
+                    GameTimerOn=True
+                    CanAttack=True
+                    CanMove=False
+                    AttackMode=False
+                    MoveMode=False
+                    CurrentSprite=[]
+
+                elif pressedkeys==K_v: #cancel action
+                    pass
+
+                    
                 #Debugging Spawn a PigMan
                 #Bebop's Brood
                 elif event.key == K_1: 
@@ -291,6 +318,7 @@ def main_pygame(file_name):
                 pygame.mouse.set_pos([mouse_pos_x, mouse_pos_y-tilesize])
             elif event.key == K_DOWN:
                 pygame.mouse.set_pos([mouse_pos_x, mouse_pos_y+tilesize])
+
             
             #Take this out later this is strictly for debugging purposes            
             if event.key ==K_g: grid= not grid #this toggles the grid
@@ -320,26 +348,35 @@ def main_pygame(file_name):
                         print("Found Someone!",actor)
             '''
             #If there is already path options drawn, then we want to tell the focused actor to walk there.
-            if CurrentSprite !=[] and CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y:
+
+            if CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y: #clicked on CurrentSprite
                 pass
                 #do something else like maybe a menu screen
-            else:
-                
+            elif AttackMode:
+                print("Attacking Someone!")
+                for actor in Characters:
+                    if actor.tile_x==tile_x and actor.tile_y==tile_y and actor != CurrentSprite:
+                        print(CurrentSprite._Name, "is attacking", actor._Name)
+                        CurrentSprite.Attack(actor)
+                        AttackMode=False
+                        CanAttack=False
+            elif MoveMode:
                 #look to see if you are away from the path
                 path = PopBestPath(tile_x, tile_y, moves)
                 if path== []:#no path found then erase path and start over
                     pass
                 else: #The player has clicked on a shaded tile, Now we move the Actor
-                    target_tile_x = tile_x
-                    arget_tile_y = tile_y
+
                     ClearLayer(shadowlayer,sprite_layers)
                     EnableMouse=False#this is a bit redundant and possibly dangerous
-                    print("startmove")
+                    #print("startmove")
                     MultiMove(path, Characters, CurrentSprite, sprite_layers, renderer, screen, clock, frames_per_sec)
-                    print("endmove")
-
-                    GameTimerOn=True
-                    CurrentSprite=[]
+                    #print("endmove")
+                    MoveMode=False
+                    CanMove=False
+                    EnableMouse=True
+            else: #not clicking on a move or place or anything
+                 pass
         '''
         #Mouse moves the camera at the end of the screen
         if mouse_pos_x<tilesize: cam_world_pos_x -=tilesize
