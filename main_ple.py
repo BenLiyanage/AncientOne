@@ -5,6 +5,9 @@ import pygame
 import collision
 from collision import CollisionFinder, PopBestPath
 
+import ui
+from ui import Menu
+
 from pygame.locals import*
 
 import sprites
@@ -110,9 +113,13 @@ def main_pygame(file_name):
 
     #Characters contains all the dynamic sprites
     Characters = pygame.sprite.RenderUpdates()
+
+    
     #UI sprite container
     UImenu = pygame.sprite.RenderUpdates()
-
+    menuItems = ['Attack','Wait','Special One', 'Special Two']
+    myMenu = Menu("Action:", menuItems, myfont, 50, 50, 200, 200)
+	
     #CHARACTERS!
     #
     
@@ -446,6 +453,7 @@ def main_pygame(file_name):
 
         #Draw stuff
         #print("camera at:",cam_world_pos_x,cam_world_pos_x)
+        screen.blit(myMenu._menuBackground, myMenu.rect)
         pygame.display.flip()
 
 
