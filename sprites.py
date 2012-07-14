@@ -72,9 +72,10 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 					# pass by value rather then pass by reference
 					self._AnimationLayer.remove(self)
 
-				self._frame = 0
+				self._frame = -1
 		    	self.image = self._images[self._frame]
 		    	self._lastImageRotation = t
+		    	#self._frame+=1
                         
 		    	#Updates the tile coordinates (with the offset)
 			self.tile_x=int((self.rect.x+self._tilesize/2) //self._tilesize)
@@ -118,7 +119,7 @@ def load_sliced_sprites(w, h, filename):
 
 
 class Actor(AnimatedSprite):
-	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
+	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Name, Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
 		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y)
                 #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
@@ -129,6 +130,7 @@ class Actor(AnimatedSprite):
 		self._DeathImages = DeathImages
 
 		# Set Stats
+                self._Name = Name
 		self._Power = Power
 		self._Defense = Defense
 		self._Speed = Speed
