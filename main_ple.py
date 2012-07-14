@@ -116,27 +116,27 @@ def main_pygame(file_name):
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((23-.5)*tilesize, (21-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 3, 2, 2, 6, 60)
+    PrincessSprite = Actor((23-.5)*tilesize, (21-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], "Peach", 3, 2, 2, 6, 60)
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((24-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 2, 2, 5, 5, 60)
+    PigSprite = Actor((24-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], "Bebop", 2, 2, 5, 5, 60)
     Characters.add(PigSprite)
     
     #Solider of Fortune
     SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((25-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], 3, 4, 3, 3, 80)
+    SoldierSprite = Actor((25-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", 3, 4, 3, 3, 80)
     Characters.add(SoldierSprite)
 
     #www.whoisthemask.com
     MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
-    MaskSprite = Actor((26-.5)*tilesize, (21-1)*tilesize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3], 2, 2, 5, 5, 75)
+    MaskSprite = Actor((26-.5)*tilesize, (21-1)*tilesize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,2, 2, 5, 5, 75)
     Characters.add(MaskSprite)
 
     #Skeletastic
     SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton.png')
-    SkeletonSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], 4, 3, 2, 6, 50)
+    SkeletonSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack" ,4, 3, 2, 6, 50)
     Characters.add(SkeletonSprite)
     
     sprite_layers[objectlayer].add_sprites(Characters)
@@ -174,7 +174,7 @@ def main_pygame(file_name):
         coordinates = myfont.render("Mouse Coordinates:("+str(mouse_pos_x)+","+str(mouse_pos_y)+")",1, (255,255,255))
         tilecoordinates = myfont.render("Tile Coordinates:("+str(tile_x)+","+str(tile_y)+")",1, (255,255,255))
         cameracoords = myfont.render("Camera Coordinates:("+str(cam_world_pos_x)+","+str(cam_world_pos_y)+")",1,(0,0,0))
-        #controlsdescription = myfont.render("Click on a character and then click on a highlighted space to move them",1,(0,255,0))
+        controlsdescription = myfont.render("z/x/c = Attack/Move/Wait",1,(0,255,0))
 
 
         '''
@@ -201,12 +201,12 @@ def main_pygame(file_name):
         for actor in Characters:
             
             if actor._Initiative>initiative_threshold and GameTimerOn==True:
+                
                 print("Found Someone!  Its",actor,"'s turn!") 
                 #print(actor, actor._Initiative)
                 actor._Initiative=0  #resets initiative to 0 after moving.  we could decrement this based on how far you walk later.
                 GameTimerOn=False
                 CurrentSprite=actor
-                
                 cam_world_pos_x, cam_world_pos_y = CameraFocus(cam_world_pos_x, cam_world_pos_y, int(CurrentSprite.tile_x-screen_tile_width/2)*tilesize, \
                     (CurrentSprite.tile_y-screen_tile_height/2)*tilesize, 4, cam_world_pos_xmin, cam_world_pos_ymin, cam_world_pos_xmax, cam_world_pos_ymax, sprite_layers, renderer, screen, clock, frames_per_sec)
                 
@@ -219,10 +219,11 @@ def main_pygame(file_name):
                 DrawPossibleMoves(moves,shadowlayer,sprite_layers)
                 print("Found Someone!",actor)            
                 EnableMouse=True
-                CurrentSprite_Name_label = myfont.render("Name:"+str(CurrentSprite), 1, (0,0,0))
-                CurrentSprite_Power_label = myfont.render("Power:"+ str(CurrentSprite._Power), 1, (0,0,0))
-                CurrentSprite_Defense_label = myfont.render("Defense:"+ str(CurrentSprite._Defense), 1, (0,0,0))
-                CurrentSprite_Health_label = myfont.render("Health:"+ str(CurrentSprite._Health)+"/"+str(CurrentSprite._MaxHealth), 1, (0,0,0))
+                CurrentSprite_Name_label = myfont.render("Name:"+str(CurrentSprite._Name), 1, (100, 100, 100))
+                CurrentSprite_Power_label = myfont.render("Power:"+ str(CurrentSprite._Power), 1, (100,100,100))
+                CurrentSprite_Defense_label = myfont.render("Defense:"+ str(CurrentSprite._Defense), 1, (100,100,100))
+                CurrentSprite_Health_label = myfont.render("Health:"+ str(CurrentSprite._Health)+"/"+str(CurrentSprite._MaxHealth), 1, (100,100,100))
+                
 
 
                 
@@ -256,7 +257,7 @@ def main_pygame(file_name):
                 #Debugging Spawn a PigMan
                 #Bebop's Brood
                 elif event.key == K_1: 
-                    NewPigSprite = Actor((20-.5)*tilesize, (20-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 2, 2, 5, 5, 60)
+                    NewPigSprite = Actor((20-.5)*tilesize, (20-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3],"Pig Spawn" ,2, 2, 5, 5, 60)
                     Characters.add(NewPigSprite)                  
                     sprite_layers[objectlayer].add_sprites(Characters)
                 elif event.key == K_2:
@@ -393,7 +394,9 @@ def main_pygame(file_name):
         screen.blit(coordinates, (32,32))
         screen.blit(tilecoordinates, (32,64))
         screen.blit(cameracoords,(32,96))
+        
         if CurrentSprite !=[]:
+            screen.blit(controlsdescription, (tilesize, (screen_tile_height-4.5)*tilesize))
             screen.blit(CurrentSprite_Name_label, (tilesize, (screen_tile_height-4)*tilesize))
             screen.blit(CurrentSprite_Power_label, (tilesize, (screen_tile_height-3.5)*tilesize))
             screen.blit(CurrentSprite_Defense_label, (tilesize, (screen_tile_height-3)*tilesize))
@@ -425,7 +428,7 @@ def create_hero(start_pos_x, start_pos_y):
 #  ------------------
 #note used (yet)
 def CameraFocus(start_x, start_y, end_x, end_y, speed, cam_world_pos_xmin, cam_world_pos_ymin, cam_world_pos_xmax, cam_world_pos_ymax, sprite_layers, renderer, screen, clock, frames_per_sec): #moves the camera slowly from one place to another, frames is how many steps
-    print("CameraFocus called to move a camera from",start_x, start_y, "to", end_x, end_y)
+    #print("CameraFocus called to move a camera from",start_x, start_y, "to", end_x, end_y)
 
     if end_x<cam_world_pos_xmin: end_x=cam_world_pos_xmin
     if end_y<cam_world_pos_ymin: end_y=cam_world_pos_ymin
