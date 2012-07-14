@@ -453,7 +453,7 @@ def main_pygame(file_name):
 
         #Draw stuff
         #print("camera at:",cam_world_pos_x,cam_world_pos_x)
-        screen.blit(myMenu._menuBackground, myMenu.rect)
+        screen.blit(myMenu.surface, myMenu.rect)
         pygame.display.flip()
 
 
