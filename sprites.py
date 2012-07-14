@@ -198,6 +198,7 @@ class Actor(AnimatedSprite):
 		damage = self._Power - target._Defense
 		experience = target.RecieveDamage(damage)
 		self.GetExperience(experience)
+		return damage
 
 	def RecieveDamage(self, damage):
 		self._Health = self._Health - damage
@@ -206,8 +207,30 @@ class Actor(AnimatedSprite):
 			self.Kill(self._AnimationLayer)
 		experience = 10 + (damage * .1)
 		return experience
+	def Name(self):
+                return self._Name
+	def Power(self):
+		return self._Power
+	def Defense(self):
+		return self._Defense
+	def Speed(self):
+		return self._Speed
+	def Movement(self):
+		return self._Movement
+	def Health(self):
+		return self._Health
+	def MaxHealth(self):
+		return self._MaxHealth 
+	def Initiative(self):
+		return self._Initiative
+	def Experience(self):
+		return self._Experience
+	def Level(self):
+		return self._Level
+	def Actions(self):
+		return self._Actions
 
-	def GetExperience(newExperience):
+	def GetExperience(self, newExperience):
 		self._Experience = self._Experience + newExperience
 
 		if self._Experience > 100:
