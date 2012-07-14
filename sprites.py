@@ -138,6 +138,8 @@ class Actor(AnimatedSprite):
 		self._Health = MaxHealth
 		self._MaxHealth = MaxHealth
 		self._Initiative = 0
+		self._Experience = 0
+		self._Level = 1
 		self._Actions = {}
 		
 		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
