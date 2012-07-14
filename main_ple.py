@@ -362,7 +362,7 @@ def main_pygame(file_name):
         #if CurrentSprite !=[]:
         #    CameraFocus(mouse_pos_x, mouse_pos_y, (CurrentSprite.tile_x)*tilesize, (CurrentSprite.tile_y)*tilesize, 10, sprite_layers, renderer, screen, clock, frames_per_sec)
         #else:
-        #renderer.set_camera_position(cam_world_pos_x, cam_world_pos_y, "topleft")
+        renderer.set_camera_position(cam_world_pos_x, cam_world_pos_y, "topleft")
 
 
 
@@ -505,6 +505,9 @@ def NextTurn(Characters):
     #increments the initiative of each character by speed.  If you have above 100 speed, your turn is up.
     for actor in Characters:
         actor._Initiative+=actor._Speed
+
+
+
 
 def MultiMove(path, Characters, CurrentSprite, sprite_layers, renderer, screen, clock, frames_per_sec):
 
