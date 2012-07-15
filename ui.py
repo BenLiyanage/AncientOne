@@ -35,7 +35,7 @@ class CharacterInfo(InfoBox):
 
 		# First Column
 		xOffset = 10
-		yOffset = self._titlePosition.bottom+10
+		yOffset = self._titlePosition.bottom+30
 
 		yOffset = self.AddTip("Level: " + str(character.Level()), "", xOffset, yOffset) + 5
 		yOffset = self.AddTip("Power: " + str(character.Power()), "", xOffset, yOffset) + 5
@@ -43,7 +43,7 @@ class CharacterInfo(InfoBox):
 
 		# Second Column
 		xOffset = 125
-		yOffset = self._titlePosition.bottom+10
+		yOffset = self._titlePosition.bottom+30
 
 		yOffset = self.AddTip("Experience: " + str(character.Experience()), "", xOffset, yOffset) + 5
 		yOffset = self.AddTip("Defense: " + str(character.Defense()), "", xOffset, yOffset) + 5
@@ -129,3 +129,7 @@ class Menu(InfoBox):
 			if self._menuItems[itemNumber]['position'].collidepoint(x - self.rect.left, y - self.rect.top):
 				return itemNumber			
 
+
+class LevelUpScreen(InfoBox):
+	def __init__(self, c1, c2, c3, c4):
+		print "stub"
