@@ -6,7 +6,7 @@ import collision
 from collision import CollisionFinder, PopBestPath
 
 import ui
-from ui import Menu
+from ui import Menu, CharacterInfo
 
 from pygame.locals import*
 
@@ -116,9 +116,9 @@ def main_pygame(file_name):
 
     
     #UI sprite container
-    UImenu = pygame.sprite.RenderUpdates()
-    menuItems = ['Attack','Wait','Special One', 'Special Two']
-    myMenu = Menu("Action:", menuItems, myfont, 50, 50, 200, 200)
+    #UImenu = pygame.sprite.RenderUpdates()
+    menuItems = ["Attack", "Move" ,"Wait","Special One", "Special Two"]
+    myMenu = Menu("Action:", menuItems, myfont, 50, 150, 200, 200)
 	
     #CHARACTERS!
     #
@@ -233,6 +233,8 @@ def main_pygame(file_name):
                 CurrentSprite_Defense_label = myfont.render("Defense:"+ str(CurrentSprite._Defense), 1, (100,100,100))
                 CurrentSprite_Health_label = myfont.render("Health:"+ str(CurrentSprite._Health)+"/"+str(CurrentSprite._MaxHealth), 1, (100,100,100))
                 
+                CurrentSpriteInfo = CharacterInfo(CurrentSprite, myfont, screen_height)
+                
 
 
                 
@@ -240,7 +242,8 @@ def main_pygame(file_name):
         ##Events include Mouse and Keyboard actions
 
         for event in pygame.event.get():
-            pressedkeys=pygame.key.get_pressed()
+            pressedkeys=pygame.key.get_pressed() #actions that come from the keyboard
+            action = myMenu.input(event) #actions that come from the menu
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
@@ -263,18 +266,18 @@ def main_pygame(file_name):
                 elif event.key == K_w: cam_world_pos_y -=tilesize#up
                 elif event.key == K_s: cam_world_pos_y +=tilesize#down
 
-                elif pressedkeys[K_z] and CanAttack and AttackMode==False and MoveMode==False:#attack
+                elif (pressedkeys[K_z] or action=="Attack") and CanAttack and AttackMode==False and MoveMode==False:#attack
                     print("Entering Attack Mode")
                     AttackMode=True #now we will wait for mouse imput on who to attack # we also need a way to cancel the attack
 
-                elif pressedkeys[K_x] and CanMove and MoveMode==False and AttackMode==False:#move
+                elif (pressedkeys[K_x] or action=="Move") and CanMove and MoveMode==False and AttackMode==False:#move
                     print("Entering Move Mode")
                     MoveMode=True
                     Collider= CollisionFinder(Characters, sprite_layers)
-                    moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
+                    moves=Collider.PathList(CurrentSprite.tile_x,actor.tile_y,CurrentSprite._Movement)
                     DrawPossibleMoves(moves,shadowlayer,sprite_layers)
                     
-                elif pressedkeys[K_c]:#skipturn/wait
+                elif pressedkeys[K_c] or action=="Wait":#skipturn/wait
                     ClearLayer(shadowlayer,sprite_layers) 
                     CurrentSprite._Initiative=0# or something smaller
                     GameTimerOn=True
@@ -333,10 +336,14 @@ def main_pygame(file_name):
 
             #if pressedkeys[K_RETURN]:
             #    print("Enter Hit")
-            ##END KEYLOGGING
+            
 
-        ##BEGIN MOUSELOGGING
+        
 
+        
+        
+
+        ##Mostly Actor stuff
         
         if (pygame.mouse.get_pressed()[0] and EnableMouse) or (pressedkeys[K_RETURN]):
             #print("Mouse button 1 is pressed at:",tile_x, tile_y)
@@ -356,7 +363,7 @@ def main_pygame(file_name):
             '''
             #If there is already path options drawn, then we want to tell the focused actor to walk there.
 
-            if CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y: #clicked on CurrentSprite
+            if CurrentSprite !=[] and CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y: #clicked on CurrentSprite
                 pass
                 #do something else like maybe a menu screen
             elif AttackMode:
@@ -365,6 +372,7 @@ def main_pygame(file_name):
                     if actor.tile_x==tile_x and actor.tile_y==tile_y and actor != CurrentSprite:
                         print(CurrentSprite._Name, "is attacking", actor._Name)
                         CurrentSprite.Attack(actor)
+                        Characters.update(time)#updates experience
                         AttackMode=False
                         CanAttack=False
             elif MoveMode:
@@ -446,6 +454,7 @@ def main_pygame(file_name):
             screen.blit(CurrentSprite_Defense_label, (tilesize, (screen_tile_height-3)*tilesize))
             screen.blit(CurrentSprite_Health_label, (tilesize, (screen_tile_height-2.5)*tilesize))
 
+            screen.blit(CurrentSpriteInfo.surface, CurrentSpriteInfo.rect)
 
         #cursorbox
         screen.blit(cursorbox, (tilesize*(tile_x)-cam_world_pos_x,tilesize*(tile_y)-cam_world_pos_y))
@@ -454,6 +463,8 @@ def main_pygame(file_name):
         #Draw stuff
         #print("camera at:",cam_world_pos_x,cam_world_pos_x)
         screen.blit(myMenu.surface, myMenu.rect)
+        
+
         pygame.display.flip()
 
 
