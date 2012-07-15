@@ -96,6 +96,7 @@ def main_pygame(file_name):
 
     # load the cursorbox
     cursorbox= pygame.image.load("images/alpha_box.png")
+    ActiveShadowTile = pygame.image.load("images/ActiveShadow.png")
     
 
     # prepare map rendering
@@ -125,27 +126,27 @@ def main_pygame(file_name):
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((23-.5)*tilesize, (21-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], "Peach", 3, 2, 2, 6, 60)
+    PrincessSprite = Actor((23-.5)*tilesize, (21-1)*tilesize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], "Peach", 30, 2, 2, 6, 60)
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((24-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], "Bebop", 2, 2, 5, 5, 60)
+    PigSprite = Actor((24-.5)*tilesize, (21-1)*tilesize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], "Bebop", 20, 2, 5, 5, 60)
     Characters.add(PigSprite)
     
     #Solider of Fortune
     SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((25-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", 3, 4, 3, 3, 80)
+    SoldierSprite = Actor((25-.5)*tilesize, (21-1)*tilesize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", 30, 4, 3, 3, 80)
     Characters.add(SoldierSprite)
 
     #www.whoisthemask.com
     MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
-    MaskSprite = Actor((26-.5)*tilesize, (21-1)*tilesize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,2, 2, 5, 5, 75)
+    MaskSprite = Actor((26-.5)*tilesize, (21-1)*tilesize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,20, 2, 5, 5, 75)
     Characters.add(MaskSprite)
 
     #Skeletastic
     SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton.png')
-    SkeletonSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack" ,4, 3, 2, 6, 50)
+    SkeletonSprite = Actor((27-.5)*tilesize, (21-1)*tilesize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack" ,40, 3, 2, 6, 50)
     Characters.add(SkeletonSprite)
     
     sprite_layers[objectlayer].add_sprites(Characters)
@@ -224,15 +225,14 @@ def main_pygame(file_name):
                 CanMove=True
                 CanAttack=True
                 #Collider= CollisionFinder(Characters, sprite_layers)
-                #moves=Collider.PathList(actor.tile_x,actor.tile_y,actor._Movement)
-                #DrawPossibleMoves(moves,shadowlayer,sprite_layers)
-                          
+                #moves=Collider.Path                                  
                 EnableMouse=True
-                CurrentSprite_Name_label = myfont.render("Name:"+str(CurrentSprite.Name()), 1, (100, 100, 100))
-                CurrentSprite_Power_label = myfont.render("Power:"+ str(CurrentSprite._Power), 1, (100,100,100))
-                CurrentSprite_Defense_label = myfont.render("Defense:"+ str(CurrentSprite._Defense), 1, (100,100,100))
-                CurrentSprite_Health_label = myfont.render("Health:"+ str(CurrentSprite._Health)+"/"+str(CurrentSprite._MaxHealth), 1, (100,100,100))
                 
+                
+                ActiveShadowTileBox=ActiveShadowTile.get_rect()  
+                ActiveShadowTileBox.midbottom=(CurrentSprite.tile_x*tilesize+tilesize/2,CurrentSprite.tile_y*tilesize+tilesize)#again we need to translate 
+                sprite_layers[shadowlayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(ActiveShadowTile, ActiveShadowTileBox))
+
                 CurrentSpriteInfo = CharacterInfo(CurrentSprite, myfont, screen_height)
                 
 
@@ -302,23 +302,7 @@ def main_pygame(file_name):
                     sprite_layers[objectlayer].remove_sprite(NewPigSprite)
 
             #Debugging. If you need to take manual control of a sprite here is how you do it
-            '''
-            if event.key == K_RIGHT:
-                hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x+1,hero_pos_tile_y)
-                PrincessSprite.Move("Right")
-            #elif event.key == K_LEFT: hero_pos_tile_x -=1
-            elif event.key == K_LEFT: 
-                hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x-1,hero_pos_tile_y)
-                PrincessSprite.Move("Left")
-            #elif event.key == K_UP: hero_pos_tile_y -=1
-            elif event.key == K_UP:
-                hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x,hero_pos_tile_y-1)
-                PrincessSprite.Move("Up")
-            #elif event.key == K_DOWN: hero_pos_tile_y +=1
-            elif event.key == K_DOWN:
-                hero_pos_tile_x, hero_pos_tile_y = check_collision(sprite_layers[collisionlayer], hero_pos_tile_x, hero_pos_tile_y,hero_pos_tile_x,hero_pos_tile_y+1)
-                PrincessSprite.Move("Down")
-            '''        
+     
 
             if event.key == K_RIGHT:
                 pygame.mouse.set_pos([mouse_pos_x+tilesize, mouse_pos_y])
@@ -335,33 +319,12 @@ def main_pygame(file_name):
 
 
             #if pressedkeys[K_RETURN]:
-            #    print("Enter Hit")
-            
-
-        
-
-        
-        
+            #    print("Enter Hit")      
 
         ##Mostly Actor stuff
         
         if (pygame.mouse.get_pressed()[0] and EnableMouse) or (pressedkeys[K_RETURN]):
             #print("Mouse button 1 is pressed at:",tile_x, tile_y)
-            '''
-                #If no path is drawn then look to see if a character was clicked on
-                for actor in Characters:               
-                    if actor.tile_x==tile_x and actor.tile_y==tile_y:
-                        print(actor.tile_x,tile_x, actor.tile_y, tile_y)
-                        CurrentSprite=actor
-                        #cam_world_pos_x, cam_world_pos_y = (CurrentSprite.tile_x -screen_tile_width/2)*tilesize, (CurrentSprite.tile_y-screen_tile_height/2)*tilesize
-                        path_drawn=True
-                        GameTimerOn=False
-                        Collider= CollisionFinder(Characters, sprite_layers)
-                        moves=Collider.PathList(tile_x,tile_y,actor._Movement)
-                        DrawPossibleMoves(moves,shadowlayer,sprite_layers)
-                        print("Found Someone!",actor)
-            '''
-            #If there is already path options drawn, then we want to tell the focused actor to walk there.
 
             if CurrentSprite !=[] and CurrentSprite.tile_x==tile_x and CurrentSprite.tile_y==tile_y: #clicked on CurrentSprite
                 pass
@@ -387,18 +350,17 @@ def main_pygame(file_name):
                     #print("startmove")
                     MultiMove(path, Characters, CurrentSprite, sprite_layers, renderer, screen, clock, frames_per_sec)
                     #print("endmove")
+
+                    ActiveShadowTileBox=ActiveShadowTile.get_rect()  
+                    ActiveShadowTileBox.midbottom=(tile_x*tilesize+tilesize/2,tile_y*tilesize+tilesize)#again we need to translate 
+                    sprite_layers[shadowlayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(ActiveShadowTile, ActiveShadowTileBox))
+                    
                     MoveMode=False
                     CanMove=False
                     EnableMouse=True
             else: #not clicking on a move or place or anything
                  pass
-        '''
-        #Mouse moves the camera at the end of the screen
-        if mouse_pos_x<tilesize: cam_world_pos_x -=tilesize
-        if mouse_pos_y<tilesize: cam_world_pos_y -=tilesize
-        if mouse_pos_x>screen_width-tilesize: cam_world_pos_x +=tilesize
-        if mouse_pos_y>screen_height-tilesize: cam_world_pos_y +=tilesize
-        '''       
+     
 
 
 
@@ -448,12 +410,6 @@ def main_pygame(file_name):
         screen.blit(cameracoords,(32,96))
         
         if CurrentSprite !=[]:
-            screen.blit(controlsdescription, (tilesize, (screen_tile_height-4.5)*tilesize))
-            screen.blit(CurrentSprite_Name_label, (tilesize, (screen_tile_height-4)*tilesize))
-            screen.blit(CurrentSprite_Power_label, (tilesize, (screen_tile_height-3.5)*tilesize))
-            screen.blit(CurrentSprite_Defense_label, (tilesize, (screen_tile_height-3)*tilesize))
-            screen.blit(CurrentSprite_Health_label, (tilesize, (screen_tile_height-2.5)*tilesize))
-
             screen.blit(CurrentSpriteInfo.surface, CurrentSpriteInfo.rect)
 
         #cursorbox
