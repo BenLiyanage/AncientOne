@@ -111,6 +111,7 @@ def main_pygame(file_name):
     sprite_layers = tiledtmxloader.helperspygame.get_layers_from_map(resources)
     # Checks if there is a special "Object Layer" which we will not use.
     sprite_layers = [layer for layer in sprite_layers if not layer.is_object_group]
+    #print(sprite_layers.__class__)
 
     #Characters contains all the dynamic sprites
     Characters = pygame.sprite.RenderUpdates()
@@ -452,7 +453,7 @@ def CameraFocus(start_x, start_y, end_x, end_y, speed, cam_world_pos_xmin, cam_w
     dy=0
     #records for posterity the original camera positions
     #dx, dy = int((end_x-start_x)/steps), int((end_y-start_y)/steps)
-    print(dx, dy)
+    #print(dx, dy)
     
     if end_x>start_x:
         dx=speed
