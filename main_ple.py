@@ -2,8 +2,8 @@ import sys
 import os
 import array
 import pygame
-import collision
-from collision import CollisionFinder, PopBestPath
+import collision_old
+from collision_old import CollisionFinder, PopBestPath
 
 import ui
 from ui import Menu, CharacterInfo
@@ -275,7 +275,7 @@ def main_pygame(file_name):
                     print("Entering Move Mode")
                     MoveMode=True
                     Collider= CollisionFinder(Characters, sprite_layers)
-                    moves=Collider.PathList(CurrentSprite.tile_x,actor.tile_y,CurrentSprite._Movement)
+                    moves=Collider.PathList(CurrentSprite.tile_x,CurrentSprite.tile_y,CurrentSprite._Movement)
                     DrawPossibleMoves(moves,shadowlayer,sprite_layers)
                     
                 elif pressedkeys[K_c] or action=="Wait":#skipturn/wait

@@ -94,7 +94,7 @@
    eJzt0zEKwjAYhuHkWF6jOquzuoggDh5AnK1XEgf1DupgHaxH6Dd0cEsgw5/I+8BLh3T4Aq1zAIB/cffOPdTTWy9J89L+Rr0Lv8dH+1v1zfgeg4h3Tv3+c8b3iHHR/qu6FX4PlGcV+OZC55Z22nZQtdqqo9r7+HMAZVkG/t/QOQAAAAAAvyo1VCPrIYnGaqKmxjtSzdRcLayHJFr3z43pCgBA7jo9bBkq
   </data>
  </layer>
- <layer name="collision" width="50" height="50" visible="0">
+ <layer name="collision" width="50" height="50">
   <data encoding="base64" compression="zlib">
    eJzt2NEJACEMwNCO5f6TucApyqmkJQG/6wMFsUVEK7Kyp4OVDlY6WOnYm3E7Hazz6P1gpePM3NG7e/ddruNfmRyzveiYz3pdFcfpdLDSwUoHKx2sdLDSwUoHKx2sdLDSwerLsfI/QSvbfkfpYKWDVTVHhdUBTFs+kQ==
   </data>

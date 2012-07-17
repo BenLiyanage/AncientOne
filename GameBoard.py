@@ -10,8 +10,8 @@ import pygame
 
 #from pygame.locals import*
 
-#import sprites
-#from sprites import AnimatedSprite, Actor
+import sprites
+from sprites import AnimatedSprite, Actor
 
 import tiledtmxloader #this reads .tmx files
 
@@ -44,6 +44,9 @@ class Board(object):
         self._tileWidth = self._width // tileSize
         self._camPos_x = 0;#16*tilesize
         self._camPos_y = 0;#3*tilesize
+        self._screenTileOffset_x=-int((self._screenWidth/2) // tileSize)
+        self._screenTileOffset_y=-int((self._screenHeight/2) // tileSize)
+        
 
         self._camDest_x = 0
         self._camDest_y = 0
@@ -82,8 +85,9 @@ class Board(object):
         #Renders the layers to the screen
         for sprite_layer in self.sprite_layers:
             self._renderer.render_layer(self._screen, sprite_layer)
-    def Characters(self):
-        return self._characters
+
+
+        #print(self.sprite_layers[self._collisionLayer].content2D)
 
     def update(self, t):#might need (self,t) later
                 # render the map
@@ -107,6 +111,8 @@ class Board(object):
 
         #draws a cursor
         self._screen.blit(self._cursorBox,((tile_x)*self._tileSize, (tile_y)*self._tileSize))
+
+        
  
 
         #maybe update the camera if necessary
@@ -116,7 +122,15 @@ class Board(object):
         
         self._renderer.set_camera_position(self._camPos_x, self._camPos_y, "topleft")
 
-    
+
+    def Characters(self):
+        return self._characters
+
+    def HighlightTile(self, tile_x, tile_y, imagepath):
+        BoxImage=pygame.image.load(imagepath)
+        BoxRect=BoxImage.get_rect()  
+        BoxRect.midbottom=(tile_x*self._tileSize+self._tileSize/2,tile_y*self._tileSize+self._tileSize)#again we need to translate 
+        self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
 
     def MoveCamera(self, x, y, relative=False): #like panning but moves directly
         #Note if relative = True it will
@@ -131,8 +145,8 @@ class Board(object):
         if self._camPos_x > self._camMax_x: self._camPos_x = self._camMax_x
         if self._camPos_y < self._camMin_y: self._camPos_y = self._camMin_y
         if self._camPos_y > self._camMax_y: self._camPos_y = self._camMax_y
-        self._camDest_x = self_camPos_x
-        self._camDest_y= self_camDesk_y
+        self._camDest_x = self._camPos_x
+        self._camDest_y= self._camPos_y
 
     def PanCamera(self, x,y, relative= False):#sets a destination for the camera to pan toward.
         if relative:
@@ -163,6 +177,10 @@ class Board(object):
         
     def ClearLayer(self, layer): #to clear the shadow layer after a players turn is over.
         self.sprite_layers[layer].sprites=[]
+    def getLayers(self):
+        return self.sprite_layers
+    def getCharacters(self):
+        return self._characters
 
     def DrawPossibleMoves(self, moves):
         for i in range(len(moves)):
@@ -171,7 +189,16 @@ class Board(object):
             BoxRect.midbottom=(moves[i][0]*self._tileSize+self._tileSize/2,moves[i][1]*self._tileSize+self._tileSize)#again we need to translate 
             self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
 
-  
+    def getTile(self, mouse_pos_x,mouse_pos_y):# returns a tuple
+        tile_x, tile_y = (mouse_pos_x + self._camPos_x)// self._tileSize, (mouse_pos_y+ self._camPos_y) // self._tileSize
+        for actor in self._characters:
+            if (actor.tile_x, actor.tile_y) == (tile_x, tile_y):
+                return ("Actor", actor, (tile_x, tile_y))
+        if self.sprite_layers[self._collisionLayer].content2D[tile_y][tile_x] is  not None: #remember it reverses coordinates
+            return ("Collision",0, (tile_x, tile_y))
+        else:
+            return ("Clear",0, (tile_x, tile_y))
+
 
 
     '''
@@ -180,11 +207,10 @@ class Board(object):
 
     def moveCharacter()
 
-    def getTile(): #Tells you what is standing in the tile you are looking at. 
     def collisions():#exports a 2d array of collision information.  It might be useful.
-    def MidAnimation() #checks if the board is animating something
+
     def pauseBoard(): #everything will stop ticking, including walk animations and such.
-    def MoveSprite(x,y, TileCoordinates=True):
+
     '''
 
         

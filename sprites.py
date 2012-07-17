@@ -22,13 +22,15 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		self.image = self._images[0]
 		self._height = self.image.get_height()
 		self._width = self.image.get_width()
-
+		
 		self._tilesize=32
 		self.tile_x=int((x+self._tilesize/2) //self._tilesize)
                 self.tile_y=int((y+self._tilesize) //self._tilesize)
 
 		self.rect = pygame.Rect(x, y, self._height, self._width)
 		self._destination = pygame.Rect(x, y, self._height, self._width)
+
+		self._path=[]#this is a list of path instructions that the character must remember for multimove
 
 
 		print "finished loading AnimatedSprite"
@@ -54,6 +56,7 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 
 			if self.rect.left == self._destination.left and self.rect.top == self._destination.top:
 				self._MidAnimation = 0
+				
 				#print("MidAnimation=0")
 
 			self._lastAnimation = t
@@ -76,10 +79,18 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		    	self.image = self._images[self._frame]
 		    	self._lastImageRotation = t
 		    	#self._frame+=1
+
+                if self._path !=[]and self._MidAnimation ==0:
+                        self._path.reverse()#since pop() pulls the last element
+                        nextmove=self._path.pop()
+                        self._path.reverse()
+                        self.Move(nextmove)
+                
                         
+                
 		    	#Updates the tile coordinates (with the offset)
-			self.tile_x=int((self.rect.x+self._tilesize/2) //self._tilesize)
-                        self.tile_y=int((self.rect.y+self._tilesize) //self._tilesize)	    	
+                self.tile_x=int((self.rect.x+self._tilesize/2) //self._tilesize)
+                self.tile_y=int((self.rect.y+self._tilesize) //self._tilesize)	    	
 
 	def setImageSet(self, imageSet, postAnimationAction):
 
@@ -90,6 +101,27 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		self._images = imageSet
 		self._postAnimationAction = postAnimationAction
 		self._frame = -1; #next update will force a redraw of the first frame
+
+	def Move(self, direction):
+		if not self._MidAnimation:
+			self._MidAnimation = 1;
+			#print("MidAnimation =1")
+				# TODO Need to accomodate for centering on the screen/not centering on the screen. PLE-made some adjustment in the gameboard to fix this
+			if direction == "Left":
+				self._images = self._MoveLeftImages
+				self._destination.move_ip(-self._tilesize, 0)
+			elif direction == "Up":
+				self._images = self._MoveUpImages
+				self._destination.move_ip(0, -self._tilesize)
+			elif direction == "Down":
+				self._images = self._MoveDownImages
+				self._destination.move_ip(0, +self._tilesize)
+			elif direction == "Right":
+				self._images = self._MoveRightImages
+				self._destination.move_ip(self._tilesize, 0)
+			#self._MidAnimation = 1
+	def MultiMove(self, newpath):
+                self._path=newpath
 
 
 
@@ -141,31 +173,16 @@ class Actor(AnimatedSprite):
 		self._Experience = 0
 		self._Level = 1
 		self._Actions = {}
+		self._Range=1#the range of attacks, we can make this more sophisticated later
+
+		
+
 		
 		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
                 
                 
 		self.RegisterAction("wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
 
-        
-	def Move(self, direction):
-		if not self._MidAnimation:
-			self._MidAnimation = 1;
-			#print("MidAnimation =1")
-				# TODO Need to accomodate for centering on the screen/not centering on the screen. PLE-made some adjustment in the gameboard to fix this
-			if direction == "Left":
-				self._images = self._MoveLeftImages
-				self._destination.move_ip(-self._tilesize, 0)
-			elif direction == "Up":
-				self._images = self._MoveUpImages
-				self._destination.move_ip(0, -self._tilesize)
-			elif direction == "Down":
-				self._images = self._MoveDownImages
-				self._destination.move_ip(0, +self._tilesize)
-			elif direction == "Right":
-				self._images = self._MoveRightImages
-				self._destination.move_ip(self._tilesize, 0)
-			#self._MidAnimation = 1
 
 	def RegisterAction(self, actionName, actionDescription, actionMethod, actionAnimation, actionSkillLevel=-1):
 
@@ -242,6 +259,10 @@ class Actor(AnimatedSprite):
 			HealthBonus = self._MaxHealth + 10 + (self._MaxHealth * .1)
 			self._MaxHealth = self._MaxHealth + HealthBonus
 			self._Health = self._Health + HealthBonus
+                
+
+
+
 
 # These need to be in any extension of the Sprite Class.  see http://www.pygame.org/docs/tut/SpriteIntro.html .(PLE)
         def add_internal(self, group):
@@ -249,6 +270,8 @@ class Actor(AnimatedSprite):
 
         def remove_internal(self, group):
                 del self.__g[group]
+
+
 
 '''
 	def update(self, t):
