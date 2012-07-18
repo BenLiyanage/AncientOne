@@ -59,7 +59,7 @@ def main_pygame(file_name):
 
     #UI sprite container
     #UImenu = pygame.sprite.RenderUpdates()
-    menuItems = ["Attack", "Move" ,"Wait","Special One", "Special Two"]
+    menuItems = ["Attack", "Move" ,"Wait","Special One", "Special Two", "Cancel"]
     myMenu = Menu("Action:", menuItems, myfont, 50, 150, 200, 200)
     
 
@@ -68,27 +68,28 @@ def main_pygame(file_name):
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], "Peach", 3, 2, 2, 6, 60, PrincessImageSet[1])
+    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 'Peach', 'Friendly', 3, 2, 2, 7, 1, PrincessImageSet[1])
     Characters.add(PrincessSprite)
+    print("The Princess is really fragile for testing purposes")
   
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((24-.5)*tileSize, (21-1)*tileSize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], "Bebop", 2, 2, 5, 5, 60 ,PrincessImageSet[1])
+    PigSprite = Actor((24-.5)*tileSize, (21-1)*tileSize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 'Bebop','Hostile', 2, 2, 5, 5, 60 ,PrincessImageSet[1])
     Characters.add(PigSprite)
     
     #Solider of Fortune
     SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", 3, 4, 3, 3, 80, PrincessImageSet[1])
+    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", 'Friendly' ,3, 4, 3, 3, 80, PrincessImageSet[1])
     Characters.add(SoldierSprite)
 
     #www.whoisthemask.com
     MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
-    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,2, 2, 5, 5, 75, PrincessImageSet[1])
+    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,'Hostile',2, 2, 5, 5, 75, PrincessImageSet[1])
     Characters.add(MaskSprite)
 
     #Skeletastic
     SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton.png')
-    SkeletonSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack" ,4, 3, 2, 6, 50 ,PrincessImageSet[1])
+    SkeletonSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack", 'Hostile' ,4, 3, 2, 6, 50 ,PrincessImageSet[1])
     Characters.add(SkeletonSprite)
 
     
@@ -145,6 +146,8 @@ def main_pygame(file_name):
                 PlayTurn.MoveMode()
             elif (action == 'Wait' or event.key==K_c): #note right now this overrides whatever mode you were in, a back button might be nice 
                 PlayTurn.EndTurn()
+            elif(action == "Cancel" or event.key == K_v):
+                PlayTurn.CancelMode()
             '''
             #single keystroke type inputs
             if event.key ==K_RIGHT: pygame.mouse.set_pos([mouse_pos_x+tileSize, mouse_pos_y])

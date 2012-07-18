@@ -151,7 +151,7 @@ def load_sliced_sprites(w, h, filename):
 
 
 class Actor(AnimatedSprite):
-	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Name, Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
+	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
 		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y)
                 #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
@@ -173,7 +173,7 @@ class Actor(AnimatedSprite):
 		self._Experience = 0
 		self._Level = 1
 		self._Actions = {}
-		self._Range=1#the range of attacks, we can make this more sophisticated later
+		self._Alignment= Alignment#'Friendly', 'Neutral', 'Hostile' 
 
 		
 
@@ -200,12 +200,14 @@ class Actor(AnimatedSprite):
 	def StartTurn(self):
 		self._Initiative = self._Initiative + self._Speed
 
-	def Kill(self, AnimationLayer):
-		self.setImageSet(self, self._DeathImages, "dispose")
+	#def Kill(self, AnimationLayer):
+	def Kill(self):
+		#self.setImageSet(self, self._DeathImages, "dispose")
 		# TODO figure out if this is pass by value or pass by reference
 		# this is needed for death animation so that we can remvoe it from the list
-		self._AnimationLayer = AnimationLayer
-
+ 
+		#self._AnimationLayer = AnimationLayer
+                self.kill()#Keep it simple for now (PLE)
 	def Wait(self):
 		#Personal call:  
 		#Making no offensive action lets you take your next action sooner, based on how fast you are.
@@ -221,11 +223,14 @@ class Actor(AnimatedSprite):
 		self._Health = self._Health - damage
 		if self._Health <= 0:
 			# TODO: Need to get AnimationLayer from somewhere
-			self.Kill(self._AnimationLayer)
+			#self.Kill(self._AnimationLayer)
+			self.Kill()
 		experience = 10 + (damage * .1)
 		return experience
 	def Name(self):
                 return self._Name
+        def Alignment(self):
+                return self._Alignment
 	def Power(self):
 		return self._Power
 	def Defense(self):
