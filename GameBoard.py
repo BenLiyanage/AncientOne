@@ -174,12 +174,16 @@ class Board(object):
             self._camPos_y +=dy
         else:
             self._camPos_y = self._camDest_y
+    def Animating(self):
+        if self._camPos_x != self._camDest_x or self._camPos_y != self._camDest_y:
+            return True
+        else: return False
         
     def ClearLayer(self, layer): #to clear the shadow layer after a players turn is over.
         self.sprite_layers[layer].sprites=[]
     def getLayers(self):
         return self.sprite_layers
-    def getCharacters(self):
+    def Characters(self):
         return self._characters
 
     def DrawPossibleMoves(self, moves):

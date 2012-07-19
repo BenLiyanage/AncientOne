@@ -123,6 +123,12 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 	def MultiMove(self, newpath):
                 self._path=newpath
 
+        def Animating(self):
+                if self._path !=[] or self._MidAnimation ==1:
+                        return True
+                else:
+                        return False
+
 
 
 
@@ -200,14 +206,14 @@ class Actor(AnimatedSprite):
 	def StartTurn(self):
 		self._Initiative = self._Initiative + self._Speed
 
+        def Kill(self):
 	#def Kill(self, AnimationLayer):
-	def Kill(self):
 		#self.setImageSet(self, self._DeathImages, "dispose")
 		# TODO figure out if this is pass by value or pass by reference
 		# this is needed for death animation so that we can remvoe it from the list
  
 		#self._AnimationLayer = AnimationLayer
-                self.kill()#Keep it simple for now (PLE)
+                print(self.Name(), 'has been killed!')
 	def Wait(self):
 		#Personal call:  
 		#Making no offensive action lets you take your next action sooner, based on how fast you are.
@@ -217,6 +223,8 @@ class Actor(AnimatedSprite):
 		damage = self._Power - target._Defense
 		experience = target.RecieveDamage(damage)
 		self.GetExperience(experience)
+
+		print(self.Name(), 'has damamged', target.Name(),'for', damage, 'damage!')
 		return damage
 
 	def RecieveDamage(self, damage):
@@ -224,7 +232,7 @@ class Actor(AnimatedSprite):
 		if self._Health <= 0:
 			# TODO: Need to get AnimationLayer from somewhere
 			#self.Kill(self._AnimationLayer)
-			self.Kill()
+                        self.Kill()
 		experience = 10 + (damage * .1)
 		return experience
 	def Name(self):

@@ -78,7 +78,7 @@ def PossibleMovesPath(board, tile_x, tile_y, movement_value,dirs=[]):
 
 
                 
-        return tile_rects
+        return tile_rects #these are the moves each possible move looks like a string of these (tile_x,tile_y,movement_value,dirs)
         
 def PathList(board, tile_x, tile_y, movement_value):
     return cleanPathList(PossibleMovesPath(board, tile_x, tile_y, movement_value,[]))
