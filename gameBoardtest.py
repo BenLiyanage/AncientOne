@@ -30,6 +30,10 @@ FRIENDLY='Friendly'
 HOSTILE='Hostile'
 NEUTRAL = 'Neutral'
 
+RANGED="Ranged"
+
+SPECIAL="Special"
+
 tileSize=32
 
 def main():
@@ -67,7 +71,7 @@ def main_pygame(file_name):
 
     #UI sprite container
     #UImenu = pygame.sprite.RenderUpdates()
-    menuItems = ["Attack", "Move" ,"Wait","Special One", "Special Two", "Cancel"]
+    menuItems = ["Attack", "Move" ,"Wait", SPECIAL, "Cancel"]
     myMenu = Menu("Action:", menuItems, myfont, 50, 150, 200, 200)
     
 
@@ -131,7 +135,7 @@ def main_pygame(file_name):
         pressedMouse = pygame.mouse.get_pressed() # mouse pressed event 3 booleans [button1, button2, button3]
 
         mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos() #mouse coordinates
-        tile_x, tile_y = mouse_pos_x// tileSize, mouse_pos_y // tileSize 
+        tile_x, tile_y = mouse_pos_x// tileSize, mouse_pos_y // tileSize #note the board translates coordinates depending on the location of the camera
         for event in pygame.event.get():
 
             action = myMenu.input(event) #actions that come from the menu
@@ -145,13 +149,15 @@ def main_pygame(file_name):
                 sys.exit()
             
             if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
-            #print(action)
+            print(action)
             #UI or turn events
             if (action=='Attack' or event.key==K_z)and PlayTurn.Mode()==[]:#right now it brings up a target list
                 PlayTurn.AttackMode()
                 
             elif (action == 'Move' or event.key==K_x) and PlayTurn.Mode()==[]:
                 PlayTurn.MoveMode()
+            elif (action == SPECIAL):
+                PlayTurn.SpecialMode([])
             elif (action == 'Wait' or event.key==K_c): #note right now this overrides whatever mode you were in, a back button might be nice 
                 PlayTurn.EndTurn()
             elif(action == "Cancel" or event.key == K_v):
@@ -178,6 +184,8 @@ def main_pygame(file_name):
                 #CurrentSprite.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
             elif PlayTurn.Mode()=="Move": #asks the game controller if the CurrentSprite can move there
                 PlayTurn.Move(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1] )
+            elif PlayTurn.Mode()==SPECIAL:
+                PlayTurn.AOEAttack(tile_x, tile_y, [])
                     
                     
         '''

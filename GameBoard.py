@@ -44,9 +44,12 @@ class Board(object):
         self._tileWidth = self._width // tileSize
         self._camPos_x = 0;#16*tilesize
         self._camPos_y = 0;#3*tilesize
+        self._camTile_x = self._camPos_x // self._tileSize
+        self._camTile_y = self._camPos_y // self._tileSize
         self._screenTileOffset_x=-int((self._screenWidth/2) // tileSize)
         self._screenTileOffset_y=-int((self._screenHeight/2) // tileSize)
-        
+        self._cursorTileOffset_x=0 #the cursorTileOffset is for AOE templates centering
+        self._cursorTileOffset_y=0
 
         self._camDest_x = 0
         self._camDest_y = 0
@@ -55,7 +58,7 @@ class Board(object):
         self._camMax_x = self._width - self._screenWidth
         self._camMax_y = self._height - self._screenHeight 
         self._midAnimation = 0
-
+        
 
         
         self._resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
@@ -94,7 +97,12 @@ class Board(object):
 
         mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos() #mouse coordinates
         tile_x, tile_y = mouse_pos_x// self._tileSize, mouse_pos_y // self._tileSize
-        #this handles both offsetting and the camera movements
+
+        #removes dead characters: We will probably have to check for animation later.
+        for actor in self._characters:
+            if actor.Health()<=0:
+                self._characters.remove(actor)
+            
 
         self.ClearLayer(self._objectLayer)
         #self.sprite_layers[self._objectLayer].add_sprite(self._Cursor)
@@ -110,15 +118,17 @@ class Board(object):
                 self._renderer.render_layer(self._screen, sprite_layer)
 
         #draws a cursor
-        self._screen.blit(self._cursorBox,((tile_x)*self._tileSize, (tile_y)*self._tileSize))
+        
+        self._screen.blit(self._cursorBox,((tile_x+self._cursorTileOffset_x)*self._tileSize, (tile_y+self._cursorTileOffset_y)*self._tileSize))
 
         
  
 
         #maybe update the camera if necessary
         self.CameraUpdate()
-            
-
+        
+        self._camTile_x = self._camPos_x // self._tileSize
+        self._camTile_y = self._camPos_y // self._tileSize
         
         self._renderer.set_camera_position(self._camPos_x, self._camPos_y, "topleft")
 
@@ -131,6 +141,19 @@ class Board(object):
         BoxRect=BoxImage.get_rect()  
         BoxRect.midbottom=(tile_x*self._tileSize+self._tileSize/2,tile_y*self._tileSize+self._tileSize)#again we need to translate 
         self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
+
+    def HighlightArea(self, tile_x,tile_y, distance,imagepath): #highlights an entire with radius distance
+        for i in range(-distance,distance):
+            for j in range(distance-abs(i)):
+                
+                self.HighlightTile(tile_x+i, tile_y+j, imagepath)
+                if j != 0:
+                    self.HighlightTile(tile_x+i, tile_y-j, imagepath)
+
+    def ChangeCursor(self,cursorpath,tileOffset_x, tileOffset_y):
+        self._cursorTileOffset_x, self._cursorTileOffset_y = tileOffset_x, tileOffset_y
+        self._cursorBox= pygame.image.load(cursorpath)
+
 
     def MoveCamera(self, x, y, relative=False): #like panning but moves directly
         #Note if relative = True it will

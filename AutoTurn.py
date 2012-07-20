@@ -72,7 +72,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
             closeAllyMove=move
         #print(move)
         #print(closeOpponent.Name())
-        if dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y) < dist(closeOpponentMove[0], closeOpponentMove[1], closeOpponent.tile_x, closeOpponent.tile_y):
+        if dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y)==1 or dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y) < dist(closeOpponentMove[0], closeOpponentMove[1], closeOpponent.tile_x, closeOpponent.tile_y):
             closeOpponentMove=move
         if dist(move[0], move[1], closeAlly.tile_x, closeAlly.tile_y) < dist(closeAllyMove[0], closeAllyMove[1], closeAlly.tile_x, closeAlly.tile_y):
             closeAllyMove=move           
@@ -84,7 +84,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
         Turn.addQueue('Move', closeOpponent, closeAllyMove)
         Turn.addQueue('Wait', closeOpponent, closeAllyMove)
 
-    elif opponentDist < Turn.CurrentSprite().Movement() and dist(closeOpponent.tile_x, closeOpponent.tile_y, closeOpponentMove[0], closeOpponentMove[1])==1:
+    elif opponentDist < Turn.CurrentSprite().Movement()+1 and dist(closeOpponent.tile_x, closeOpponent.tile_y, closeOpponentMove[0], closeOpponentMove[1])==1:
         Turn.addQueue('Move', closeOpponent, closeOpponentMove)
         Turn.addQueue("Attack", closeOpponent, closeOpponentMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
@@ -92,7 +92,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
     elif opponentDist >= Turn.CurrentSprite().Movement()+1 and opponentDist < distanceThreshold:
         Turn.addQueue('Move', closeOpponent, closeOpponentMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
-    elif opponentDist > Turn.CurrentSprite().Movement() and allyDist < 2*distanceThreshold:
+    elif opponentDist >= Turn.CurrentSprite().Movement()+1 and allyDist < 2*distanceThreshold:
         Turn.addQueue('Move', closeOpponent, closeAllyMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     else: # opponentDist > currentSprite.Movement and allyDist > 2*distanceThreshold:

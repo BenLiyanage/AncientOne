@@ -13,6 +13,7 @@ from AutoTurn import TurnAI, actorDist, dist
 
 ATTACK="Attack"
 MOVE="Move"
+SPECIAL="Special"
 
 class Turn(object):
     def __init__(self, board):
@@ -63,6 +64,17 @@ class Turn(object):
             self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
             #print(self._moves)
             self._board.DrawPossibleMoves(self._moves)
+
+
+    def SpecialMode(self, specialtype):# right now this is an AOE attack
+        if self._canAttack:
+            self._mode=SPECIAL
+            specialRange=4
+            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, specialRange,'images/blue_box.png')            
+            self.Board().ChangeCursor("images/area01.png", -1, -1)
+
+
+        
     def CancelMode(self):
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
@@ -118,7 +130,7 @@ class Turn(object):
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
 
         if self._currentSprite.Alignment() == 'Friendly':
-            TurnAI(self)#only do this if you want them to fight each other
+            #TurnAI(self)#only do this if you want them to fight each other
             return self._currentSprite
         else:
             #print('Found a hostile')
@@ -136,6 +148,22 @@ class Turn(object):
         self._mode=[]
         #blot out the UI somehow
 
+    def AOEAttack(self,tile_x,tile_y, attacktype):
+        board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
+        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
+            self._board.ClearLayer(self._board._shadowLayer)
+            #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
+            self.Board().ChangeCursor("images/blue_box.png", 0, 0)
+            for actor in self.Characters():
+                print(actor.tile_x,actor.tile_y)
+                if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
+                    self._currentSprite.Attack(actor)
+                    print(self._currentSprite._Name, "attacked", actor._Name)
+            self._canAttack=False
+            self._mode=[]
+        else:
+            print("Target Tile is out of Range.")
+    
     def Move(self, tile_x, tile_y):
         #print("looking for a way to", tile_x, tile_y)
         if self._moves !=[]:
@@ -155,7 +183,7 @@ class Turn(object):
             self._moves=[]#again, just in case.
             self._mode=[]
         
-        
+
     def CurrentSprite(self):
         return self._currentSprite
     def Characters(self):
@@ -185,6 +213,7 @@ class Turn(object):
         actiontarget=action[1]
         actionmove=action[2]
         if actiontype=='Attack':
+            self.TargetList(1,1)#we do this for now
             self.CurrentSprite().Attack(actiontarget)
         elif actiontype=='Move':
             #print(actionmove[3])
@@ -193,7 +222,7 @@ class Turn(object):
             self._currentSprite.MultiMove(self._path)
         elif actiontype=='Wait':
             #print(self.CurrentSprite().Name(), 'is done with turn!')
-            self.Next()
+            self.EndTurn()
         else:
             print('You should not be here. An action called', actiontype, 'was called.')
         
