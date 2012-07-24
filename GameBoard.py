@@ -100,7 +100,10 @@ class Board(object):
 
         #removes dead characters: We will probably have to check for animation later.
         for actor in self._characters:
-            if actor.Health()<=0:
+            #if actor.Health()<=0 and actor._MidAnimation==0:
+                #Right now we are just removing the character, we may do something different later.
+            if actor.PostAnimationAction()=="remove":# and actor.Animating()==False and actor._frame >= len(actor._images):
+                print("Removing", actor.Name(),"from the board.")
                 self._characters.remove(actor)
             
 

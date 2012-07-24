@@ -64,18 +64,16 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		if t - self._lastImageRotation > self._imageRotationDelay:
 			self._frame += 1
 
-		    	if self._frame >= len(self._images): 
+		    	if self._frame >= len(self._images):
 				if self._postAnimationAction == "revert":
 					self._images = self._revertImageSet
 				elif self._postAnimationAction == "dispose":
-					# TODO
-					# need to trigger some way to remove this object from the set of things to update
-
-					# not sure if this will work.  I suspect that ._AnimationLayer is 
-					# pass by value rather then pass by reference
-					self._AnimationLayer.remove(self)
-
-				self._frame = -1
+                                        #print("time to take out the trash!")
+                                        #this tells the game board to remove the sprite                                        
+					self._postAnimationAction = "remove"
+					#print(self._postAnimationAction)
+					
+				self._frame = -1#-1
 		    	self.image = self._images[self._frame]
 		    	self._lastImageRotation = t
 		    	#self._frame+=1
@@ -102,26 +100,7 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		self._postAnimationAction = postAnimationAction
 		self._frame = -1; #next update will force a redraw of the first frame
 
-	def Move(self, direction):
-		if not self._MidAnimation:
-			self._MidAnimation = 1;
-			#print("MidAnimation =1")
-				# TODO Need to accomodate for centering on the screen/not centering on the screen. PLE-made some adjustment in the gameboard to fix this
-			if direction == "Left":
-				self._images = self._MoveLeftImages
-				self._destination.move_ip(-self._tilesize, 0)
-			elif direction == "Up":
-				self._images = self._MoveUpImages
-				self._destination.move_ip(0, -self._tilesize)
-			elif direction == "Down":
-				self._images = self._MoveDownImages
-				self._destination.move_ip(0, +self._tilesize)
-			elif direction == "Right":
-				self._images = self._MoveRightImages
-				self._destination.move_ip(self._tilesize, 0)
-			#self._MidAnimation = 1
-	def MultiMove(self, newpath):
-                self._path=newpath
+
 
         def Animating(self):
                 if self._path !=[] or self._MidAnimation ==1:
@@ -129,6 +108,8 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
                 else:
                         return False
 
+        def PostAnimationAction(self):
+                return self._postAnimationAction
 
 
 
@@ -157,7 +138,8 @@ def load_sliced_sprites(w, h, filename):
 
 
 class Actor(AnimatedSprite):
-	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages = []):
+	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, \
+                     Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages=[]):
 		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y)
                 #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
@@ -208,33 +190,78 @@ class Actor(AnimatedSprite):
 
         def Kill(self):
 	#def Kill(self, AnimationLayer):
-		#self.setImageSet(self, self._DeathImages, "dispose")
+		self.setImageSet(self._DeathImages, "dispose")
 		# TODO figure out if this is pass by value or pass by reference
 		# this is needed for death animation so that we can remvoe it from the list
- 
+                 
 		#self._AnimationLayer = AnimationLayer
+
+		#if not self._MidAnimation:
+		#	self._MidAnimation = 1;
+                #        self._images = self._DeathImages
                 print(self.Name(), 'has been killed!')
 	def Wait(self):
 		#Personal call:  
 		#Making no offensive action lets you take your next action sooner, based on how fast you are.
 		self._Initiative = self._Initiative + self._Speed
+		#self._images = self._MoveDownImages 
 
 	def Attack(self, target):
+                if not self._MidAnimation:
+			self._MidAnimation = 1;
+                        self._images = self._MoveUpImages
+                
 		damage = self._Power - target._Defense
 		experience = target.RecieveDamage(damage)
 		self.GetExperience(experience)
 
-		print(self.Name(), 'has damamged', target.Name(),'for', damage, 'damage!')
+		print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
 		return damage
 
 	def RecieveDamage(self, damage):
 		self._Health = self._Health - damage
 		if self._Health <= 0:
-			# TODO: Need to get AnimationLayer from somewhere
-			#self.Kill(self._AnimationLayer)
                         self.Kill()
-		experience = 10 + (damage * .1)
+		experience = 10 + (damage * .1)#probably factor in level at some point
 		return experience
+
+
+	def GetExperience(self, newExperience):
+		self._Experience = self._Experience + newExperience
+
+		if self._Experience > 100:
+			self._Experience = self._Experience % 100
+			self._Level = self._Level + 1
+			self._Power = self._Power + 1 + (self._Power * .1)
+			self._Defense = self._Defense + 1 + (self._Defense * .1)
+			self._Speed = self._Speed + 1 + (self._Speed * .1)
+			HealthBonus = self._MaxHealth + 10 + (self._MaxHealth * .1)
+			self._MaxHealth = self._MaxHealth + HealthBonus
+			self._Health = self._Health + HealthBonus
+
+
+	def Move(self, direction):
+		if not self._MidAnimation:
+			self._MidAnimation = 1;
+			#print("MidAnimation =1")
+				# TODO Need to accomodate for centering on the screen/not centering on the screen. PLE-made some adjustment in the gameboard to fix this
+			if direction == "Left":
+				self._images = self._MoveLeftImages
+				self._destination.move_ip(-self._tilesize, 0)
+			elif direction == "Up":
+				self._images = self._MoveUpImages
+				self._destination.move_ip(0, -self._tilesize)
+			elif direction == "Down":
+				self._images = self._MoveDownImages
+				self._destination.move_ip(0, +self._tilesize)
+			elif direction == "Right":
+				self._images = self._MoveRightImages
+				self._destination.move_ip(self._tilesize, 0)
+			#self._MidAnimation = 1
+	def MultiMove(self, newpath):
+                self._path=newpath
+                
+
 	def Name(self):
                 return self._Name
         def Alignment(self):
@@ -259,21 +286,6 @@ class Actor(AnimatedSprite):
 		return self._Level
 	def Actions(self):
 		return self._Actions
-
-	def GetExperience(self, newExperience):
-		self._Experience = self._Experience + newExperience
-
-		if self._Experience > 100:
-			self._Experience = self._Experience % 100
-			self._Level = self._Level + 1
-			self._Power = self._Power + 1 + (self._Power * .1)
-			self._Defense = self._Defense + 1 + (self._Defense * .1)
-			self._Speed = self._Speed + 1 + (self._Speed * .1)
-			HealthBonus = self._MaxHealth + 10 + (self._MaxHealth * .1)
-			self._MaxHealth = self._MaxHealth + HealthBonus
-			self._Health = self._Health + HealthBonus
-                
-
 
 
 

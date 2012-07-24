@@ -26,13 +26,15 @@ from AutoTurn import TurnAI
 
 MAP="images/map01.tmx"
 
+#alightments
 FRIENDLY='Friendly'
 HOSTILE='Hostile'
 NEUTRAL = 'Neutral'
 
+#other forms of attack
 RANGED="Ranged"
-
 SPECIAL="Special"
+
 
 tileSize=32
 
@@ -77,31 +79,33 @@ def main_pygame(file_name):
 
     #CHARACTERS!
     # (probably added differently later
+
+    MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
+    
     
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 'Peach', FRIENDLY, 3, 2, 2, 6, 1, PrincessImageSet[1])
+    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 'Peach', FRIENDLY, 3, 0, 2, 6, 1, DeathImages=MageDeathImageSet[0])
     Characters.add(PrincessSprite)
-    print("The Princess is really fragile for testing purposes")
-  
+
     #Bebop's Legacy
     PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((24-.5)*tileSize, (21-1)*tileSize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 'Bebop',HOSTILE, 2, 2, 5, 5, 60 ,PrincessImageSet[1])
+    PigSprite = Actor((24-.5)*tileSize, (21-1)*tileSize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 'Bebop',HOSTILE, 2, 0, 5, 5, 60 ,DeathImages=PrincessImageSet[1])
     Characters.add(PigSprite)
     
     #Solider of Fortune
     SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", FRIENDLY ,3, 4, 3, 3, 80, PrincessImageSet[1])
+    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", FRIENDLY ,3, 0, 3, 0, 1, DeathImages=MageDeathImageSet[0])
     Characters.add(SoldierSprite)
 
     #www.whoisthemask.com
     MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
-    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,HOSTILE,2, 2, 5, 5, 75, PrincessImageSet[1])
+    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,HOSTILE,2, 2, 5, 5, 75, DeathImages=MageDeathImageSet[0])
     Characters.add(MaskSprite)
 
     #Skeletastic
     SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton.png')
-    SkeletonSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack", HOSTILE ,4, 3, 2, 6, 50 ,PrincessImageSet[1])
+    SkeletonSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack", HOSTILE ,4, 3, 2, 6, 50 ,DeathImages=MageDeathImageSet[0])
     Characters.add(SkeletonSprite)
 
     
@@ -151,7 +155,9 @@ def main_pygame(file_name):
             if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
             print(action)
             #UI or turn events
-            if (action=='Attack' or event.key==K_z)and PlayTurn.Mode()==[]:#right now it brings up a target list
+            if PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
+                pass
+            elif (action=='Attack' or event.key==K_z)and PlayTurn.Mode()==[]:#right now it brings up a target list
                 PlayTurn.AttackMode()
                 
             elif (action == 'Move' or event.key==K_x) and PlayTurn.Mode()==[]:

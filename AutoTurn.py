@@ -72,14 +72,17 @@ def TurnAI(Turn): #determines what you are going to do on your turn
             closeAllyMove=move
         #print(move)
         #print(closeOpponent.Name())
-        if dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y)==1 or dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y) < dist(closeOpponentMove[0], closeOpponentMove[1], closeOpponent.tile_x, closeOpponent.tile_y):
+        if closeOpponent != [] and (dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y)==1 or \
+            dist(move[0], move[1], closeOpponent.tile_x, closeOpponent.tile_y) < dist(closeOpponentMove[0], closeOpponentMove[1], closeOpponent.tile_x, closeOpponent.tile_y)):
             closeOpponentMove=move
-        if dist(move[0], move[1], closeAlly.tile_x, closeAlly.tile_y) < dist(closeAllyMove[0], closeAllyMove[1], closeAlly.tile_x, closeAlly.tile_y):
+        if closeAlly !=[] and (dist(move[0], move[1], closeAlly.tile_x, closeAlly.tile_y) < dist(closeAllyMove[0], closeAllyMove[1], closeAlly.tile_x, closeAlly.tile_y)):
             closeAllyMove=move           
        #if attacktype =="Ranged": check that the distance for the new move is more than one but less than the range of the attack
         
+    if opponentDist==0:
+        Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     
-    if opponentDist==1:# and attackType != "Ranged"
+    elif opponentDist==1:# and attackType != "Ranged"
         Turn.addQueue('Attack', closeOpponent, closeOpponentMove)
         Turn.addQueue('Move', closeOpponent, closeAllyMove)
         Turn.addQueue('Wait', closeOpponent, closeAllyMove)

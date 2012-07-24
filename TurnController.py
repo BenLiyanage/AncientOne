@@ -116,7 +116,7 @@ class Turn(object):
         while highestInitiative < self._initiativeThreshold:
             #first add a little to everyones initiative
             for actor in self._characters:
-                actor._Initiative+=actor._Speed
+                actor.Wait()
                 #print(actor.Name(),'initiative increased to', actor.Initiative())
             #then find the highest
             for actor in self._characters:      
