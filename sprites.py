@@ -182,8 +182,8 @@ class Actor(AnimatedSprite):
 		self._Actions = {}
 		self._Alignment= Alignment#'Friendly', 'Neutral', 'Hostile' 
 
-		
-
+		self._WalkSound = pygame.mixer.Sound("sound/walk.wav")
+                self._HitSound = pygame.mixer.Sound("sound/hit.wav")
 		
 
                 
@@ -225,7 +225,7 @@ class Actor(AnimatedSprite):
 		self._Initiative = self._Initiative + self._Speed
 		#self._images = self._MoveDownImages 
 
-	def Attack(self, target):
+	def Attack(self, target, sound=True):
                 dx, dy= self.tile_x-target.tile_x, self.tile_y-target.tile_y
                 
                 if  abs(dx)>abs(dy):
@@ -238,7 +238,8 @@ class Actor(AnimatedSprite):
                                 self.setImageSet(self._AttackDownImages,"revert")
 			else:
                                 self.setImageSet(self._AttackUpImages,"revert")
-                
+                if sound:
+                        self._HitSound.play(loops=1)
 		damage = self._Power - target._Defense
 		experience = target.RecieveDamage(damage)
 		self.GetExperience(experience)
@@ -271,6 +272,7 @@ class Actor(AnimatedSprite):
 	def Move(self, direction):
 		if not self._MidAnimation:
 			self._MidAnimation = 1;
+			self._WalkSound.play(loops=2)
 			#print("MidAnimation =1")
 				# TODO Need to accomodate for centering on the screen/not centering on the screen. PLE-made some adjustment in the gameboard to fix this
 			if direction == "Left":

@@ -225,19 +225,22 @@ class Turn(object):
     def AOEAttack(self,tile_x,tile_y):
         board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
         if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
-            self._board.ClearLayer(self._board._shadowLayer)
+            
             #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
             HitAnyone=False
             for actor in self.Characters():
-                print(actor.tile_x,actor.tile_y)
+                #print(actor.tile_x,actor.tile_y)
                 if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
                     HitAnyone=True
                     self._currentSprite.Attack(actor)
                     print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
+                self._board.ClearLayer(self._board._shadowLayer)
+                AttackSound = pygame.mixer.Sound("sound/explosion.wav")
+                AttackSound.play()
                 self.Board().AnimatedParticleEffect(128,128,'images/magic/AOE_firelion.png',board_x, board_y)
                 self._canAttack=False
-                self._mode=[]
+                self.CancelMode()
                 
         else:
             print("Target Tile is out of Range.")

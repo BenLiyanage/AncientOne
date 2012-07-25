@@ -59,7 +59,16 @@ def main_pygame(file_name):
 
     pygame.init()
 
+    print(" z/x/c/v = atttack/move/wait/cancel, wasd=camera movement, '[]' control the volume of the background music")
+
+
     myfont = pygame.font.Font("petme/PetMe128.ttf", 10)
+
+    #Music
+    BGvolume=.05 #this is a number between 0 and 1
+    BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
+    BackgroundMusic.play(loops=-1)
+    BackgroundMusic.set_volume(BGvolume)
     
     worldMap = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file_name)
     assert worldMap.orientation == "orthogonal"
@@ -192,6 +201,15 @@ def main_pygame(file_name):
         elif pressedKeys[K_a]: GameBoard.MoveCamera(-tileSize,0, relative=True)#left
         elif pressedKeys[K_w]: GameBoard.MoveCamera(0,-tileSize, relative=True) #up
         elif pressedKeys[K_s]: GameBoard.MoveCamera(0,tileSize, relative=True) #down
+
+        elif pressedKeys[K_RIGHTBRACKET]:
+            if BGvolume<1:
+                BGvolume+=.05
+        elif pressedKeys[K_LEFTBRACKET]:
+            if BGvolume>0:
+                BGvolume-=.05
+        BackgroundMusic.set_volume(BGvolume)
+
         
         if pressedMouse[0]:
             #Seed what you clicked on and what turn mode you are in, then determins what to do
