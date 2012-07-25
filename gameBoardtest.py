@@ -80,12 +80,13 @@ def main_pygame(file_name):
     #CHARACTERS!
     # (probably added differently later
 
-    MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
+    DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
     
-    
+    '''
     #Obligatory Female Supporting Character (with sassyness!)
     PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 'Peach', FRIENDLY, 3, 0, 2, 6, 1, DeathImages=MageDeathImageSet[0])
+    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], \
+                               'Peach', FRIENDLY, 3, 0, 2, 6, 1, DeathImages=DeathImageSet[0])
     Characters.add(PrincessSprite)
 
     #Bebop's Legacy
@@ -95,18 +96,29 @@ def main_pygame(file_name):
     
     #Solider of Fortune
     SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", FRIENDLY ,3, 0, 3, 0, 1, DeathImages=MageDeathImageSet[0])
+    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", FRIENDLY ,3, 0, 3, 0, 1, DeathImages=DeathImageSet[0])
     Characters.add(SoldierSprite)
 
     #www.whoisthemask.com
     MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
-    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,HOSTILE,2, 2, 5, 5, 75, DeathImages=MageDeathImageSet[0])
+    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,HOSTILE,2, 2, 5, 5, 75, DeathImages=DeathImageSet[0])
     Characters.add(MaskSprite)
+    '''
 
     #Skeletastic
-    SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton.png')
-    SkeletonSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[1], SkeletonImageSet[0], SkeletonImageSet[2], SkeletonImageSet[3], "Jack", HOSTILE ,4, 3, 2, 6, 50 ,DeathImages=MageDeathImageSet[0])
+    SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_walk.png')
+    SkeletonAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_attack.png')
+    SkeletonSprite = Actor((20-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[0], SkeletonImageSet[1], SkeletonImageSet[2], SkeletonImageSet[3], \
+        DeathImageSet[0], SkeletonAttackImageSet[0], SkeletonAttackImageSet[1], SkeletonAttackImageSet[2], SkeletonAttackImageSet[3], \
+        "Jack", HOSTILE ,4, 0, 2, 6, 8)
     Characters.add(SkeletonSprite)
+
+    SuitImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_walk.png')
+    SuitAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_attack.png')
+    SuitSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
+        DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
+        "Tommy Lee Jones", FRIENDLY ,4, 0, 2, 6, 8)
+    Characters.add(SuitSprite)
 
     
     
@@ -144,29 +156,26 @@ def main_pygame(file_name):
 
             action = myMenu.input(event) #actions that come from the menu
  
-                
-            
-            #print(event)
             if event.type == QUIT or event.type == pygame.QUIT or (pressedKeys[K_w] and pressedKeys[K_LMETA]):
                 running = False
                 pygame.quit()
                 sys.exit()
+            if not (hasattr(event, 'key') or event.type==KEYDOWN or hasattr(event, 'button') or event.type==MOUSEBUTTONUP): continue
+            #print(action)
             
-            if not hasattr(event, 'key') or event.type!=KEYDOWN: continue
-            print(action)
             #UI or turn events
             if PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
                 pass
-            elif (action=='Attack' or event.key==K_z)and PlayTurn.Mode()==[]:#right now it brings up a target list
+            elif (action=='Attack' or pressedKeys[K_z])and PlayTurn.Mode()==[]:#right now it brings up a target list
                 PlayTurn.AttackMode()
                 
-            elif (action == 'Move' or event.key==K_x) and PlayTurn.Mode()==[]:
+            elif (action == 'Move' or pressedKeys[K_x]) and PlayTurn.Mode()==[]:
                 PlayTurn.MoveMode()
-            elif (action == SPECIAL):
-                PlayTurn.SpecialMode([])
-            elif (action == 'Wait' or event.key==K_c): #note right now this overrides whatever mode you were in, a back button might be nice 
+            #elif (action == SPECIAL):
+            #    PlayTurn.SpecialMode([])
+            elif (action == 'Wait' or pressedKeys[K_c]): #note right now this overrides whatever mode you were in, a back button might be nice 
                 PlayTurn.EndTurn()
-            elif(action == "Cancel" or event.key == K_v):
+            elif(action == "Cancel" or pressedKeys[K_v]):
                 PlayTurn.CancelMode()
             '''
             #single keystroke type inputs
@@ -176,7 +185,7 @@ def main_pygame(file_name):
             elif event.key == K_DOWN: pygame.mouse.set_pos([mouse_pos_x, mouse_pos_y+tileSize])
             '''
             #Debug
-            if event.key==K_g: grid= not grid #DEBUG: this toggles the grid
+            if pressedKeys[K_g]: grid= not grid #DEBUG: this toggles the grid
             
         if pressedKeys[K_d]: GameBoard.MoveCamera(tileSize,0, relative=True) #right
         elif pressedKeys[K_a]: GameBoard.MoveCamera(-tileSize,0, relative=True)#left
@@ -190,8 +199,8 @@ def main_pygame(file_name):
                 #CurrentSprite.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
             elif PlayTurn.Mode()=="Move": #asks the game controller if the CurrentSprite can move there
                 PlayTurn.Move(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1] )
-            elif PlayTurn.Mode()==SPECIAL:
-                PlayTurn.AOEAttack(tile_x, tile_y, [])
+            #elif PlayTurn.Mode()==SPECIAL:
+            #    PlayTurn.AOEAttack(tile_x, tile_y, [])
                     
                     
         '''

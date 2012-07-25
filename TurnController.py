@@ -66,7 +66,7 @@ class Turn(object):
             self._board.DrawPossibleMoves(self._moves)
 
 
-    def SpecialMode(self, specialtype):# right now this is an AOE attack
+    def AOEMode(self, specialtype):# right now this is an AOE attack
         if self._canAttack:
             self._mode=SPECIAL
             specialRange=4
@@ -143,7 +143,7 @@ class Turn(object):
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
         self._currentSprite.Attack(target)
         
-        print(self._currentSprite._Name, "attacked", target._Name)
+        #print(self._currentSprite._Name, "attacked", target._Name)
         self._canAttack=False
         self._mode=[]
         #blot out the UI somehow

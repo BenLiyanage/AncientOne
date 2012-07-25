@@ -65,15 +65,17 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 			self._frame += 1
 
 		    	if self._frame >= len(self._images):
-				if self._postAnimationAction == "revert":
-					self._images = self._revertImageSet
+				if self._postAnimationAction == "revert" and self.Animating()==False:
+                                        #if self.Animating()==False:
+                                        self._postanimationAction =[]
+					self._images = self._revertImageSet #maybe this should just be _DownImageSet 
 				elif self._postAnimationAction == "dispose":
                                         #print("time to take out the trash!")
                                         #this tells the game board to remove the sprite                                        
 					self._postAnimationAction = "remove"
 					#print(self._postAnimationAction)
 					
-				self._frame = -1#-1
+				self._frame = 0#-1
 		    	self.image = self._images[self._frame]
 		    	self._lastImageRotation = t
 		    	#self._frame+=1
@@ -138,8 +140,9 @@ def load_sliced_sprites(w, h, filename):
 
 
 class Actor(AnimatedSprite):
-	def __init__(self, start_pos_x, start_pos_y, MoveLeftImages, MoveUpImages, MoveDownImages, MoveRightImages, \
-                     Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, DeathImages=[]):
+	def __init__(self, start_pos_x, start_pos_y, MoveUpImages, MoveLeftImages, MoveDownImages, MoveRightImages, \
+                     DeathImages, AttackUpImages, AttackLeftImages, AttackDownImages, AttackRightImages, \
+                     Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, ):
 		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y)
                 #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
@@ -148,6 +151,10 @@ class Actor(AnimatedSprite):
 		self._MoveDownImages = MoveDownImages
 		self._MoveRightImages = MoveRightImages
 		self._DeathImages = DeathImages
+                self._AttackLeftImages = AttackLeftImages
+		self._AttackUpImages = AttackUpImages
+		self._AttackDownImages = AttackDownImages
+		self._AttackRightImages = AttackRightImages
 
 		# Set Stats
                 self._Name = Name
@@ -207,9 +214,18 @@ class Actor(AnimatedSprite):
 		#self._images = self._MoveDownImages 
 
 	def Attack(self, target):
-                if not self._MidAnimation:
-			self._MidAnimation = 1;
-                        self._images = self._MoveUpImages
+                dx, dy= self.tile_x-target.tile_x, self.tile_y-target.tile_y
+                
+                if  abs(dx)>abs(dy):
+                        if dx<0:
+                                self.setImageSet(self._AttackRightImages,"revert")
+			else:
+                                self.setImageSet(self._AttackLeftImages,"revert")
+                elif  abs(dx)<=abs(dy):
+                        if dy<0:
+                                self.setImageSet(self._AttackDownImages,"revert")
+			else:
+                                self.setImageSet(self._AttackUpImages,"revert")
                 
 		damage = self._Power - target._Defense
 		experience = target.RecieveDamage(damage)

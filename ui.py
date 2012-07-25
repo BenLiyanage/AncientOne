@@ -119,8 +119,11 @@ class Menu(InfoBox):
 				self.setActive(itemNumber)
 
 		elif (event.type == MOUSEBUTTONUP):
+                        
 			itemNumber = self.mouseOverItem()
+                        #itemNumber = self._currentMenuItem
 			if itemNumber is not None:
+                                print('From UI',self._menuItems[itemNumber]['name'])
 				return self._menuItems[itemNumber]['name']
 
 	def mouseOverItem(self):
