@@ -22,13 +22,14 @@
 
 def AOEMode(self, specialtype):# right now this is an AOE attack
     if self._canAttack:
-        self._mode=SPECIAL
+        self._mode=AOEMode
         specialRange=4
         self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, specialRange,'images/blue_box.png')            
         self.Board().ChangeCursor("images/area01.png", -1, -1)
 
-def AOEAttack(self,tile_x,tile_y, attacktype):
+def AOEAttack(self,tile_x,tile_y):
     board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
+    print('here')
     if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
         self._board.ClearLayer(self._board._shadowLayer)
         #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
@@ -42,6 +43,9 @@ def AOEAttack(self,tile_x,tile_y, attacktype):
         self._mode=[]
     else:
         print("Target Tile is out of Range.")
+
+def FireLion(self, tile_x, tile_y):
+    #both draws and damages everyone in the area
 
     
 

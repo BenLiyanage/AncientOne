@@ -14,6 +14,7 @@ from AutoTurn import TurnAI, actorDist, dist
 ATTACK="Attack"
 MOVE="Move"
 SPECIAL="Special"
+AOE="AOE"
 
 class Turn(object):
     def __init__(self, board):
@@ -36,6 +37,8 @@ class Turn(object):
         #these two are used to string together actions.
         self._MidAction = 0
         self._actionQueue = []
+
+        ##Load UsefulSprite/Images
 
         
     def Mode(self):
@@ -66,18 +69,11 @@ class Turn(object):
             self._board.DrawPossibleMoves(self._moves)
 
 
-    def AOEMode(self, specialtype):# right now this is an AOE attack
-        if self._canAttack:
-            self._mode=SPECIAL
-            specialRange=4
-            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, specialRange,'images/blue_box.png')            
-            self.Board().ChangeCursor("images/area01.png", -1, -1)
-
-
         
     def CancelMode(self):
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
+        self.Board().ChangeCursor("images/blue_box.png", 0, 0)
         self._moves=[]
         self._path=[]
         self._targetList=[]
@@ -85,6 +81,7 @@ class Turn(object):
         
     def EndTurn(self):
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
+        self.Board().ChangeCursor("images/blue_box.png", 0, 0)
         self._currentSprite._Initiative=0
         self._currentSprite=[]
         self._canAttack=True
@@ -148,21 +145,7 @@ class Turn(object):
         self._mode=[]
         #blot out the UI somehow
 
-    def AOEAttack(self,tile_x,tile_y, attacktype):
-        board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
-        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
-            self._board.ClearLayer(self._board._shadowLayer)
-            #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
-            self.Board().ChangeCursor("images/blue_box.png", 0, 0)
-            for actor in self.Characters():
-                print(actor.tile_x,actor.tile_y)
-                if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
-                    self._currentSprite.Attack(actor)
-                    print(self._currentSprite._Name, "attacked", actor._Name)
-            self._canAttack=False
-            self._mode=[]
-        else:
-            print("Target Tile is out of Range.")
+
     
     def Move(self, tile_x, tile_y):
         #print("looking for a way to", tile_x, tile_y)
@@ -208,7 +191,9 @@ class Turn(object):
             #print(nextMove, 'is begin performed')
             self.Action(nextMove)
 
-    def Action(self, action): #an action is a list =('Attack' or 'Move' or 'Wait', a possible target (actor), and a move)
+    def Action(self, action):
+        #an action is a list =('Attack' or 'Move' or 'Wait', a possible target (actor), and a move)
+        #this is how the AI tells NPCs what to do.
         actiontype=action[0]
         actiontarget=action[1]
         actionmove=action[2]
@@ -228,5 +213,31 @@ class Turn(object):
         
         
 
+##Special Moves##
 
-
+    def AOEMode(self):
+        if self._canAttack:
+            self._mode=AOE
+            specialRange=4
+            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, specialRange,'images/blue_box.png')            
+            self.Board().ChangeCursor("images/area01.png", -1, -1)
+            
+    def AOEAttack(self,tile_x,tile_y):
+        board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
+        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
+            self._board.ClearLayer(self._board._shadowLayer)
+            #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
+            HitAnyone=False
+            for actor in self.Characters():
+                print(actor.tile_x,actor.tile_y)
+                if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
+                    HitAnyone=True
+                    self._currentSprite.Attack(actor)
+                    print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
+            if HitAnyone:#check if anyone was damaged, if not then don't do anything
+                self.Board().AnimatedParticleEffect(128,128,'images/magic/AOE_firelion.png',board_x, board_y)
+                self._canAttack=False
+                self._mode=[]
+                
+        else:
+            print("Target Tile is out of Range.")

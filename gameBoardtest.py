@@ -34,6 +34,7 @@ NEUTRAL = 'Neutral'
 #other forms of attack
 RANGED="Ranged"
 SPECIAL="Special"
+AOEAttack="Fire Lion"
 
 
 tileSize=32
@@ -73,7 +74,7 @@ def main_pygame(file_name):
 
     #UI sprite container
     #UImenu = pygame.sprite.RenderUpdates()
-    menuItems = ["Attack", "Move" ,"Wait", SPECIAL, "Cancel"]
+    menuItems = ["Attack", "Move" ,"Wait", AOEAttack, "Cancel"]
     myMenu = Menu("Action:", menuItems, myfont, 50, 150, 200, 200)
     
 
@@ -117,7 +118,7 @@ def main_pygame(file_name):
     SuitAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_attack.png')
     SuitSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
         DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
-        "Tommy Lee Jones", FRIENDLY ,4, 0, 2, 6, 8)
+        "Tommy Lee Jones", FRIENDLY ,4, 0, 3, 6, 8)
     Characters.add(SuitSprite)
 
     
@@ -171,8 +172,8 @@ def main_pygame(file_name):
                 
             elif (action == 'Move' or pressedKeys[K_x]) and PlayTurn.Mode()==[]:
                 PlayTurn.MoveMode()
-            #elif (action == SPECIAL):
-            #    PlayTurn.SpecialMode([])
+            elif (action == AOEAttack and PlayTurn.Mode()==[]):
+                PlayTurn.AOEMode()
             elif (action == 'Wait' or pressedKeys[K_c]): #note right now this overrides whatever mode you were in, a back button might be nice 
                 PlayTurn.EndTurn()
             elif(action == "Cancel" or pressedKeys[K_v]):
@@ -199,8 +200,8 @@ def main_pygame(file_name):
                 #CurrentSprite.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
             elif PlayTurn.Mode()=="Move": #asks the game controller if the CurrentSprite can move there
                 PlayTurn.Move(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1] )
-            #elif PlayTurn.Mode()==SPECIAL:
-            #    PlayTurn.AOEAttack(tile_x, tile_y, [])
+            elif PlayTurn.Mode()=="AOE":
+                PlayTurn.AOEAttack(tile_x, tile_y)
                     
                     
         '''

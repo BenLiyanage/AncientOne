@@ -29,7 +29,9 @@ class Board(object):
         self._objectLayer=3 #where the Actors (Characters) go
         self._overhangLayer=4 # things that render over the characters
         self._collisionLayer=5 #in the release version this will be invisible, (Red Blocks)
+        self._particleLayer=6
         self._characters = characters
+        self._particles = pygame.sprite.RenderUpdates()#this is for particle effects for attacks that render above the board
         self._screen =screen
         self._tileSize = tileSize
 
@@ -83,6 +85,8 @@ class Board(object):
         
         
         #self.sprite_layers[self._objectLayer].add_sprite(self._Cursor)
+
+        
         
 
         #Renders the layers to the screen
@@ -105,13 +109,17 @@ class Board(object):
             if actor.PostAnimationAction()=="remove":# and actor.Animating()==False and actor._frame >= len(actor._images):
                 print("Removing", actor.Name(),"from the board.")
                 self._characters.remove(actor)
-            
-
+        for particle in self._particles:
+            if particle.PostAnimationAction()=="remove":
+                self._particles.remove(particle)
+                self.ClearLayer(self._particleLayer)#both this an removing the individual particle might be overkill
+        
         self.ClearLayer(self._objectLayer)
-        #self.sprite_layers[self._objectLayer].add_sprite(self._Cursor)
+        #self.sprite_layers[self._particleLayer].add_sprite(self._particles)
         self.sprite_layers[self._objectLayer].add_sprites(self._characters)
         
         self._characters.update(pygame.time.get_ticks())
+        self._particles.update(pygame.time.get_ticks())
         for sprite_layer in self.sprite_layers:
             if sprite_layer.is_object_group:
                 # we dont draw the object group layers
@@ -144,6 +152,9 @@ class Board(object):
         BoxRect=BoxImage.get_rect()  
         BoxRect.midbottom=(tile_x*self._tileSize+self._tileSize/2,tile_y*self._tileSize+self._tileSize)#again we need to translate 
         self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
+
+
+    
 
     def HighlightArea(self, tile_x,tile_y, distance,imagepath): #highlights an entire with radius distance
         for i in range(-distance,distance):
@@ -229,6 +240,15 @@ class Board(object):
         else:
             return ("Clear",0, (tile_x, tile_y))
 
+    
+    def AnimatedParticleEffect(self, w, h, path, boardTile_x, boardTile_y):
+        ParticleImages = sprites.load_sliced_sprites(w, h, path)
+        Particle = AnimatedSprite(ParticleImages[0],boardTile_x*self._tileSize-w/2, boardTile_y*self._tileSize-h/2)
+        Particle._postAnimationAction="dispose"#only plays once then kills!
+        self.sprite_layers[self._particleLayer].add_sprite(Particle)
+    
+        self._particles.add(Particle)
+        
 
 
     '''

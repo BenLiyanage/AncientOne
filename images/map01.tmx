@@ -76,7 +76,7 @@
  </layer>
  <layer name="fringe" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJzlmclO3EAQhtszkDBjtuGABAQIT4EUwYHJwvowcECRIpRD4IB4lyBEwnogXHipSFFSpXExRU21PeNxu9vKL/2y273V525b7fb3yJi7ivscfAOWGum9FLSuLBxFy/V9KYvDtTSO1+BGjraw3ljiPPWHkcbRBI+bXh4Zp0xjvRq4ntQvUzaOUfCr5Nhg13mcWprqhcJB8eFxil3ncWppLD/J6pSltHk1IeLB9KTpxinTVM+H0jgGlVbvAdr+BX50/E7UOOQ49CtbvacS3usaxxx4HryQUfedo5jySON4A14EL/kIKKc0jmXwW/AKu9bvusLXuqysdYnrLiRHWffzlPV5lJyfRf3nSw0yHrN9lPG15AxtvUvrtUHlkuMS2v0h/JP1daj0G4NbKfk2ueTAtq+FsS96Br8m/e6z/qdNl0PLT+vLFcet8h19H/W+Sw5Y/7Res+Xb5Pv5WIUF8peoc8yTT/LNsV7rOk8+yTcHrSvzrk1JvjmK0v/CsQFug99n5LczyrlWFscH8Efwp5T8HfAueC+lnGtlcWyCt8DblnziDJ0jS1UZjyzReK2D14x93FyrqPcV8vhiQPl47/L91KL2gl1yyHjJuP84zcz3XvPKBQfFL+NFx+J8Jjkfdh+yKA5+7yl+/I7AOGOWbpmwOZrm5X3H+IiDW7KEzMHjbzHT2ND4UJmQOHDdXTfd+cJZYuUan28hcaA4C8ZM85+PTWz0ORYSB4r+iRAPnz/ymaExCpGDZOOhMYhZ2iXH5yHbJWk8FDuyFPUfTuP4Bj4GnwzZNhf/B8dd1H/E24p+1/6hmGFAo8RV4vjNY4XY/+K+Xq3jKnE8SzBUgoPNHbJkqAJHvdYbs3QTfKHs74di/M+QxdFIOP4BCO+6vQ==
+   eJzlmcmO1DAQhp1utu4wMD0HENsAT4GYnWFfHgYOCAkhDsAB8S4jIdaBA8yFl0JCUKXxzxTVdlY7ccQv/eokju36utxux9nJjPmSgG8YY2628GdqQ+vQ/KWo2iDfJq+bsByhVfS9nCGfJZ8z7Vi64CjSefIF8mnTjkVzHCVPGsTD9Y5Z16kPDvYyebUhi+aYko87eHSc+pzrjchjW7+qLpIvWV8W1+uyuDgOk4/Yz4m4LuN0naNeHY4i1ZnDXByIjz9POvhccaPeCVEnFMeaKc+Nb1wtqHgWbIyIU5+jXkhhbG2Stxpy1JWr3jdq+zt5r8WcyCx3hH150Rw6D1Xlq/cj8Lzu+/1rDvm/VKSVsOFV0ob9dLFoDszny92F10iaRXNgPpdzedX1VhfrslVxLFm6WJfE7ALzgOToap37WvT5zB6/yaqXa33MqufjVIV7+lpy1uHoQliv1VVMjnfU7nvlD6Kvx45+c/KsoNynmBzc9idl7gu/wee234ei/0VzwOEqL+orFseu4xn8azY/lzwS/WO95iv3KSbHVVr8rngMXaHjp9n+p0u63NdeTI41an/dY8h1TUqX+9rre77CurLp2hTqmyOU/heOa+Rt8vWS8u2S+2KrjAPPx7cKyu+R75MfFNwXW2UcWEve9ZSDM3WOMg0lH2VCvvhZhvdmfHmLrVDzFfP0xcDqY96V+6l194J9ismh44V5/3FRWO69NlUMDsSv42Xn6njJHrfdhwzFIb97xM/PERxnLs5nJm2Oqfn3e+f4wCGtWVLmkPHPhJEb5Af3pMTB6+6xORgvkiV3XJPjLSUOlmThmDH+ZW5y4x5jKXGw8E4EPHL86N8McpQiB+TjQQ5ycR6T40nLdiEXD2JnllDv4VwcL8gvya9ati0l38FJh3qPuDvQ59pfiJkSmlkPieOnjJVi/837eqN9D4njrxTDIDjE2IE1wxA4xqP5mLWn5LeO/f1UzO8ZyjgmluMPPK7V5g==
   </data>
  </layer>
  <layer name="shadow" width="50" height="50">
@@ -97,6 +97,11 @@
  <layer name="collision" width="50" height="50">
   <data encoding="base64" compression="zlib">
    eJzt2NEJACEMwNCO5f6TucApyqmkJQG/6wMFsUVEK7Kyp4OVDlY6WOnYm3E7Hazz6P1gpePM3NG7e/ddruNfmRyzveiYz3pdFcfpdLDSwUoHKx2sdLDSwUoHKx2sdLDSwerLsfI/QSvbfkfpYKWDVTVHhdUBTFs+kQ==
+  </data>
+ </layer>
+ <layer name="effects" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztwQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAnEAAB
   </data>
  </layer>
 </map>

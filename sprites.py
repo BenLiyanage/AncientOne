@@ -32,6 +32,7 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 
 		self._path=[]#this is a list of path instructions that the character must remember for multimove
 
+		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
 
 		print "finished loading AnimatedSprite"
 
@@ -103,6 +104,15 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		self._frame = -1; #next update will force a redraw of the first frame
 
 
+# Add and remove internal to be in any extension of the Sprite Class.  see http://www.pygame.org/docs/tut/SpriteIntro.html .(PLE)
+        def add_internal(self, group):
+                self.__g[group] = 0
+
+        def remove_internal(self, group):
+                del self.__g[group]
+
+
+
 
         def Animating(self):
                 if self._path !=[] or self._MidAnimation ==1:
@@ -112,6 +122,8 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 
         def PostAnimationAction(self):
                 return self._postAnimationAction
+
+        
 
 
 
@@ -173,7 +185,7 @@ class Actor(AnimatedSprite):
 		
 
 		
-		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
+
                 
                 
 		self.RegisterAction("wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
@@ -305,12 +317,6 @@ class Actor(AnimatedSprite):
 
 
 
-# These need to be in any extension of the Sprite Class.  see http://www.pygame.org/docs/tut/SpriteIntro.html .(PLE)
-        def add_internal(self, group):
-                self.__g[group] = 0
-
-        def remove_internal(self, group):
-                del self.__g[group]
 
 
 
