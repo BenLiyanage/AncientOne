@@ -122,13 +122,16 @@ class Turn(object):
                     highestActor=actor
         self._currentSprite=highestActor
         self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
-            (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize)
+            (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
+
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
 
         if self._currentSprite.Alignment() == 'Friendly':
+
             #TurnAI(self)#only do this if you want them to fight each other
             return self._currentSprite
+        
         else:
             #print('Found a hostile')
             TurnAI(self)
@@ -214,6 +217,9 @@ class Turn(object):
         
 
 ##Special Moves##
+#these are all the special attacks mode are in two parts.
+#The player enters a mode, i.e. "AOEmode" for an AOE attack which shades the targetable tiles and changed the cursor.
+#the player then can make the attack
 
     def AOEMode(self):
         if self._canAttack:
@@ -224,7 +230,7 @@ class Turn(object):
             
     def AOEAttack(self,tile_x,tile_y):
         board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
-        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
+        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=3:
             
             #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
             HitAnyone=False
@@ -244,3 +250,22 @@ class Turn(object):
                 
         else:
             print("Target Tile is out of Range.")
+
+#def Spawn(actor):#since this should only happen with the bad guys we will not have a mode
+
+
+#def VampiricStrike(actor,target):# a special attack that also heals you.
+
+#def Heal(actor, target):#heals a certain target
+
+#def PassiveHeal(actor):
+
+
+    
+    
+#def WhirlWind(actor):#attacks all players (hostile or friendly) in adjacent spa
+
+
+#def Cripple(actor): decreases initiative.
+
+

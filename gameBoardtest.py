@@ -24,7 +24,7 @@ from TurnController import Turn
 import AutoTurn
 from AutoTurn import TurnAI
 
-MAP="images/map01.tmx"
+MAP="images/map03.tmx"
 
 #alightments
 FRIENDLY='Friendly'
@@ -129,6 +129,8 @@ def main_pygame(file_name):
         DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
         "Tommy Lee Jones", FRIENDLY ,4, 0, 3, 6, 8)
     Characters.add(SuitSprite)
+
+    
 
     
     

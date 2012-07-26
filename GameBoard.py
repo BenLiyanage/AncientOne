@@ -190,7 +190,7 @@ class Board(object):
             self._camDest_x, self._camDest_y = self._camPos_x+x, self._camPos_y+y
         else:
             self._camDest_x, self._camDest_y = x,y
-    def CameraUpdate(self, speed=4, relative=False):# this is a helper function that is called whenever the camera needs to pan toward a location.
+    def CameraUpdate(self, speed=8, relative=False):# this is a helper function that is called whenever the camera needs to pan toward a location.
         dx, dy=0,0
         if self._camDest_x>self._camPos_x:
             dx=speed

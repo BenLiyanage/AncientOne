@@ -6,7 +6,7 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		#pygame.sprite.Sprite.__init__(self)
                 tiledtmxloader.helperspygame.SpriteLayer.Sprite.__init__(self,x,y)#PLE
 		self._images = images
-
+                self._DefaultImages = images
 		# Track the time we started, and the time between updates.
 		# Then we can figure out when we have to switch the image.
 		self._start = pygame.time.get_ticks()
@@ -96,7 +96,8 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 	def setImageSet(self, imageSet, postAnimationAction):
 
 		if postAnimationAction == 'revert':
-			self._revertImageSet = self._images
+			#self._revertImageSet = self._images
+                        self._revertImageSet = self._DefaultImages
 		
 		self.image = imageSet[0]
 		self._images = imageSet
@@ -167,6 +168,7 @@ class Actor(AnimatedSprite):
 		self._AttackUpImages = AttackUpImages
 		self._AttackDownImages = AttackDownImages
 		self._AttackRightImages = AttackRightImages
+		self._DefaultImages = MoveDownImages
 
 		# Set Stats
                 self._Name = Name
@@ -210,6 +212,7 @@ class Actor(AnimatedSprite):
         def Kill(self):
 	#def Kill(self, AnimationLayer):
 		self.setImageSet(self._DeathImages, "dispose")
+		self._HitSound.play(loops=5)  ##REPLACE WITH A BETTER DEATH SOUND LATER
 		# TODO figure out if this is pass by value or pass by reference
 		# this is needed for death animation so that we can remvoe it from the list
                  
@@ -234,7 +237,7 @@ class Actor(AnimatedSprite):
 			else:
                                 self.setImageSet(self._AttackLeftImages,"revert")
                 elif  abs(dx)<=abs(dy):
-                        if dy<0:
+                        if dy<=0:
                                 self.setImageSet(self._AttackDownImages,"revert")
 			else:
                                 self.setImageSet(self._AttackUpImages,"revert")
