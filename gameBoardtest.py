@@ -32,11 +32,15 @@ HOSTILE='Hostile'
 NEUTRAL = 'Neutral'
 
 #other forms of attack
+
 ATTACK="Attack"
 RANGED="Ranged"
 SPECIAL="Special"
-AOEAttack="Fire Lion"
+AOE="Fire Lion"
+MOVE="Move"
+CANCEL="Cancel"
 
+actionList=[ATTACK, RANGED,SPECIAL,AOE,  MOVE,CANCEL]
 
 tileSize=32
 
@@ -116,20 +120,29 @@ def main_pygame(file_name):
     SuitAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_attack.png')
     SuitSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
         DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
-        "Tommy Lee Jones", FRIENDLY ,8, 0, 3, 6, 8)
+        "Tommy Lee Jones", FRIENDLY ,8, 0, 3, 6, 10)
     #SuitSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
     SuitSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     Characters.add(SuitSprite)
 
+    ArcherDeathImageSet=sprites.load_sliced_sprites(64,64,'images/archer/archer_death.png')    
+    ArcherImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_walk.png')
+    ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
+    ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
+        DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
+        "Presto", FRIENDLY ,6, 3, 4, 7, 8)
+    #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
+    ArcherSprite.RegisterAction(RANGED, 'The character releases a quick bolt!', [],[])
+    Characters.add(ArcherSprite)
     
+    MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
     MageImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_walk.png')
     MageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_spell.png')
     MageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, MageImageSet[0], MageImageSet[1], MageImageSet[2], MageImageSet[3], \
         DeathImageSet[0], MageAttackImageSet[0], MageAttackImageSet[1], MageAttackImageSet[2], MageAttackImageSet[3], \
         "Presto", FRIENDLY ,2, 2, 3, 6, 8)
     #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
-    MageSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
-
+    MageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
     Characters.add(MageSprite)
     
     
@@ -205,17 +218,21 @@ def main_pygame(file_name):
             #UI or turn events
             if PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
                 pass
-            elif (action=='Attack' or pressedKeys[K_z])and PlayTurn.Mode()==[]:#right now it brings up a target list
-                PlayTurn.AttackMode()
+
                 
             elif (action == 'Move' or pressedKeys[K_x]) and PlayTurn.Mode()==[]:
                 PlayTurn.MoveMode()
-            elif (action == AOEAttack and PlayTurn.Mode()==[]):
-                PlayTurn.AOEMode()
+
             elif (action == 'Wait' or pressedKeys[K_c]): #note right now this overrides whatever mode you were in, a back button might be nice 
                 PlayTurn.EndTurn()
             elif(action == "Cancel" or pressedKeys[K_v]):
                 PlayTurn.CancelMode()
+            elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[]:#right now it brings up a target list
+                PlayTurn.ActionMode(action)
+
+
+            #elif (action == AOEAttack and PlayTurn.Mode()==[]):
+            #    PlayTurn.AOEMode()
             '''
             #single keystroke type inputs
             if event.key ==K_RIGHT: pygame.mouse.set_pos([mouse_pos_x+tileSize, mouse_pos_y])
@@ -241,14 +258,15 @@ def main_pygame(file_name):
 
         
         if pressedMouse[0]:
-            print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
+            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
             #Seed what you clicked on and what turn mode you are in, then determins what to do
-            if PlayTurn.Mode()=="Attack" and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
+            if PlayTurn.Mode()==ATTACK and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
                 PlayTurn.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
                 #CurrentSprite.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
-            elif PlayTurn.Mode()=="Move": #asks the game controller if the CurrentSprite can move there
+                
+            elif PlayTurn.Mode()==MOVE: #asks the game controller if the CurrentSprite can move there
                 PlayTurn.Move(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1] )
-            elif PlayTurn.Mode()=="AOE":
+            elif PlayTurn.Mode()==AOE:
                 PlayTurn.AOEAttack(tile_x, tile_y)
                     
                     

@@ -126,7 +126,7 @@ class Menu(InfoBox):
 			itemNumber = self.mouseOverItem()
                         #itemNumber = self._currentMenuItem
 			if itemNumber is not None:
-                                print('From UI',self._menuItems[itemNumber]['name'])
+                                #print('From UI',self._menuItems[itemNumber]['name'])
 				return self._menuItems[itemNumber]['name']
 
 	def mouseOverItem(self):

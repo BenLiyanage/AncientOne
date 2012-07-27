@@ -157,10 +157,20 @@ class Board(object):
 
     
 
-    def HighlightArea(self, tile_x,tile_y, distance,imagepath): #highlights an entire with radius distance
-        for i in range(-distance,distance):
-            for j in range(distance-abs(i)):
+    def HighlightArea(self, tile_x,tile_y, minRange, maxRange,imagepath): #highlights an entire area with a max and min radius
+        '''
+        for i in range(-maxRange,maxRange):
+            for j in range(maxRange-abs(i)):
                 
+                self.HighlightTile(tile_x+i, tile_y+j, imagepath)
+                if j != 0:
+                    self.HighlightTile(tile_x+i, tile_y-j, imagepath)
+        '''
+        print("highlight area called")
+        for i in range(-maxRange,maxRange):
+            upper = maxRange-abs(i)
+            lower = max(0, minRange-abs(i))
+            for j in range(lower, upper):             
                 self.HighlightTile(tile_x+i, tile_y+j, imagepath)
                 if j != 0:
                     self.HighlightTile(tile_x+i, tile_y-j, imagepath)

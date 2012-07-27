@@ -11,10 +11,14 @@ from collision import PopBestPath, PathList
 import AutoTurn
 from AutoTurn import TurnAI, PortalAI, actorDist, dist
 
-ATTACK="Attack"
 MOVE="Move"
+
+
+#other forms of attack
+ATTACK="Attack"
+RANGED="Ranged"
 SPECIAL="Special"
-AOE="AOE"
+AOE="Fire Lion"
 
 #alignments
 FRIENDLY='Friendly'
@@ -54,19 +58,29 @@ class Turn(object):
         
     def Mode(self):
         return self._mode
-    def AttackMode(self):
+    def ActionMode(self, action):
         if self._currentSprite._path ==[] and self._currentSprite._MidAnimation ==0 and self._canAttack:
             self._mode = ATTACK
-            self.TargetList(1,1)#we do this for now
+            if action==ATTACK:
+                print('action is attack')
+                self.TargetList(1,1)#we do this for now
+            elif action == AOE:
+                self.AOEMode()
+            elif action == RANGED:
+                print('action is ranged')
+                self.TargetList(2,6)
+            else:
+                print('Action', action, 'not recognized.')
     def TargetList(self, rangeMin, rangeMax):
-        #print("targetlist called")
+        print("targetlist called")
         targetlist=[]
         self._mode = ATTACK
         tile_x=self._currentSprite.tile_x
         tile_y=self._currentSprite.tile_y
+        self._board.HighlightArea(tile_x,tile_y, rangeMin,rangeMax+1,"images/alpha_box.png")
         for actor in self._characters:
             actor_distance=abs(actor.tile_x-tile_x)+abs(actor.tile_y-tile_y)
-            if actor_distance>=rangeMin and actor_distance <=rangeMax:
+            if actor_distance>=rangeMin and actor_distance <=rangeMax and actor.Alignment() != self._currentSprite.Alignment():
                 self._board.HighlightTile(actor.tile_x, actor.tile_y, "images/blue_box.png")
                 #print("highlighted", actor)
                 targetlist.append(actor)
@@ -240,7 +254,7 @@ class Turn(object):
         if self._canAttack:
             self._mode=AOE
             specialRange=4
-            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, specialRange,'images/blue_box.png')            
+            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, 0, specialRange,'images/alpha_box.png')            
             self.Board().ChangeCursor("images/area01.png", -1, -1)
             
     def AOEAttack(self,tile_x,tile_y):#This is also known as Fire Lion!
