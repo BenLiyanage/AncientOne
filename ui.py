@@ -25,18 +25,19 @@ class InfoBox(object):
 		self.rect = self.surface.get_rect()
 		self.rect.top = y
 		self.rect.left = x
+		
 
 class CharacterInfo(InfoBox):
 	def __init__(self, character, font, screenHeight):
-		super(CharacterInfo,self).__init__(character._Name, font, 0, screenHeight-100, 300, 150)
+		super(CharacterInfo,self).__init__(character._Name, font, 0, screenHeight-150, 300, 150)
 		self._toolTips = []
 
 		# Print Stats in columns
 
 		# First Column
 		xOffset = 10
-		yOffset = self._titlePosition.bottom+30
-
+		yOffset = self._titlePosition.bottom+15
+                yOffset = self.AddTip("Health: " +str(character.Health())+"/"+str(character.MaxHealth()), "", xOffset, yOffset)+5
 		yOffset = self.AddTip("Level: " + str(character.Level()), "", xOffset, yOffset) + 5
 		yOffset = self.AddTip("Power: " + str(character.Power()), "", xOffset, yOffset) + 5
 		self.AddTip("Speed: " + str(character.Speed()), "", xOffset, yOffset)
@@ -45,9 +46,10 @@ class CharacterInfo(InfoBox):
 		xOffset = 125
 		yOffset = self._titlePosition.bottom+30
 
-		yOffset = self.AddTip("Experience: " + str(character.Experience()), "", xOffset, yOffset) + 5
+		yOffset = self.AddTip("Experience: " + str(int(character.Experience())), "", xOffset, yOffset) + 5
 		yOffset = self.AddTip("Defense: " + str(character.Defense()), "", xOffset, yOffset) + 5
 		self.AddTip("Movement: " + str(character.Movement()), "", xOffset, yOffset)
+		
 
 	def AddTip(self, label, description, x, y):
 		tip = {}
@@ -75,6 +77,8 @@ class Menu(InfoBox):
 		itemY = self._titlePosition.bottom + 10
 		itemX = self._titlePosition.left + self._indent
 
+		self._BlipSound = pygame.mixer.Sound("sound/blip.wav")
+
 		self._menuItems = []
 		for item in menuItems:
 			menuItem = {}
@@ -86,6 +90,8 @@ class Menu(InfoBox):
 			itemY = menuItem['position'].bottom + 5
 			self.surface.blit(menuItem['surface'], menuItem['position'])		
 			self._menuItems.append(menuItem)
+			
+		
 
 	def setActive(self, itemNumber):
 		self._menuItems[self._currentMenuItem]['surface'] = self._font.render(self._menuItems[self._currentMenuItem]['name'],0,FONTCOLOR, BACKGROUNDCOLOR)
@@ -94,7 +100,12 @@ class Menu(InfoBox):
 		self._menuItems[itemNumber]['surface'] = self._font.render(self._menuItems[itemNumber]['name'],0,BACKGROUNDCOLOR, FONTCOLOR)
 		self.surface.blit(self._menuItems[itemNumber]['surface'], self._menuItems[itemNumber]['position'])
 
+                if self._currentMenuItem != itemNumber:
+                        self._BlipSound.play(loops=0)
+                
 		self._currentMenuItem = itemNumber
+
+		
 
 	def input(self, event):
 		itemNumber = self._currentMenuItem
@@ -136,7 +147,29 @@ class Menu(InfoBox):
 				return itemNumber			
 
 
-class LevelUpScreen(InfoBox):
+class LevelUpScreen(Menu):
 	def __init__(self, actor, title, font, x, y ,width, height):
-                super(LevelUpScreen,self).__init__(title, font, x, y, width, height)
+                MOVE="Move"
+                CANCEL="Cancel"
+                WAIT="Wait"
+                CLOSE="Close Window"
+                self._menuItems = actor.GetActions()
+                self._menuItems.remove(MOVE)
+                self._menuItems.remove(CANCEL)
+                self._menuItems.remove(WAIT)
+                #self._menuItems.append(CLOSE)
+
+                super(LevelUpScreen,self).__init__(title,self._menuItems ,font, x, y, width, height)
+                
+                
+                self._text="Choose a skill to improve"
+                self._text = font.render(self._text, 0, FONTCOLOR)
+		self._textPosition = self._text.get_rect()
+		self._textPosition.top = 15*len(self._menuItems)+20
+		self._textPosition.left = 0
+                self.surface.blit(self._text,self._textPosition )
+                
+                #displays different special attacks, you pick which to level up
+                
+                #once selected, you need to pass an action called "Next"
 		print "stub"

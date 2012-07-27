@@ -87,7 +87,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
         Turn.addQueue('Move', closeOpponent, closeAllyMove)
         Turn.addQueue('Wait', closeOpponent, closeAllyMove)
 
-    elif opponentDist < Turn.CurrentSprite().Movement()+1 and dist(closeOpponent.tile_x, closeOpponent.tile_y, closeOpponentMove[0], closeOpponentMove[1])==1:
+    elif opponentDist <= Turn.CurrentSprite().Movement()+1 and dist(closeOpponent.tile_x, closeOpponent.tile_y, closeOpponentMove[0], closeOpponentMove[1])==1:
         Turn.addQueue('Move', closeOpponent, closeOpponentMove)
         Turn.addQueue("Attack", closeOpponent, closeOpponentMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
@@ -96,7 +96,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
         Turn.addQueue('Move', closeOpponent, closeOpponentMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     elif opponentDist >= Turn.CurrentSprite().Movement()+1 and allyDist < 2*distanceThreshold:
-        print('here?')
+        #print('here?')
         Turn.addQueue('Move', closeOpponent, closeAllyMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     else: # opponentDist > currentSprite.Movement and allyDist > 2*distanceThreshold:
@@ -109,6 +109,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
     print(Turn.Queue())
             
 def PortalAI(Turn):#this is how the portal thinks
+    #should modify so that if the portal is deserted it spawns a stronger enemy
     print('PortalAI called to control', Turn.CurrentSprite().Name())
     SpawnRadius=15#this is how far it looks for bad guys
     SpawnThreshold=6# if too many of the same alignment are nearby the portal will not spawn a badguy

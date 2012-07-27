@@ -1,4 +1,5 @@
 import pygame
+import random
 import tiledtmxloader
 #class AnimatedSprite(pygame.sprite.Sprite):
 class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modification
@@ -42,18 +43,18 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		# then, but it really should be updated twice.
 
 		#self.rect = pygame.Rect(x, y, self.image._width, self.image._height)
-
+                walkSpeed=2
 		if t - self._lastAnimation > self._animationDelay:
 			# handle movement adjustments
 			if self.rect.top > self._destination.top:
-				self.rect.move_ip(0,-1)
+				self.rect.move_ip(0,-walkSpeed)
 			elif self.rect.top < self._destination.top:
-				self.rect.move_ip(0,1)
+				self.rect.move_ip(0,walkSpeed)
 
 			if self.rect.left > self._destination.left:
-				self.rect.move_ip(-1, 0)
+				self.rect.move_ip(-walkSpeed, 0)
 			elif self.rect.left < self._destination.left:
-				self.rect.move_ip(1, 0)
+				self.rect.move_ip(walkSpeed, 0)
 
 			if self.rect.left == self._destination.left and self.rect.top == self._destination.top:
 				self._MidAnimation = 0
@@ -187,21 +188,26 @@ class Actor(AnimatedSprite):
 
 		self._WalkSound = pygame.mixer.Sound("sound/walk.wav")
                 self._HitSound = pygame.mixer.Sound("sound/hit.wav")
-		
-
-                
-                self.RegisterAction("Move", "A character may move once per turn", self.MultiMove, self._MoveDownImages)
-		self.RegisterAction("Wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
-		self.RegisterAction("Cancel", "Cancels the current action", self.Wait, self._MoveDownImages)
+		MOVE="Move"
+                CANCEL="Cancel"
+                WAIT="Wait/End Turn"
+                self.RegisterAction(MOVE, "A character may move once per turn", self.MultiMove, self._MoveDownImages)
+		self.RegisterAction(WAIT, "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
+		self.RegisterAction(CANCEL, "Cancels the current action", self.Wait, self._MoveDownImages)
 
         #RegisterAction is not completely used because attacks, special attacks in particular, are more easily handled through the TurnController.
-	def RegisterAction(self, actionName, actionDescription, actionMethod, actionAnimation, actionSkillLevel=-1):
+	def RegisterAction(self, actionName, actionDescription, actionMethod, actionAnimation, actionSkillLevel=1):
 
 		self._Actions[actionName] = [actionMethod, actionDescription, actionAnimation, actionSkillLevel]
 
+	def LevelUpAction(self, actionName):
+                self._Actions[actionName][3] +=1
+                print(actionName," is now level ", self._Actions[actionName][3])
 	def GetActions(self):
-	
 		return self._Actions.keys()
+	
+	def ActionLevel(self, actionName):
+                return self._Actions[actionName][3]
 
 	def PerformAction(self, actionName, actionParameters):
 		# actionParameters will be passed to the actionMethod.
@@ -246,12 +252,11 @@ class Actor(AnimatedSprite):
                                 self.setImageSet(self._AttackUpImages,"revert")
                 if sound:
                         self._HitSound.play(loops=1)
-		damage = attackPower - target._Defense
+		damage = attackPower - target._Defense+random.randint(0,attackPower)
 		if damage <=0:
                         damage=1# you always deal at least one damage
                         
-		#experience = target.RecieveDamage(damage)#ONLY CHANGING THIS FOR DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                experience=0#101
+		experience = target.RecieveDamage(damage)#ONLY CHANGING THIS FOR DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		self.GetExperience(experience)
 
 		print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
@@ -280,7 +285,13 @@ class Actor(AnimatedSprite):
 			
 			if self.Alignment()=='Friendly':
                                 self._LevelUp=True
-
+        def Heal(self, target, level):
+                healamount = level*3+random.randint(0,level+1)
+                target._Health +=healamount
+                if target._Health > target._MaxHealth:
+                        target._Health = target._MaxHealth
+                print(target.Name(),"healed for", healamount)
+                self.GetExperience(healamount)
 
 	def Move(self, direction):
 		if not self._MidAnimation:
