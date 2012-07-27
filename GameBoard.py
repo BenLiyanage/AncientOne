@@ -142,7 +142,8 @@ class Board(object):
         self._camTile_y = self._camPos_y // self._tileSize
         
         self._renderer.set_camera_position(self._camPos_x, self._camPos_y, "topleft")
-
+    def camTile(self):
+        return self._camTile_x, self._camTile_y
 
     def Characters(self):
         return self._characters
@@ -190,6 +191,11 @@ class Board(object):
             self._camDest_x, self._camDest_y = self._camPos_x+x, self._camPos_y+y
         else:
             self._camDest_x, self._camDest_y = x,y
+            
+        if self._camDest_x < self._camMin_x: self._camDest_x = self._camMin_x
+        if self._camDest_x > self._camMax_x: self._camDest_x = self._camMax_x
+        if self._camDest_y < self._camMin_y: self._camDest_y = self._camMin_y
+        if self._camDest_y > self._camMax_y: self._camDest_y = self._camMax_y
     def CameraUpdate(self, speed=8, relative=False):# this is a helper function that is called whenever the camera needs to pan toward a location.
         dx, dy=0,0
         if self._camDest_x>self._camPos_x:
@@ -211,6 +217,11 @@ class Board(object):
             self._camPos_y +=dy
         else:
             self._camPos_y = self._camDest_y
+
+        if self._camPos_x < self._camMin_x: self._camPos_x = self._camMin_x
+        if self._camPos_x > self._camMax_x: self._camPos_x = self._camMax_x
+        if self._camPos_y < self._camMin_y: self._camPos_y = self._camMin_y
+        if self._camPos_y > self._camMax_y: self._camPos_y = self._camMax_y
     def Animating(self):
         if self._camPos_x != self._camDest_x or self._camPos_y != self._camDest_y:
             return True
@@ -230,8 +241,11 @@ class Board(object):
             BoxRect.midbottom=(moves[i][0]*self._tileSize+self._tileSize/2,moves[i][1]*self._tileSize+self._tileSize)#again we need to translate 
             self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
 
-    def getTile(self, mouse_pos_x,mouse_pos_y):# returns a tuple
-        tile_x, tile_y = (mouse_pos_x + self._camPos_x)// self._tileSize, (mouse_pos_y+ self._camPos_y) // self._tileSize
+    def getTile(self, mouse_pos_x,mouse_pos_y, tiled=False):# returns a tuple
+        if tiled:
+            tile_x, tile_y = mouse_pos_x, mouse_pos_y
+        else:
+            tile_x, tile_y = (mouse_pos_x + self._camPos_x)// self._tileSize, (mouse_pos_y+ self._camPos_y) // self._tileSize
         for actor in self._characters:
             if (actor.tile_x, actor.tile_y) == (tile_x, tile_y):
                 return ("Actor", actor, (tile_x, tile_y))

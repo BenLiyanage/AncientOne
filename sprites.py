@@ -181,18 +181,20 @@ class Actor(AnimatedSprite):
 		self._Initiative = 0
 		self._Experience = 0
 		self._Level = 1
-		self._Actions = {}
-		self._Alignment= Alignment#'Friendly', 'Neutral', 'Hostile' 
+		self._LevelUp=False #Flags the level up UI in the main loop
+		self._Actions = {}#this is the list passed to the UI
+		self._Alignment= Alignment#'Friendly', 'Neutral', 'Hostile'
 
 		self._WalkSound = pygame.mixer.Sound("sound/walk.wav")
                 self._HitSound = pygame.mixer.Sound("sound/hit.wav")
 		
 
                 
-                
-		self.RegisterAction("wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
+                self.RegisterAction("Move", "A character may move once per turn", self.MultiMove, self._MoveDownImages)
+		self.RegisterAction("Wait", "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
+		self.RegisterAction("Cancel", "Cancels the current action", self.Wait, self._MoveDownImages)
 
-
+        #RegisterAction is not completely used because attacks, special attacks in particular, are more easily handled through the TurnController.
 	def RegisterAction(self, actionName, actionDescription, actionMethod, actionAnimation, actionSkillLevel=-1):
 
 		self._Actions[actionName] = [actionMethod, actionDescription, actionAnimation, actionSkillLevel]
@@ -204,7 +206,7 @@ class Actor(AnimatedSprite):
 	def PerformAction(self, actionName, actionParameters):
 		# actionParameters will be passed to the actionMethod.
 		self._Actions[actionName][0](actionParameters)
-		self.SetImageSet(self._Actions[1], "revert")
+		self.SetImageSet(self._Actions[1], "revert")#???
 
 	def StartTurn(self):
 		self._Initiative = self._Initiative + self._Speed
@@ -212,7 +214,8 @@ class Actor(AnimatedSprite):
         def Kill(self):
 	#def Kill(self, AnimationLayer):
 		self.setImageSet(self._DeathImages, "dispose")
-		self._HitSound.play(loops=5)  ##REPLACE WITH A BETTER DEATH SOUND LATER
+		self._HitSound.play(loops=6)  ##REPLACE WITH A BETTER DEATH SOUND LATER
+		self._HitSound.fadeout(1500)
 		# TODO figure out if this is pass by value or pass by reference
 		# this is needed for death animation so that we can remvoe it from the list
                  
@@ -228,23 +231,27 @@ class Actor(AnimatedSprite):
 		self._Initiative = self._Initiative + self._Speed
 		#self._images = self._MoveDownImages 
 
-	def Attack(self, target, sound=True):
+	def Attack(self, target, attackPower, animate=True, sound=True): #the basic way one deals damage, this is how the AI deals damage
                 dx, dy= self.tile_x-target.tile_x, self.tile_y-target.tile_y
                 
-                if  abs(dx)>abs(dy):
+                if  abs(dx)>abs(dy) and animate:
                         if dx<0:
                                 self.setImageSet(self._AttackRightImages,"revert")
 			else:
                                 self.setImageSet(self._AttackLeftImages,"revert")
-                elif  abs(dx)<=abs(dy):
+                elif  abs(dx)<=abs(dy) and animate:
                         if dy<=0:
                                 self.setImageSet(self._AttackDownImages,"revert")
 			else:
                                 self.setImageSet(self._AttackUpImages,"revert")
                 if sound:
                         self._HitSound.play(loops=1)
-		damage = self._Power - target._Defense
-		experience = target.RecieveDamage(damage)
+		damage = attackPower - target._Defense
+		if damage <=0:
+                        damage=1# you always deal at least one damage
+                        
+		#experience = target.RecieveDamage(damage)#ONLY CHANGING THIS FOR DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                experience=0#101
 		self.GetExperience(experience)
 
 		print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
@@ -270,6 +277,9 @@ class Actor(AnimatedSprite):
 			HealthBonus = self._MaxHealth + 10 + (self._MaxHealth * .1)
 			self._MaxHealth = self._MaxHealth + HealthBonus
 			self._Health = self._Health + HealthBonus
+			
+			if self.Alignment()=='Friendly':
+                                self._LevelUp=True
 
 
 	def Move(self, direction):
@@ -293,6 +303,7 @@ class Actor(AnimatedSprite):
 			#self._MidAnimation = 1
 	def MultiMove(self, newpath):
                 self._path=newpath
+        
                 
 
 	def Name(self):
@@ -317,8 +328,8 @@ class Actor(AnimatedSprite):
 		return self._Experience
 	def Level(self):
 		return self._Level
-	def Actions(self):
-		return self._Actions
+	def LevelUp(self):
+                return self._LevelUp
 
 
 

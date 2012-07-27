@@ -31,7 +31,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
         #super(Turn, Turn).__init__(Turn, board)
 
     #first we find a potential target/ally
-    distanceThreshold= Turn.CurrentSprite().Movement()+Turn.CurrentSprite().Level()+1
+    distanceThreshold= 2*Turn.CurrentSprite().Movement()+Turn.CurrentSprite().Level()
     closeAlly=[]
     allyDist = 0
     closeOpponent=[]
@@ -65,7 +65,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
     #this will have to change for ranged attacks.
     
     for move in Turn._moves:
-        
+
         if closeOpponentMove==[]:
             closeOpponentMove=move
         if closeAllyMove==[]:
@@ -78,7 +78,7 @@ def TurnAI(Turn): #determines what you are going to do on your turn
         if closeAlly !=[] and (dist(move[0], move[1], closeAlly.tile_x, closeAlly.tile_y) < dist(closeAllyMove[0], closeAllyMove[1], closeAlly.tile_x, closeAlly.tile_y)):
             closeAllyMove=move           
        #if attacktype =="Ranged": check that the distance for the new move is more than one but less than the range of the attack
-        
+
     if opponentDist==0:
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     
@@ -96,17 +96,46 @@ def TurnAI(Turn): #determines what you are going to do on your turn
         Turn.addQueue('Move', closeOpponent, closeOpponentMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     elif opponentDist >= Turn.CurrentSprite().Movement()+1 and allyDist < 2*distanceThreshold:
+        print('here?')
         Turn.addQueue('Move', closeOpponent, closeAllyMove)
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)
     else: # opponentDist > currentSprite.Movement and allyDist > 2*distanceThreshold:
         #Turn.addQueue('Move', closeOpponent, closeAllyMove)
+ 
         Turn.addQueue('Wait', closeOpponent, closeOpponentMove)                  
   
     #print('Closest Opponent', closeOpponent.Name())
     #print('Closest Ally', closeAlly.Name())
-    #print(Turn.Queue())
+    print(Turn.Queue())
             
+def PortalAI(Turn):#this is how the portal thinks
+    print('PortalAI called to control', Turn.CurrentSprite().Name())
+    SpawnRadius=15#this is how far it looks for bad guys
+    SpawnThreshold=6# if too many of the same alignment are nearby the portal will not spawn a badguy
+    AllyCount=0#how many allies are neaby
+    AdjacentCount=0
+    #first check if the surrounding spaces are occupied
+    for actor in Turn.Characters():
+        if actorDist(actor, Turn.CurrentSprite())==1:
+            AdjacentCount+=1
+        if actor.Alignment()==Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<SpawnRadius:
+           AllyCount+=1
+    if AdjacentCount<4 and AllyCount<SpawnThreshold:
+        #First find a free tile, then spawn a baddie in it
+        tile_x=Turn.CurrentSprite().tile_x
+        tile_y=Turn.CurrentSprite().tile_y
+        if Turn.Board().getTile(tile_x+1,tile_y, tiled=True)[0]=="Clear":
+            Turn.SpawnSkeleton(tile_x+1,tile_y)
+        elif Turn.Board().getTile(tile_x-1,tile_y, tiled=True)[0]=="Clear":
+            Turn.SpawnSkeleton(tile_x-1,tile_y)
+        elif Turn.Board().getTile(tile_x,tile_y+1, tiled=True)[0]=="Clear":
+            Turn.SpawnSkeleton(tile_x,tile_y+1)
+        elif Turn.Board().getTile(tile_x,tile_y-1, tiled=True)[0]=="Clear":
+            Turn.SpawnSkeleton(tile_x,tile_y-1)
+        else:
+            print('Something crazy must have happened with the PortalAI')
 
+    Turn.addQueue('Wait',[],[])
 
 #def AIAttack(Turn): 
 

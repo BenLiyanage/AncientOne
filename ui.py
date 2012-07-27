@@ -61,6 +61,7 @@ class CharacterInfo(InfoBox):
 		self.surface.blit(tip['surface'],tip['rect'])
 
 		return tip['rect'].bottom
+	
 
 class Menu(InfoBox):
 
@@ -98,6 +99,7 @@ class Menu(InfoBox):
 	def input(self, event):
 		itemNumber = self._currentMenuItem
 		if (event.type==KEYDOWN):
+
 			if (event.key == K_DOWN):
 				if (self._currentMenuItem == len(self._menuItems)-1):
 					itemNumber = 0
@@ -112,6 +114,7 @@ class Menu(InfoBox):
 				return self._menuItems[self._currentMenuItem]['name']
 
 			self.setActive(itemNumber)
+			print(itemNumber)
 		elif (event.type == MOUSEMOTION):
 			itemNumber = self.mouseOverItem()
 
@@ -134,5 +137,6 @@ class Menu(InfoBox):
 
 
 class LevelUpScreen(InfoBox):
-	def __init__(self, c1, c2, c3, c4):
+	def __init__(self, actor, title, font, x, y ,width, height):
+                super(LevelUpScreen,self).__init__(title, font, x, y, width, height)
 		print "stub"

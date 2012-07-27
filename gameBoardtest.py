@@ -7,7 +7,7 @@ import collision
 from collision import PopBestPath, PathList
 
 import ui
-from ui import Menu, CharacterInfo
+from ui import Menu, CharacterInfo, LevelUpScreen
 
 from pygame.locals import*
 
@@ -26,12 +26,13 @@ from AutoTurn import TurnAI
 
 MAP="images/map03.tmx"
 
-#alightments
+#alignments
 FRIENDLY='Friendly'
 HOSTILE='Hostile'
 NEUTRAL = 'Neutral'
 
 #other forms of attack
+ATTACK="Attack"
 RANGED="Ranged"
 SPECIAL="Special"
 AOEAttack="Fire Lion"
@@ -64,11 +65,7 @@ def main_pygame(file_name):
 
     myfont = pygame.font.Font("petme/PetMe128.ttf", 10)
 
-    #Music
-    BGvolume=.05 #this is a number between 0 and 1
-    BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
-    BackgroundMusic.play(loops=-1)
-    BackgroundMusic.set_volume(BGvolume)
+
     
     worldMap = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file_name)
     assert worldMap.orientation == "orthogonal"
@@ -83,12 +80,11 @@ def main_pygame(file_name):
 
     #UI sprite container
     #UImenu = pygame.sprite.RenderUpdates()
-    menuItems = ["Attack", "Move" ,"Wait", AOEAttack, "Cancel"]
+    menuItems = ["Attack", "Move" ,"Wait", "Cancel"]
     myMenu = Menu("Action:", menuItems, myfont, 50, 150, 200, 200)
     
 
     #CHARACTERS!
-    # (probably added differently later
 
     DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
     
@@ -115,23 +111,26 @@ def main_pygame(file_name):
     Characters.add(MaskSprite)
     '''
 
-    #Skeletastic
-    SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_walk.png')
-    SkeletonAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_attack.png')
-    SkeletonSprite = Actor((20-.5)*tileSize, (21-1)*tileSize, SkeletonImageSet[0], SkeletonImageSet[1], SkeletonImageSet[2], SkeletonImageSet[3], \
-        DeathImageSet[0], SkeletonAttackImageSet[0], SkeletonAttackImageSet[1], SkeletonAttackImageSet[2], SkeletonAttackImageSet[3], \
-        "Jack", HOSTILE ,4, 0, 2, 6, 8)
-    Characters.add(SkeletonSprite)
 
     SuitImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_walk.png')
     SuitAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_attack.png')
-    SuitSprite = Actor((27-.5)*tileSize, (21-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
+    SuitSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
         DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
-        "Tommy Lee Jones", FRIENDLY ,4, 0, 3, 6, 8)
+        "Tommy Lee Jones", FRIENDLY ,8, 0, 3, 6, 8)
+    #SuitSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
+    SuitSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     Characters.add(SuitSprite)
 
     
+    MageImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_walk.png')
+    MageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_spell.png')
+    MageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, MageImageSet[0], MageImageSet[1], MageImageSet[2], MageImageSet[3], \
+        DeathImageSet[0], MageAttackImageSet[0], MageAttackImageSet[1], MageAttackImageSet[2], MageAttackImageSet[3], \
+        "Presto", FRIENDLY ,2, 2, 3, 6, 8)
+    #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
+    MageSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
 
+    Characters.add(MageSprite)
     
     
 
@@ -139,21 +138,49 @@ def main_pygame(file_name):
     frames_per_sec = 60.0
     clock = pygame.time.Clock()
     running = True
+    paused=False
     grid=False #Debugging boolean to draw a grid
 
     #Game Turns Controller
     PlayTurn=Turn(GameBoard)
+
+    #the Bad gusys
+    PlayTurn.SpawnSkeleton(16,7)
+    PlayTurn.SpawnPortal(2,6)
     
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
-    CurrentSpriteInfo = CharacterInfo(CurrentSprite, myfont, screen_height)
-    
+    CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
+    myMenu = Menu("Action:", PlayTurn.CurrentSprite().GetActions(), myfont, 50, 150, 200, 200)
+
+
+    #Music
+    BGvolume=.05 #this is a number between 0 and 1
+    BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
+    BackgroundMusic.play(loops=-1)
+    BackgroundMusic.set_volume(BGvolume)
+
 
     ##The Main Game Loop 
     while running:
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
-        
+
+        #checks for levelups,
+        if CurrentSprite != PlayTurn.CurrentSprite() and paused==False:# we are between turns
+            for actor in Characters:
+                if actor.LevelUp():
+                    print 'levelup!'
+                    paused=True
+                    LevelUpWindow = LevelUpScreen(actor, actor.Name()+'has gained a level!', myfont, 100,100,100,100)
+                    continue
+                    
+
+        #update the UI
+        if CurrentSprite != PlayTurn.CurrentSprite() and PlayTurn.CurrentSprite !=[]:
+            CurrentSprite = PlayTurn.CurrentSprite()
+            myMenu = Menu("Action:", CurrentSprite.GetActions(), myfont, 50, 150, 200, 200)
+            CurrentSpriteInfo = CharacterInfo(CurrentSprite, myfont, screen_height)
         
         #Move the camera manually with "wasd"
 
@@ -164,14 +191,14 @@ def main_pygame(file_name):
 
         mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos() #mouse coordinates
         tile_x, tile_y = mouse_pos_x// tileSize, mouse_pos_y // tileSize #note the board translates coordinates depending on the location of the camera
-        for event in pygame.event.get():
-
-            action = myMenu.input(event) #actions that come from the menu
+        for event in pygame.event.get():       
  
             if event.type == QUIT or event.type == pygame.QUIT or (pressedKeys[K_w] and pressedKeys[K_LMETA]):
                 running = False
                 pygame.quit()
                 sys.exit()
+
+            action = myMenu.input(event) #actions that come from the menu
             if not (hasattr(event, 'key') or event.type==KEYDOWN or hasattr(event, 'button') or event.type==MOUSEBUTTONUP): continue
             #print(action)
             
@@ -214,6 +241,7 @@ def main_pygame(file_name):
 
         
         if pressedMouse[0]:
+            print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
             #Seed what you clicked on and what turn mode you are in, then determins what to do
             if PlayTurn.Mode()=="Attack" and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
                 PlayTurn.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
@@ -235,10 +263,11 @@ def main_pygame(file_name):
                 Characters.remove(NewPigSprite)
                 sprite_layers[objectlayer].remove_sprite(NewPigSprite)
         '''
-
+        
         Characters.update(time)  
         GameBoard.update(time)
-        if GameBoard.Animating():
+        if GameBoard.Animating() and paused:
+            print('Gameboard is animating! Please be patient!')
             pass
         else:
             PlayTurn.update()
@@ -251,7 +280,16 @@ def main_pygame(file_name):
             for j in range(GameBoard._tileHeight):#draw horizontal lines
                 pygame.draw.line(screen, (20,0,20), (0,j*tileSize),(GameBoard._height,j*tileSize))
 
-        screen.blit(myMenu.surface, myMenu.rect)
+        #moves the menu to the right if the camera is to the far left.
+        if GameBoard.camTile()[0] < (myMenu.rect[0]+myMenu.rect[2])// tileSize:
+            myMenu.rect[0]=screen_width-myMenu.rect[2]-50
+            CurrentSpriteInfo.rect[0]=screen_width-CurrentSpriteInfo.rect[2]
+        else:
+            myMenu.rect[0]=50
+            CurrentSpriteInfo.rect[0]=0
+        if PlayTurn.CurrentSprite().Alignment()==FRIENDLY:
+            screen.blit(myMenu.surface, myMenu.rect)
+            
         screen.blit(CurrentSpriteInfo.surface, CurrentSpriteInfo.rect)
         
         pygame.display.flip()

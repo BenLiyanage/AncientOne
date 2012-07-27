@@ -9,12 +9,17 @@ import collision
 from collision import PopBestPath, PathList
 
 import AutoTurn
-from AutoTurn import TurnAI, actorDist, dist
+from AutoTurn import TurnAI, PortalAI, actorDist, dist
 
 ATTACK="Attack"
 MOVE="Move"
 SPECIAL="Special"
 AOE="AOE"
+
+#alignments
+FRIENDLY='Friendly'
+HOSTILE='Hostile'
+NEUTRAL = 'Neutral'
 
 class Turn(object):
     def __init__(self, board):
@@ -39,6 +44,12 @@ class Turn(object):
         self._actionQueue = []
 
         ##Load UsefulSprite/Images
+        self._DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
+        self._SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_walk.png')
+        self._SkeletonAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_attack.png')
+        self._PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
+        self._PortalImageSet = sprites.load_sliced_sprites(64,64,'images/base_assets/male_spellcast.png')
+        print(len(self._PortalImageSet))
 
         
     def Mode(self):
@@ -130,18 +141,21 @@ class Turn(object):
         if self._currentSprite.Alignment() == 'Friendly':
 
             #TurnAI(self)#only do this if you want them to fight each other
-            return self._currentSprite
+            return self.CurrentSprite()
         
+        elif self.CurrentSprite().Name()=='Portal':
+            PortalAI(self)
+            return self.CurrentSprite()
         else:
             #print('Found a hostile')
             TurnAI(self)
-            return self._currentSprite
+            return self.CurrentSprite()
 
-    #def Back(self): #back out of move or attack mode if you haven't already moved/attacked
+
     def Attack(self,target):
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
-        self._currentSprite.Attack(target)
+        self._currentSprite.Attack(target, self.CurrentSprite().Power())
         
         #print(self._currentSprite._Name, "attacked", target._Name)
         self._canAttack=False
@@ -195,6 +209,7 @@ class Turn(object):
             self.Action(nextMove)
 
     def Action(self, action):
+        print('Action is Called')
         #an action is a list =('Attack' or 'Move' or 'Wait', a possible target (actor), and a move)
         #this is how the AI tells NPCs what to do.
         actiontype=action[0]
@@ -202,7 +217,7 @@ class Turn(object):
         actionmove=action[2]
         if actiontype=='Attack':
             self.TargetList(1,1)#we do this for now
-            self.CurrentSprite().Attack(actiontarget)
+            self.CurrentSprite().Attack(actiontarget,self.CurrentSprite().Power())
         elif actiontype=='Move':
             #print(actionmove[3])
             self._board.ClearLayer(self._board._shadowLayer)
@@ -228,7 +243,7 @@ class Turn(object):
             self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, specialRange,'images/blue_box.png')            
             self.Board().ChangeCursor("images/area01.png", -1, -1)
             
-    def AOEAttack(self,tile_x,tile_y):
+    def AOEAttack(self,tile_x,tile_y):#This is also known as Fire Lion!
         board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
         if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=3:
             
@@ -238,7 +253,7 @@ class Turn(object):
                 #print(actor.tile_x,actor.tile_y)
                 if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
                     HitAnyone=True
-                    self._currentSprite.Attack(actor)
+                    self._currentSprite.Attack(actor,self.CurrentSprite().Power())
                     print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
                 self._board.ClearLayer(self._board._shadowLayer)
@@ -251,9 +266,23 @@ class Turn(object):
         else:
             print("Target Tile is out of Range.")
 
-#def Spawn(actor):#since this should only happen with the bad guys we will not have a mode
+    def SpawnSkeleton(self, board_x, board_y):#since this should only happen with the bad guys we will not have a mode
+
+        SkeletonSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
+            self._SkeletonImageSet[0], self._SkeletonImageSet[1], self._SkeletonImageSet[2], self._SkeletonImageSet[3], \
+            self._DeathImageSet[0], self._SkeletonAttackImageSet[0], self._SkeletonAttackImageSet[1], self._SkeletonAttackImageSet[2], self._SkeletonAttackImageSet[3], \
+            "Skeleton", HOSTILE ,4, 0, 2, 6, 8)
+        SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
+        self.Characters().add(SkeletonSprite)
 
 
+    def SpawnPortal(self, board_x, board_y):
+        PortalSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
+            self._PortalImageSet[0], self._PortalImageSet[1], self._PortalImageSet[2], self._PortalImageSet[3], \
+            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[1], self._PortalImageSet[2], self._PortalImageSet[3], \
+            "Portal", HOSTILE ,1, 3, 2, 6, 20)
+        PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
+        self.Characters().add(PortalSprite)
 #def VampiricStrike(actor,target):# a special attack that also heals you.
 
 #def Heal(actor, target):#heals a certain target
