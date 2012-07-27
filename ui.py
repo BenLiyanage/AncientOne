@@ -151,7 +151,7 @@ class LevelUpScreen(Menu):
 	def __init__(self, actor, title, font, x, y ,width, height):
                 MOVE="Move"
                 CANCEL="Cancel"
-                WAIT="Wait"
+                WAIT="End Turn"
                 CLOSE="Close Window"
                 self._menuItems = actor.GetActions()
                 self._menuItems.remove(MOVE)

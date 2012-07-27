@@ -190,7 +190,7 @@ class Actor(AnimatedSprite):
                 self._HitSound = pygame.mixer.Sound("sound/hit.wav")
 		MOVE="Move"
                 CANCEL="Cancel"
-                WAIT="Wait/End Turn"
+                WAIT="End Turn"
                 self.RegisterAction(MOVE, "A character may move once per turn", self.MultiMove, self._MoveDownImages)
 		self.RegisterAction(WAIT, "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
 		self.RegisterAction(CANCEL, "Cancels the current action", self.Wait, self._MoveDownImages)
@@ -267,6 +267,7 @@ class Actor(AnimatedSprite):
 		if self._Health <= 0:
                         self.Kill()
 		experience = 10 + (damage * .1)#probably factor in level at some point
+                #experience=101# for testing
 		return experience
 
 

@@ -42,7 +42,7 @@ HEAL="Heal"
 AOE="Fire Lion"
 MOVE="Move"
 CANCEL="Cancel"
-WAIT="Wait/End Turn"
+WAIT="End Turn"
 
 #Special Modes
 LEVELUP = 'Level Up'
