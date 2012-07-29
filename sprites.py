@@ -3,7 +3,7 @@ import random
 import tiledtmxloader
 #class AnimatedSprite(pygame.sprite.Sprite):
 class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modification
-	def __init__(self, images, x, y, fps = 20):             
+	def __init__(self, images, x, y, fps = 20,tileoffset_x=0, tileoffset_y=0):             
 		#pygame.sprite.Sprite.__init__(self)
                 tiledtmxloader.helperspygame.SpriteLayer.Sprite.__init__(self,x,y)#PLE
 		self._images = images
@@ -25,9 +25,10 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		self._width = self.image.get_width()
 		
 		self._tilesize=32
-		self.tile_x=int((x+self._tilesize/2) //self._tilesize)
-                self.tile_y=int((y+self._tilesize) //self._tilesize)
-
+		self.tile_x=int((x+self._tilesize/2-tileoffset_x) //self._tilesize)
+                self.tile_y=int((y+self._tilesize-tileoffset_y) //self._tilesize)
+                self._tileoffset_x=tileoffset_x
+                self._tileoffset_y=tileoffset_y
 		self.rect = pygame.Rect(x, y, self._height, self._width)
 		self._destination = pygame.Rect(x, y, self._height, self._width)
 
@@ -91,8 +92,8 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
                         
                 
 		    	#Updates the tile coordinates (with the offset)
-                self.tile_x=int((self.rect.x+self._tilesize/2) //self._tilesize)
-                self.tile_y=int((self.rect.y+self._tilesize) //self._tilesize)	    	
+                self.tile_x=int((self.rect.x+self._tilesize/2-self._tileoffset_x) //self._tilesize)
+                self.tile_y=int((self.rect.y+self._tilesize-self._tileoffset_y) //self._tilesize)	    	
 
 	def setImageSet(self, imageSet, postAnimationAction):
 
@@ -156,8 +157,8 @@ def load_sliced_sprites(w, h, filename):
 class Actor(AnimatedSprite):
 	def __init__(self, start_pos_x, start_pos_y, MoveUpImages, MoveLeftImages, MoveDownImages, MoveRightImages, \
                      DeathImages, AttackUpImages, AttackLeftImages, AttackDownImages, AttackRightImages, \
-                     Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1, ):
-		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y)
+                     Name, Alignment ,Power, Defense, Speed, Movement, MaxHealth, Level=1, Experience=1,x=0,y=0):
+		super(Actor, self).__init__(MoveDownImages, start_pos_x, start_pos_y, tileoffset_x=x, tileoffset_y=y)
                 #super(tiledtmxloader.helperspygame.SpriteLayer.Sprite, self).__init__(MoveDownImages, 50,100)#Phong switched the order of the arguments cause tiledtmxloader didn't like it
 		# Set Animations		
 		self._MoveLeftImages = MoveLeftImages
@@ -252,7 +253,7 @@ class Actor(AnimatedSprite):
                                 self.setImageSet(self._AttackUpImages,"revert")
                 if sound:
                         self._HitSound.play(loops=1)
-		damage = attackPower - target._Defense+random.randint(0,attackPower)
+		damage = attackPower - target._Defense+random.randint(0,int(attackPower))
 		if damage <=0:
                         damage=1# you always deal at least one damage
                         

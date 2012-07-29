@@ -67,9 +67,15 @@ class CharacterInfo(InfoBox):
 
 class Menu(InfoBox):
 
-	def __init__(self, title, menuItems, font, x, y, width, height):
+	def __init__(self, title, menuItems, font, x, y, width, height, text=""):
+
+                textwidth=width-40#max width of text
+                textList=TextChunks(text,20)
+                
 
 		super(Menu,self).__init__(title, font, x, y, width, height)
+
+		
 
 		self._currentMenuItem = 0
 
@@ -173,3 +179,35 @@ class LevelUpScreen(Menu):
                 
                 #once selected, you need to pass an action called "Next"
 		print "stub"
+
+def TextChunks(l,n,list):#still recursive
+        l=l.strip()
+        if l==[]:
+                return list
+        elif len(l)<n:
+                list.append(l[0:len(l)])
+                return list
+        else:
+
+                k=PreviousWord(l,n)
+                if k==n:
+                    list.append(l[0:n])
+                    return list+TextChunks(l[n:len(l)],n,[])
+                else:
+                    list.append(l[0:k])
+                    return list+TextChunks(l[k:len(l)],n,[])
+        
+def PreviousWord(l,j): #returns the end of the first full word prior to the index. 
+        print("previous world list", l)
+        if len(l)<j:
+            return 0
+        if j==0:
+                return 0
+        for i in range(j):
+                if l[j-i]==" ":
+                        return j-i
+                elif j>i and l[j-i]!=" " and l[j-i-1]==" ":
+                        return j-i
+        return 0
+        
+        

@@ -24,7 +24,7 @@ from TurnController import Turn
 import AutoTurn
 from AutoTurn import TurnAI
 
-MAP="images/map03.tmx"
+MAP="images/map02.tmx"
 
 #alignments
 FRIENDLY='Friendly'
@@ -71,7 +71,7 @@ def main_pygame(file_name):
 
     pygame.init()
 
-    print(" z/x/c/v = atttack/move/wait/cancel, wasd=camera movement, '[]' control the volume of the background music")
+    print(" x/c/v = move/wait/cancel, wasd=camera movement, '[]' control the volume of the background music")
 
 
     myfont = pygame.font.Font("petme/PetMe128.ttf", 10)
@@ -127,13 +127,10 @@ def main_pygame(file_name):
     SuitAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_attack.png')
     SuitSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
         DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
-        "Buster", FRIENDLY ,10, 5, 4, 5, 15)
+        "Buster", FRIENDLY ,10, 5, 5, 5, 15)
     #SuitSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
     SuitSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     SuitSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all adjacent targets', [],[])
-    #SuitSprite.RegisterAction("Move", "A character may move once per turn", [],[])
-    #SuitSprite.RegisterAction("Wait", "Take no action for the turn in order to take your next turn sooner.",[],[])
-    #SuitSprite.RegisterAction("Cancel", "Cancels the current action", [],[])
     Characters.add(SuitSprite)
     
 
@@ -142,7 +139,7 @@ def main_pygame(file_name):
     ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
-        "Archie", FRIENDLY ,8, 4, 5, 6, 13)
+        "Archie", FRIENDLY ,7, 4, 6, 6, 13)
     #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ArcherSprite.RegisterAction(RANGED, 'The character releases a quick bolt!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, stunning the target', [],[])
@@ -153,7 +150,7 @@ def main_pygame(file_name):
     ForestMageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/forestmage/forestmage_spell.png')
     ForestMageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, ForestMageImageSet[0], ForestMageImageSet[1], ForestMageImageSet[2], ForestMageImageSet[3], \
         ForestMageDeathImageSet[0], ForestMageAttackImageSet[0], ForestMageAttackImageSet[1], ForestMageAttackImageSet[2], ForestMageAttackImageSet[3], \
-        "Terra", FRIENDLY ,3, 3, 4, 4, 11)
+        "Terra", FRIENDLY ,3, 3, 5, 4, 11)
     #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
     ForestMageSprite.RegisterAction(HEAL, 'Heals yourself or an ally.', [], [])
@@ -175,8 +172,13 @@ def main_pygame(file_name):
     #the Bad gusys
     PlayTurn.SpawnSkeleton(16,7)
     PlayTurn.SpawnSkeleton(17,8)
-    PlayTurn.SpawnSkeleton(18,9)
+    PlayTurn.SpawnMage(18,9)
     PlayTurn.SpawnPortal(2,6)
+    PlayTurn.SpawnPortal(25,22)
+    PlayTurn.SpawnPortal(12,41)
+    PlayTurn.SpawnPortal(42,32)
+    PlayTurn.SpawnPortal(64,8)
+    PlayTurn.SpawnPortal(65,38)# eventually this will be the ancient one
     
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
@@ -290,7 +292,7 @@ def main_pygame(file_name):
 
         
         if pressedMouse[0]:
-            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
+            print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
             #Seed what you clicked on and what turn mode you are in, then determins what to do
             if (PlayTurn.Mode()==ATTACK or PlayTurn.Mode()==RANGED or PlayTurn.Mode()==CRIPPLESTRIKE) and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
                 PlayTurn.Attack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
@@ -323,11 +325,11 @@ def main_pygame(file_name):
         
         Characters.update(time)  
         GameBoard.update(time)
-        if GameBoard.Animating() and paused:
+        if GameBoard.Animating() or paused:
             print('Gameboard is animating! Please be patient!')
             pass
         else:
-            PlayTurn.update()
+            PlayTurn.update(time)
 
 
         #DEBUGGING: Grid

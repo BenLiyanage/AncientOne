@@ -22,6 +22,7 @@ def main():
 
         font = pygame.font.Font('petme/PetMe128.ttf', 12)
         text = font.render("Hello There", 1, (250, 250, 250))
+        
         textpos = text.get_rect()
         textpos.centerx = background.get_rect().centerx
         background.blit(text, textpos)

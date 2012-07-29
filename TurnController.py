@@ -58,14 +58,17 @@ class Turn(object):
         self._DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
         self._SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_walk.png')
         self._SkeletonAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_attack.png')
-        self._PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-        self._PortalImageSet = sprites.load_sliced_sprites(64,64,'images/base_assets/male_spellcast.png')
+        self._PigImageSet = sprites.load_sliced_sprites(128, 128, 'images/magic/turtleshell_large.png')
+        self._PortalImageSet = sprites.load_sliced_sprites(128,128,'images/magic/turtleshell_large.png')
 
-        MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
-        MageImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_walk.png')
-        MageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_spell.png')
+        self._MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
+        self._MageImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_walk.png')
+        self._MageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_spell.png')
+        self._MageMinRange = 2
+        self._MageMaxRange=5
 
-        
+        self._LastActionTimer=0
+        self._ActionDelay=700 #delay in ms between AI actions
 
         
     def Mode(self):
@@ -153,8 +156,9 @@ class Turn(object):
    
         self._currentSprite=highestActor
         self._currentActions=self.CurrentSprite().GetActions()
-        self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
-            (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
+        if self._currentSprite.Alignment==FRIENDLY:
+            self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
+                (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
 
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
@@ -168,9 +172,11 @@ class Turn(object):
         elif self.CurrentSprite().Name()=='Portal':
             PortalAI(self)
             return self.CurrentSprite()
+        elif self.CurrentSprite().Name() == "Mage":
+            TurnAI(self,2,5)
         else:
             #print('Found a hostile')
-            TurnAI(self)
+            TurnAI(self, 1, 1)
             return self.CurrentSprite()
 
     
@@ -214,10 +220,10 @@ class Turn(object):
         return self._actionQueue
         
 
-    def update(self):  #mostly for the AI turns.  checks if the character is animating
+    def update(self, t):  #mostly for the AI turns.  checks if the character is animating
         if self.CurrentSprite().Animating():
             pass
-        elif self.Queue() !=[]:
+        elif self.Queue() !=[] and t-self._LastActionTimer> self._ActionDelay:
             
             self.Queue().reverse()
             nextMove=self.Queue().pop()
@@ -225,6 +231,9 @@ class Turn(object):
             #print(nextMove, 'is begin performed')
             self.AIAction(nextMove)
 
+            self._LastActionTimer=t
+
+        
     def AIAction(self, action):
         #print('Action is Called')
         #an action is a list =('Attack' or 'Move' or 'Wait', a possible target (actor), and a move)
@@ -234,7 +243,13 @@ class Turn(object):
         actionmove=action[2]
         if actiontype=='Attack':
             self._canAttack=False
-            self.TargetList(1,1)#we do this for now
+            if self.CurrentSprite().Name()=='Mage':
+                self.TargetList(self._MageMinRange, self._MageMaxRange)
+                self.Board().AnimatedParticleEffect(64,64,'images/magic/magic_snakebite_small.png',actiontarget.tile_x+.5, actiontarget.tile_y)
+            else:
+                self.TargetList(1,1)#we do this for now
+            LaserSound = pygame.mixer.Sound("sound/laser.wav")
+            LaserSound.play()
             self.CurrentSprite().Attack(actiontarget,self.CurrentSprite().Power())
         elif actiontype=='Move':
             self._canMove=False
@@ -369,16 +384,16 @@ class Turn(object):
         self.Characters().add(SkeletonSprite)
 
     def SpawnMage(self, board_x, board_y):
-        MageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, MageImageSet[0], MageImageSet[1], MageImageSet[2], MageImageSet[3], \
-            MageDeathImageSet[0], MageAttackImageSet[0], MageAttackImageSet[1], MageAttackImageSet[2], MageAttackImageSet[3], \
+        MageSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, self._MageImageSet[0], self._MageImageSet[1], self._MageImageSet[2], self._MageImageSet[3], \
+            self._MageDeathImageSet[0], self._MageAttackImageSet[0], self._MageAttackImageSet[1], self._MageAttackImageSet[2], self._MageAttackImageSet[3], \
             "Mage", HOSTILE ,3, 3, 4, 4, random.randint(8,11))
         self.Characters().add(MageSprite)
 
     def SpawnPortal(self, board_x, board_y):
-        PortalSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
-            self._PortalImageSet[0], self._PortalImageSet[1], self._PortalImageSet[2], self._PortalImageSet[3], \
-            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[1], self._PortalImageSet[2], self._PortalImageSet[3], \
-            "Portal", HOSTILE ,0, 2, 2, 0, random.randint(11,16))
+        PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
+            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
+            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
+            "Portal", HOSTILE ,0, 2, 2, 0, random.randint(11,16), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
         PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
         self.Characters().add(PortalSprite)
     #def VampiricStrike(actor,target):# a special attack that also heals you.
