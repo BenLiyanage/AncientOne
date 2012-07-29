@@ -129,8 +129,8 @@ def main_pygame(file_name):
         DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
         "Buster", FRIENDLY ,10, 5, 5, 5, 15)
     #SuitSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
-    SuitSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
-    SuitSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all adjacent targets', [],[])
+    SuitSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against adjacent target.',[],[])
+    SuitSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all adjacent targets.', [],[])
     Characters.add(SuitSprite)
     
 
@@ -141,8 +141,8 @@ def main_pygame(file_name):
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
         "Archie", FRIENDLY ,7, 4, 6, 6, 13)
     #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
-    ArcherSprite.RegisterAction(RANGED, 'The character releases a quick bolt!', [],[])
-    ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, stunning the target', [],[])
+    ArcherSprite.RegisterAction(RANGED, 'The character fires and arrow!', [],[])
+    ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
     Characters.add(ArcherSprite)
     
     ForestMageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/forestmage/forestmage_death.png')
@@ -153,7 +153,7 @@ def main_pygame(file_name):
         "Terra", FRIENDLY ,3, 3, 5, 4, 11)
     #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
-    ForestMageSprite.RegisterAction(HEAL, 'Heals yourself or an ally.', [], [])
+    ForestMageSprite.RegisterAction(HEAL, 'Restores the healt of yourself or an ally.', [], [])
     Characters.add(ForestMageSprite)
     
     
@@ -162,8 +162,9 @@ def main_pygame(file_name):
     frames_per_sec = 60.0
     clock = pygame.time.Clock()
     running = True
-    paused=False
+    paused=True #start the game paused
     grid=False #Debugging boolean to draw a grid
+    startGame=True
 
     #Game Turns Controller
     PlayTurn=Turn(GameBoard)
@@ -184,9 +185,13 @@ def main_pygame(file_name):
     CurrentSprite=PlayTurn.Next()
     CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
     #LevelUpWindow = LevelUpScreen(CurrentSprite, CurrentSprite.Name()+'has gained a level!', myfont, 100,100,100,100)#they do not really level up, this just initialized the object
-    myMenu = Menu("Action:", PlayTurn.CurrentSprite().GetActions(), myfont, 50, 150, 200, 200)
+    myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentSprite().GetActionNames(), myfont, 50, 150, 200, 200, ActionItems = PlayTurn.CurrentSprite().GetActions())
     
-
+    StartWindow = Menu("Defeat of the Ancient One", ["Start Game"], myfont, 100,100, 600,160, \
+                       text="Archie, Buster and Terra have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
+                       "Just beyond the fissure they find what appears to be a green portal.  Before they can investigate they are ambushed by dark agents!"+\
+                        "Control the players using the mouse. WASD keys move the camera.  + and - control the volume of the background music.")
+    
     #Music
     BGvolume=.00#.05 #this is a number between 0 and 1
     BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
@@ -199,6 +204,11 @@ def main_pygame(file_name):
     while running:
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
+
+
+
+
+        
         
         #checks for levelups,
         if PlayTurn.Mode()==LEVELUP and paused==False:# we are between turns
@@ -216,7 +226,7 @@ def main_pygame(file_name):
         if (CurrentSprite != PlayTurn.CurrentSprite() or mode != PlayTurn.Mode() ) and PlayTurn.CurrentSprite !=[] and paused==False:
             CurrentSprite = PlayTurn.CurrentSprite()
             mode= PlayTurn.Mode()
-            myMenu = Menu("Action:", PlayTurn.CurrentActions(), myfont, 50, 150, 200, 200)
+            myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 200, ActionItems = PlayTurn.CurrentSprite().GetActions()) #CurrentActions is a list removing unavailable actions
             CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
         #Move the camera manually with "wasd"
 
@@ -236,8 +246,11 @@ def main_pygame(file_name):
                 
             if PlayTurn.Mode()==LEVELUP and paused:
                 action = LevelUpWindow.input(event)
+            elif startGame and paused:
+                action = StartWindow.input(event)
             else:
                 action = myMenu.input(event) #actions that come from the menu
+            
                 
             if not (hasattr(event, 'key') or event.type==KEYDOWN or hasattr(event, 'button') or event.type==MOUSEBUTTONUP): continue
             #print(action)
@@ -257,6 +270,9 @@ def main_pygame(file_name):
             elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[]:#right now it brings up a target list
                 print("Entering Mode", action)
                 PlayTurn.ActionMode(action)
+            elif (action == "Start Game"):
+                paused=False
+                startGame=True
 
             #the level up parts
             elif (action in actionList) and PlayTurn.Mode()==LEVELUP:
@@ -326,7 +342,7 @@ def main_pygame(file_name):
         Characters.update(time)  
         GameBoard.update(time)
         if GameBoard.Animating() or paused:
-            print('Gameboard is animating! Please be patient!')
+            #print('Gameboard is animating! Please be patient!')
             pass
         else:
             PlayTurn.update(time)
@@ -351,6 +367,7 @@ def main_pygame(file_name):
         elif paused and PlayTurn.Mode()==LEVELUP:
             #print("Level up window for", CurrentSprite.Name())
             screen.blit(LevelUpWindow.surface, LevelUpWindow.rect)
+        
 
 
         if GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor" and paused==False:
@@ -358,7 +375,11 @@ def main_pygame(file_name):
                 HoverWindow = CharacterInfo(actor, myfont, screen_height-150)
                 screen.blit(HoverWindow.surface, HoverWindow.rect)
         screen.blit(CurrentSpriteInfo.surface, CurrentSpriteInfo.rect)
-        
+
+
+        if paused and startGame:
+            screen.blit(StartWindow.surface, StartWindow.rect)
+
         pygame.display.flip()
 
 #  -----------------------------------------------------------------------------

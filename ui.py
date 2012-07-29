@@ -5,6 +5,9 @@ pygame.init()
 
 FONTCOLOR = (10, 10, 10)
 BACKGROUNDCOLOR = (250,250,250)
+BLUE = (0,0,255)
+RED  =( 255,0,0)
+VIOLET = ( 130,0,255)
 
 class InfoBox(object):
 	def __init__(self, title, font, x, y, width, height):
@@ -12,7 +15,7 @@ class InfoBox(object):
 		self._font = font
 
 		self._title = title
-		self._title = self._font.render(title, 0, FONTCOLOR)
+		self._title = self._font.render(title, 0, RED)
 		self._titlePosition = self._title.get_rect()
 		self._titlePosition.top = 0
 		self._titlePosition.left = 0
@@ -29,7 +32,7 @@ class InfoBox(object):
 
 class CharacterInfo(InfoBox):
 	def __init__(self, character, font, screenHeight):
-		super(CharacterInfo,self).__init__(character._Name, font, 0, screenHeight-150, 300, 150)
+		super(CharacterInfo,self).__init__(character._Name, font, 0, screenHeight-150, 300, 200)
 		self._toolTips = []
 
 		# Print Stats in columns
@@ -67,21 +70,36 @@ class CharacterInfo(InfoBox):
 
 class Menu(InfoBox):
 
-	def __init__(self, title, menuItems, font, x, y, width, height, text=""):
+	def __init__(self, title, menuItems, font, x, y, width, height,text="",ActionItems=[]):
 
                 textwidth=width-40#max width of text
-                textList=TextChunks(text,20)
+                textList=TextChunks(text,int(width/12),[])
                 
 
-		super(Menu,self).__init__(title, font, x, y, width, height)
+		super(Menu,self).__init__(title, font, x, y, width, height+15*len(textList))
+
+		self._x=x
+		self._y=y
+		self._width=width
+		self._height=height
+		self._ActionItems=ActionItems
+		#print(ActionItems)
+                self._indent = 40
+		itemY = self._titlePosition.bottom + 10 
+		itemX = self._titlePosition.left + self._indent
 
 		
-
+                for item in textList:
+			textItem = {}
+			textItem['name'] = item
+			textItem['surface'] = self._font.render(item, 0, VIOLET)
+			textItem['position'] = textItem['surface'].get_rect()
+			textItem['position'].top = itemY
+			textItem['position'].left = itemX
+			itemY = textItem['position'].bottom + 5
+			self.surface.blit(textItem['surface'], textItem['position'])
+                
 		self._currentMenuItem = 0
-
-		self._indent = 40
-		itemY = self._titlePosition.bottom + 10
-		itemX = self._titlePosition.left + self._indent
 
 		self._BlipSound = pygame.mixer.Sound("sound/blip.wav")
 
@@ -96,7 +114,10 @@ class Menu(InfoBox):
 			itemY = menuItem['position'].bottom + 5
 			self.surface.blit(menuItem['surface'], menuItem['position'])		
 			self._menuItems.append(menuItem)
-			
+
+		self._menuY=itemY
+		self._itemY=itemY
+		self._itemX=itemX
 		
 
 	def setActive(self, itemNumber):
@@ -111,6 +132,29 @@ class Menu(InfoBox):
                 
 		self._currentMenuItem = itemNumber
 
+		
+
+                #draws the description text.
+                #eraserRect = pygame.rect(0,self._menuY,self._width, self._height-self._menuY)
+		if self._ActionItems !=[]:
+                        pygame.draw.rect(self.surface,BACKGROUNDCOLOR,(0,self._menuY,self._width, self._height-self._menuY+15))
+
+
+                        
+                        self._itemY=self._menuY
+                        itemDescription = {}
+                        itemDescriptionText = self._ActionItems[self._menuItems[itemNumber]['name']][1]
+                        textList= TextChunks(itemDescriptionText,15,[])
+                        #print(textList)
+                        for item in textList:
+                                #print(itemDescriptionText)
+                                itemDescription['name'] = item
+                                itemDescription['surface'] = self._font.render(item, 0, BLUE)
+                                itemDescription['position'] = itemDescription['surface'].get_rect()
+                                itemDescription['position'].top = self._itemY
+                                itemDescription['position'].left = self._itemX
+                                self._itemY = itemDescription['position'].bottom + 5
+                                self.surface.blit(itemDescription['surface'], itemDescription['position'])
 		
 
 	def input(self, event):
@@ -198,13 +242,19 @@ def TextChunks(l,n,list):#still recursive
                     return list+TextChunks(l[k:len(l)],n,[])
         
 def PreviousWord(l,j): #returns the end of the first full word prior to the index. 
-        print("previous world list", l)
+        #print("previous word list", l)
         if len(l)<j:
             return 0
         if j==0:
                 return 0
         for i in range(j):
-                if l[j-i]==" ":
+                #print("len of l",len(l))
+                #print("j",j)
+                #print("i",i)
+                #print("j-i",j-i)
+                if len(l) <=j-i:
+                        return j-i
+                elif l[j-i]==" ":
                         return j-i
                 elif j>i and l[j-i]!=" " and l[j-i-1]==" ":
                         return j-i

@@ -36,7 +36,7 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 
 		self.__g = {} # The groups the sprite is in. This is for http://www.pygame.org/docs/tut/SpriteIntro.html (added by PLE)
 
-		print "finished loading AnimatedSprite"
+		#print "finished loading AnimatedSprite"
 
 	def update(self, t):
 		# Note that this doesn't work if it's been more that self._delay
@@ -140,11 +140,11 @@ def load_sliced_sprites(w, h, filename):
 	'''PC way to create paths: os.path.join('ressources', filename)'''
 	master_image = pygame.image.load(filename).convert_alpha()
 	master_width, master_height = master_image.get_size()
-	print master_height
+	#print master_height
 	animationSet = []
 
 	for y in xrange(int(master_height/h)):
-		print y
+		#print y
 		images = []
 
 		for x in xrange(int(master_width/w)):
@@ -193,7 +193,7 @@ class Actor(AnimatedSprite):
                 CANCEL="Cancel"
                 WAIT="End Turn"
                 self.RegisterAction(MOVE, "A character may move once per turn", self.MultiMove, self._MoveDownImages)
-		self.RegisterAction(WAIT, "Take no action for the turn in order to take your next turn sooner.", self.Wait, self._MoveDownImages)
+		self.RegisterAction(WAIT, "If you have not moved or taken an action, your next turn will come up sooner.", self.Wait, self._MoveDownImages)
 		self.RegisterAction(CANCEL, "Cancels the current action", self.Wait, self._MoveDownImages)
 
         #RegisterAction is not completely used because attacks, special attacks in particular, are more easily handled through the TurnController.
@@ -204,8 +204,10 @@ class Actor(AnimatedSprite):
 	def LevelUpAction(self, actionName):
                 self._Actions[actionName][3] +=1
                 print(actionName," is now level ", self._Actions[actionName][3])
-	def GetActions(self):
+	def GetActionNames(self):
 		return self._Actions.keys()
+	def GetActions(self):
+                return self._Actions
 	
 	def ActionLevel(self, actionName):
                 return self._Actions[actionName][3]

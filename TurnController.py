@@ -155,7 +155,7 @@ class Turn(object):
                     highestActor=actor
    
         self._currentSprite=highestActor
-        self._currentActions=self.CurrentSprite().GetActions()
+        self._currentActions=self.CurrentSprite().GetActionNames()
         if self._currentSprite.Alignment==FRIENDLY:
             self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
                 (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
