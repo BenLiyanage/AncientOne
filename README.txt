@@ -25,8 +25,9 @@ Escape - pause/ unpause the game.
 
 Building and running
 --------------------
+This game was programming with python, which will be necessary to build the game.
 
-A copy of the tiledtmxloader module has been included, along with the appropriate licensing information.
+A copy of the tiledtmxloader module has been included, along with the appropriate licensing information.  This was used to load in the .tmx map.
 
 the module pygame is also required to run the game.  Installation information can be found at <http://www.pygame.org/news.html>
 
