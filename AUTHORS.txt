@@ -1,0 +1,91 @@
+Code authors
+============
+
+This program was written by the following people:
+ - Phong N. Le
+ - Benjamin S. Liyanage
+
+
+Asset attribution
+=================
+
+Assets were authored by the following people:
+
+Christopher Pennington
+pigman_walk.png
+
+Emma Roach
+wandering_around.wav
+
+
+Lanea Zimmerman
+barrel.png
+cementstair.png
+cup.png
+dirt.png
+dirt2.png
+grass.png
+hole.png
+house.png
+lava.png
+lavarock.png
+mountains.png
+rock.png
+treetop.png
+trunk.png
+water.png
+watergrass.png
+
+Phong N. Le
+area01.png
+area02.png
+area03.png
+collision.png
+ActiveShadow.png
+alpha_box.png
+blue_box.png
+red_box.png
+
+blip.wavexplosion.wavexplosion2.wavheal.wavhit.wavhit2.wavlaser.wavlevelup.wavnewturn.wavportal.wavslash.wavstaticroar.wavwalk.wav
+
+Daniel Eddeland
+
+farming_fishing.png
+fence.png
+fence_alt.png
+sword_sheet_128.png
+
+AOE_firelion.pngmagic_snakebite_large.pngmagic_snakebite_small.pngtorrentacle_large.pngtorrentacle_small.pngturtleshell_large.pngturtleshell_small.png
+
+
+Jonas Klinger
+building.png
+
+Johannes Sjolund
+archer_attack.pngarcher_death.pngarcher_walk.png
+forestmage_death.pngforestmage_slash.pngforestmage_spell.pngforestmage_walk.png
+knight_attack.pngknight_death.pngknight_walk.png
+skeleton_attack.png
+skeleton_death.png
+skeleton_walk.png
+
+
+Stephen Challener
+male_walkcycle.png
+male_hurt.png
+male_slash.png
+male_spellcast.png
+mage_death.pngmage_spell.pngmage_walk.png
+
+Casper Nilsson
+grassalt_flowers.png
+gravestones.png
+stonepattern.png
+tree_stump.png
+
+Cody Boisclair (SIL Open Font License (OFL))
+PressStart2P.ttf
+
+
+
+

@@ -1,4 +1,18 @@
-### This tells you whose turn it is and controls 
+# <This is the file that controls turn attacking and other functions related to game mechanics.>
+# Copyright (C) <2012>  <Phong Le and Benjamin Liyanage>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame
 import random
@@ -27,6 +41,8 @@ HEAL="Heal"
 MOVE="Move"
 CANCEL="Cancel"
 WAIT="End Turn"
+
+ATTACKLIST=[ATTACK, WHIRLWIND, CRIPPLESTRIKE, RANGED,SPECIAL,AOE, HEAL]
 
 #alignments
 FRIENDLY='Friendly'
@@ -59,7 +75,7 @@ class Turn(object):
         self._actionQueue = []
 
         ##Load UsefulSprite/Images
-        self._DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
+        self._DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton/skeleton_death.png')
         self._SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_walk.png')
         self._SkeletonAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_attack.png')
         self._PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman/pigman_walk.png')
@@ -76,6 +92,7 @@ class Turn(object):
         self._LastActionTimer=0
         self._ActionDelay=700 #delay in ms between AI actions
 
+
         
 
                 
@@ -84,15 +101,22 @@ class Turn(object):
             self._mode = MOVE
             self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
             #print(self._moves)
+            #self._board.ClearLayer(self._board._shadowLayer)
             self._board.DrawPossibleMoves(self._moves)
             self._currentActions.append(CANCEL)
+            self._currentActions.remove(MOVE)
+            if self._canAttack:
+                for action in ATTACKLIST:#adds back in attacks that you can still do
+                    if action in self.CurrentSprite().GetActionNames():
+                        self._currentActions.remove(action)
 
 
 
         
-    def CancelMode(self):
+    def CancelMode(self, highlight=True):
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
-        self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
+        if highlight:
+            self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
         self.Board().ChangeCursor("images/blue_box.png", 0, 0)
         self._moves=[]
         self._path=[]
@@ -100,9 +124,13 @@ class Turn(object):
         self._mode=[]
         if CANCEL in self._currentActions:
             self._currentActions.remove(CANCEL)
-        #if len(self.CurrentActions()) <=2:
-        #    print("The endTurn is nigh")
-        #    self.EndTurn()
+        if self._canMove:
+            self._currentActions.append(MOVE)
+        if self._canAttack:
+            for action in ATTACKLIST:#adds back in attacks that you can still do
+                if action in self.CurrentSprite().GetActionNames():
+                    self._currentActions.append(action)
+
         
     def EndTurn(self):
 
@@ -167,6 +195,7 @@ class Turn(object):
         self._currentSprite=highestActor
         self._currentActions=self.CurrentSprite().GetActionNames()
         self._currentActions.remove(CANCEL)
+
         if self._currentSprite.Alignment()==FRIENDLY:
             self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
                 (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
@@ -201,17 +230,18 @@ class Turn(object):
         if self._path == [] and self.Mode()==MOVE:
             pass
         elif self._canMove==True: #player has selected a possible path
+            self._board.ClearLayer(self._board._shadowLayer)
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
-            self._currentActions.remove(MOVE)
+            #MOVE should have been removed in MOVEMODE
+            #self._currentActions.remove(MOVE)
             
-            self._board.ClearLayer(self._board._shadowLayer)
+  
             self._currentSprite.MultiMove(self._path)
             self._board.HighlightTile(tile_x, tile_y, "images/ActiveShadow.png")
             self._canMove=False
-            self._path=[]#just in case we reset
-            self._moves=[]#again, just in case.
-            self._mode=[]
+
+            self.CancelMode(highlight=False)
 
 
 
@@ -246,6 +276,7 @@ class Turn(object):
             self.AIAction(nextMove)
 
             self._LastActionTimer=t
+        self.CurrentActions().sort()
 
         
     def AIAction(self, action):
@@ -274,6 +305,8 @@ class Turn(object):
         elif actiontype=='Wait':
             #print(self.CurrentSprite().Name(), 'is done with turn!')
             self.EndTurn()
+        elif actiontype=='Tentacle':
+            self.AOEAttack(actiontarget.tile_x, actiontarget.tile_y,imagepath='images/magic/torrentacle_large.png')
         else:
             print('You should not be here. An action called', actiontype, 'was called.')
         
@@ -310,14 +343,24 @@ class Turn(object):
             if action==ATTACK:
                 #print('action is attack')
                 self.TargetList(1,1)#we do this for now
-            elif action == AOE:
-                self.AOEMode()
-            elif action == RANGED or self.Mode()==CRIPPLESTRIKE:
-                self.TargetList(3,7)
+                self._currentActions.remove(ATTACK)
+                self._currentActions.remove(WHIRLWIND)
             elif action ==WHIRLWIND:
                 self.Whirlwind()
+                self._currentActions.remove(ATTACK)
+                self._currentActions.remove(WHIRLWIND)
+            elif action == AOE:
+                self.AOEMode()
+                self._currentActions.remove(AOE)
+                self._currentActions.remove(HEAL)
             elif action == HEAL:
                 self.TargetList(0,2, Opponent=False)
+                self._currentActions.remove(AOE)
+                self._currentActions.remove(HEAL)
+            elif action == RANGED or self.Mode()==CRIPPLESTRIKE:
+                self.TargetList(3,7)
+                self._currentActions.remove(RANGED)
+                self._currentActions.remove(CRIPPLESTRIKE)
             else:
                 print('Action', action, 'not recognized.')
             if CANCEL not in self._currentActions and action !=WHIRLWIND:
@@ -330,26 +373,22 @@ class Turn(object):
             self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
             self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
             if self.Mode()==ATTACK: 
-                self._currentSprite.Attack(target, self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(ATTACK))
-                self._currentActions.remove(ATTACK)
-                self._currentActions.remove(WHIRLWIND)
+                self._currentSprite.Attack(target, 2*self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(ATTACK))
+
             elif self.Mode()==RANGED:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power()+self.CurrentSprite().ActionLevel(RANGED))
-                self._currentActions.remove(CRIPPLESTRIKE)
-                self._currentActions.remove(RANGED)
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(RANGED))
+
             elif self.Mode()==CRIPPLESTRIKE:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power())#+2*self.CurrentSprite().ActionLevel(RANGED))
-                target._Initiative -= 3*self.CurrentSprite().ActionLevel(CRIPPLESTRIKE)
-                self._currentActions.remove(CRIPPLESTRIKE)
-                self._currentActions.remove(RANGED)
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(RANGED))
+                target._Initiative -= 5*self.CurrentSprite().ActionLevel(CRIPPLESTRIKE)
+
                 if target._Initiative <0:
                     target._Initiative = 0
             else:
                 self._currentSprite.Attack(target, self.CurrentSprite().Power())
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
-            if self._canMove:
-                self._currentActions.append(MOVE)
+
             self._canAttack=False
             self.CancelMode()
 
@@ -359,29 +398,27 @@ class Turn(object):
             self.CurrentSprite().Heal(target, self.CurrentSprite().ActionLevel(HEAL))
             HealSound = pygame.mixer.Sound("sound/Heal.wav")
             HealSound.play()
-            self._currentActions.remove(HEAL)
-            self._currentActions.remove(AOE)
+
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
-            if self._canMove:
-                self._currentActions.append(MOVE)
+
             self._canAttack=False
             self.CancelMode()
 
     def AOEMode(self):
         if self._canAttack:
             self._mode=AOE
-            specialRange=4
+            specialRange=5
             self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, 0, specialRange,'images/alpha_box.png')            
             self.Board().ChangeCursor("images/area01.png", -1, -1)
+
             if CANCEL not in self._currentActions:
                 self._currentActions.append(CANCEL)
-            if self._canMove:
-                self._currentActions.remove(MOVE)
+
             
-    def AOEAttack(self,tile_x,tile_y):#This is also known as Fire Lion!
+    def AOEAttack(self,tile_x,tile_y, imagepath = 'images/magic/AOE_firelion.png'):#This is also known as Fire Lion!
         board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
-        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=3:
+        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
             
             #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
             HitAnyone=False
@@ -389,35 +426,37 @@ class Turn(object):
                 #print(actor.tile_x,actor.tile_y)
                 if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
                     HitAnyone=True
-                    self._currentSprite.Attack(actor,2*self.CurrentSprite().Power()+5*self.CurrentSprite().ActionLevel(AOE))
+                    self._currentSprite.Attack(actor,2*self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(AOE))
                     print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
                 self._board.ClearLayer(self._board._shadowLayer)
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
                 AttackSound.play()
-                self.Board().AnimatedParticleEffect(128,128,'images/magic/AOE_firelion.png',board_x, board_y)
+                self.Board().AnimatedParticleEffect(128,128,imagepath,board_x, board_y)
                 self._canAttack=False               
-                self._currentActions.remove(HEAL)
-                self._currentActions.remove(AOE)
+
                 self.CancelMode()
                 if CANCEL in self._currentActions:
                     self._currentActions.remove(CANCEL)
-                if self._canMove:
-                    self._currentActions.append(MOVE)
+    
         else:
-            print("Target Tile is out of Range.")
+            pass
+            #print("Target Tile is out of Range.")
 
     def Whirlwind(self):#attacks all players (hostile or friendly) in adjacent spa
         HitAnyone=False
         for actor in self.Characters():
             if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) <=2 and actor.Alignment() != self.CurrentSprite().Alignment():
-                self._currentSprite.Attack(actor,self.CurrentSprite().Power()+self.CurrentSprite().ActionLevel(WHIRLWIND))
+                self._currentSprite.Attack(actor,self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(WHIRLWIND))
             if HitAnyone:                
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
                 AttackSound.play()
                 self._canAttack=False
+                self._currentActions.remove(ATTACK)
                 self._currentActions.remove(WHIRLWIND)
-                self.CancelMode()    
+                self.CancelMode()
+
+                
 
     def SpawnSkeleton(self, board_x, board_y, level=1):#since this should only happen with the bad guys we will not have a mode
 
@@ -440,9 +479,10 @@ class Turn(object):
         PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
-            "Portal", HOSTILE ,0, 2, 2, 0, random.randint(11,16), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
+            "Portal", HOSTILE ,0, 5, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
         PortalSprite.ForceLevel(level)
         PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
+        PortalSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
         self.Characters().add(PortalSprite)
 
 
@@ -455,6 +495,7 @@ class Turn(object):
         #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
         self.Characters().add(PigSprite)
     #def VampiricStrike(actor,target):# a special attack that also heals you.
+        
 
 #def PassiveHeal(actor):
 

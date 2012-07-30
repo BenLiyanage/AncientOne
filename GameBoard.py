@@ -1,14 +1,24 @@
+# <This controls most of the art and the gameboard drawing.>
+# Copyright (C) <2012>  <Phong Le and Benjamin Liyanage>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import sys
-#import os
-#import array
+
 import pygame
-#import collision
-#from collision import CollisionFinder, PopBestPath
 
-#import ui
-#from ui import Menu, CharacterInfo
 
-#from pygame.locals import*
 
 import sprites
 from sprites import AnimatedSprite, Actor
@@ -16,7 +26,6 @@ from sprites import AnimatedSprite, Actor
 import tiledtmxloader #this reads .tmx files
 
 
-#pygame.init()
 class Board(object):
 #class Board(tiledtmxloader.helperspygame):
     def __init__(self, worldMap, characters, tileSize, screen):
@@ -107,7 +116,7 @@ class Board(object):
             #if actor.Health()<=0 and actor._MidAnimation==0:
                 #Right now we are just removing the character, we may do something different later.
             if actor.PostAnimationAction()=="remove":# and actor.Animating()==False and actor._frame >= len(actor._images):
-                print("Removing", actor.Name(),"from the board.")
+                print(" GameBoard Removing", actor.Name(),"from the board.")
                 self._characters.remove(actor)
         for particle in self._particles:
             if particle.PostAnimationAction()=="remove":
@@ -166,7 +175,7 @@ class Board(object):
                 if j != 0:
                     self.HighlightTile(tile_x+i, tile_y-j, imagepath)
         '''
-        print("highlight area called")
+        #print("highlight area called")
         for i in range(-maxRange,maxRange):
             upper = maxRange-abs(i)
             lower = max(0, minRange-abs(i))

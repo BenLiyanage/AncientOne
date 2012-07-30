@@ -16,19 +16,28 @@ def PortalAI(Turn):#this is how the portal thinks
     #should modify so that if the portal is deserted it spawns a stronger enemy
     #print('PortalAI called to control', Turn.CurrentSprite().Name())
     SpawnRadius=15#this is how far it looks for bad guys
+    AttackRadius=3
     SpawnThreshold=6# if too many of the same alignment are nearby the portal will not spawn a badguy
     AllyCount=0#how many allies are neaby
     AdjacentCount=0
     HostileNearby=False
+    targetOpponent=[]
     #first check if the surrounding spaces are occupied
     for actor in Turn.Characters():
         if actorDist(actor, Turn.CurrentSprite())==1:
             AdjacentCount+=1
         if actor.Alignment()==Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<SpawnRadius:
            AllyCount+=1
+        elif actorDist(actor, Turn.CurrentSprite())<AttackRadius: #these are the non allies
+            HostileNearby=True
+            targetOpponent=actor
         elif actorDist(actor, Turn.CurrentSprite())<SpawnRadius: #these are the non allies
             HostileNearby=True
-    if AdjacentCount<4 and AllyCount<SpawnThreshold and HostileNearby:
+    if targetOpponent !=[]:
+        print("target for tentacle:", targetOpponent.Name())
+        Turn.addQueue('Tentacle',targetOpponent,[])
+        
+    elif AdjacentCount<4 and AllyCount<SpawnThreshold and HostileNearby:
         #First find a free tile, then spawn a baddie in it
         tile_x=Turn.CurrentSprite().tile_x
         tile_y=Turn.CurrentSprite().tile_y
@@ -63,7 +72,7 @@ def TurnAI(Turn, minRange=1, maxRange=1):
     #if you begin with a target in range, take the shot then move toward the nearest ally, if no ally is near, move away from enemies that are too close (<2) if possible
     #if you begin with no targets in range, figure out if you can move an attack, if you can, do so, if not , move toward the nearest ally, if no ally is near, stay put.
 
-    print('RangedAI called to control', Turn.CurrentSprite().Name())
+    #print('RangedAI called to control', Turn.CurrentSprite().Name())
     #def __init__(Turn, board):
         #super(Turn, Turn).__init__(Turn, board)
 

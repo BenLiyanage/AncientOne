@@ -17,8 +17,8 @@ class InfoBox(object):
 		self._title = title
 		self._title = self._font.render(title, 0, RED)
 		self._titlePosition = self._title.get_rect()
-		self._titlePosition.top = 0
-		self._titlePosition.left = 0
+		self._titlePosition.top = 5
+		self._titlePosition.left = 5
 
 		self.surface = pygame.Surface((width, height))
 		self.surface.convert()
@@ -76,7 +76,7 @@ class Menu(InfoBox):
                 textList=TextChunks(text,int(width/12),[])
                 
 
-		super(Menu,self).__init__(title, font, x, y, width, height+15*len(textList))
+		super(Menu,self).__init__(title, font, x, y, width, height+15*len(textList)+15)
 
 		self._x=x
 		self._y=y
@@ -84,7 +84,7 @@ class Menu(InfoBox):
 		self._height=height
 		self._ActionItems=ActionItems
 		#print(ActionItems)
-                self._indent = 40
+                self._indent = 20
 		itemY = self._titlePosition.bottom + 10 
 		itemX = self._titlePosition.left + self._indent
 
@@ -175,7 +175,7 @@ class Menu(InfoBox):
 				return self._menuItems[self._currentMenuItem]['name']
 
 			self.setActive(itemNumber)
-			print(itemNumber)
+			#print(itemNumber)
 		elif (event.type == MOUSEMOTION):
 			itemNumber = self.mouseOverItem()
 
