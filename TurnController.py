@@ -77,8 +77,6 @@ class Turn(object):
         self._ActionDelay=700 #delay in ms between AI actions
 
         
-    def Mode(self):
-        return self._mode
 
                 
     def MoveMode(self):
@@ -88,6 +86,7 @@ class Turn(object):
             #print(self._moves)
             self._board.DrawPossibleMoves(self._moves)
             self._currentActions.append(CANCEL)
+
 
 
         
@@ -142,6 +141,8 @@ class Turn(object):
         
         #if self.CurrentSprite() !=[]:
         #    self.CurrentSprite()._Initiative=0 #resets initiative
+        NewTurnSound = pygame.mixer.Sound("sound/blip2.wav")
+        NewTurnSound.play()
         self._currentSprite=[]
         highestInitiative=0
         highestActor=[]#we could just use _currentSprite but this is nicer
@@ -166,7 +167,7 @@ class Turn(object):
         self._currentSprite=highestActor
         self._currentActions=self.CurrentSprite().GetActionNames()
         self._currentActions.remove(CANCEL)
-        if self._currentSprite.Alignment==FRIENDLY:
+        if self._currentSprite.Alignment()==FRIENDLY:
             self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
                 (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
 
@@ -321,6 +322,8 @@ class Turn(object):
                 print('Action', action, 'not recognized.')
             if CANCEL not in self._currentActions and action !=WHIRLWIND:
                 self._currentActions.append(CANCEL)
+            if self._canMove:
+                self._currentActions.remove(MOVE)
                 
     def Attack(self,target):#all purpose attack, used for both ranged and melee attacks
         if target in self._targetList:
@@ -331,7 +334,7 @@ class Turn(object):
                 self._currentActions.remove(ATTACK)
                 self._currentActions.remove(WHIRLWIND)
             elif self.Mode()==RANGED:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power()+*self.CurrentSprite().ActionLevel(RANGED))
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+self.CurrentSprite().ActionLevel(RANGED))
                 self._currentActions.remove(CRIPPLESTRIKE)
                 self._currentActions.remove(RANGED)
             elif self.Mode()==CRIPPLESTRIKE:
@@ -345,11 +348,13 @@ class Turn(object):
                 self._currentSprite.Attack(target, self.CurrentSprite().Power())
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
+            if self._canMove:
+                self._currentActions.append(MOVE)
             self._canAttack=False
             self.CancelMode()
 
     def HealAction(self,target):
-        if target in self._targetList:
+        if target in self._targetList and target.Health()<target.MaxHealth():
             self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
             self.CurrentSprite().Heal(target, self.CurrentSprite().ActionLevel(HEAL))
             HealSound = pygame.mixer.Sound("sound/Heal.wav")
@@ -358,6 +363,8 @@ class Turn(object):
             self._currentActions.remove(AOE)
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
+            if self._canMove:
+                self._currentActions.append(MOVE)
             self._canAttack=False
             self.CancelMode()
 
@@ -369,6 +376,8 @@ class Turn(object):
             self.Board().ChangeCursor("images/area01.png", -1, -1)
             if CANCEL not in self._currentActions:
                 self._currentActions.append(CANCEL)
+            if self._canMove:
+                self._currentActions.remove(MOVE)
             
     def AOEAttack(self,tile_x,tile_y):#This is also known as Fire Lion!
         board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
@@ -380,7 +389,7 @@ class Turn(object):
                 #print(actor.tile_x,actor.tile_y)
                 if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
                     HitAnyone=True
-                    self._currentSprite.Attack(actor,self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(AOE))
+                    self._currentSprite.Attack(actor,2*self.CurrentSprite().Power()+5*self.CurrentSprite().ActionLevel(AOE))
                     print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
                 self._board.ClearLayer(self._board._shadowLayer)
@@ -393,6 +402,8 @@ class Turn(object):
                 self.CancelMode()
                 if CANCEL in self._currentActions:
                     self._currentActions.remove(CANCEL)
+                if self._canMove:
+                    self._currentActions.append(MOVE)
         else:
             print("Target Tile is out of Range.")
 
@@ -405,6 +416,7 @@ class Turn(object):
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
                 AttackSound.play()
                 self._canAttack=False
+                self._currentActions.remove(WHIRLWIND)
                 self.CancelMode()    
 
     def SpawnSkeleton(self, board_x, board_y, level=1):#since this should only happen with the bad guys we will not have a mode

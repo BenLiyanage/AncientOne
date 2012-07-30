@@ -25,7 +25,9 @@ import AutoTurn
 from AutoTurn import TurnAI
 
 MAP="images/map02.tmx"
-STARTGAME="Start Game"
+CONTINUEGAME="Continue Game"
+QUITGAME="Quit Game"
+RESTART="Restart Game"
 
 #alignments
 FRIENDLY='Friendly'
@@ -143,7 +145,15 @@ def main_pygame(file_name):
     running = True
     paused=True #start the game paused
     grid=False #Debugging boolean to draw a grid
-    startGame=True
+
+    #these are triggers for text in the game
+    gameStart=True
+    scriptCounter=0
+    AlignmentCounter={}
+    AlignmentCounter[FRIENDLY]=0
+    AlignmentCounter[HOSTILE]=0
+    gameWon=False
+    gameLost=False
 
     #Game Turns Controller
     PlayTurn=Turn(GameBoard)
@@ -152,19 +162,20 @@ def main_pygame(file_name):
     #the Bad gusys
     PlayTurn.SpawnSkeleton(16,9)
     PlayTurn.SpawnSkeleton(22,13)
-    PlayTurn.SpawnSkeleton(21,12)
+    PlayTurn.SpawnSkeleton(21,12, level=2)
     PlayTurn.SpawnMage(15,16)
-
+    PlayTurn.SpawnMage(17,20)
     PlayTurn.SpawnPig(12,19)
-    PlayTurn.SpawnPig(13,18)
+    PlayTurn.SpawnPig(13,18, level=2)
   
   
     PlayTurn.SpawnPortal(2,6)
-    PlayTurn.SpawnPortal(25,22)
-    PlayTurn.SpawnPortal(12,41, level=2)
-    PlayTurn.SpawnPortal(42,32, level=2)
-    PlayTurn.SpawnPortal(64,8, level=3)
-    PlayTurn.SpawnPortal(65,38, level=3)# eventually this will be the ancient one
+    PlayTurn.SpawnPortal(25,22, level=2)
+    
+    #PlayTurn.SpawnPortal(12,41, level=2)
+    #PlayTurn.SpawnPortal(42,32, level=2)
+    #PlayTurn.SpawnPortal(64,8, level=3)
+    #PlayTurn.SpawnPortal(65,38, level=3)# eventually this will be the ancient one
     
     
     #Picks the first character
@@ -172,14 +183,14 @@ def main_pygame(file_name):
     CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
     #LevelUpWindow = LevelUpScreen(CurrentSprite, CurrentSprite.Name()+'has gained a level!', myfont, 100,100,100,100)#they do not really level up, this just initialized the object
     myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentSprite().GetActionNames(), myfont, 50, 150, 200, 200, ActionItems = PlayTurn.CurrentSprite().GetActions())
-    
-    StartWindow = Menu("Defeat of the Ancient One", [STARTGAME], myfont, 100,100, 600,160, \
-                       text="ARCHIE, BUSTER and TERRA have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
-                       "Just beyond the fissure they find what appears to be a green portal.  Before they can investigate they are ambushed by dark agents!"+\
-                        " Control the players using the mouse. WASD keys move the camera.  + and - control the volume of the background music.")
-    
+    starttext="ARCHIE, BUSTER and TERRA have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
+                       "Just beyond the fissure they find what appears to be a green portal.  Before they can investigate they are ambushed by dark agents!"
+
+    pausetext = ["Control the players using the mouse.", "WASD keys move the camera." , "+/- control the volume of the background music."]
+    triggerText   = ["These portals must be how the creatures are passing to this realm!", "We must destroy all of the portals!", "There is another one in the graveyard!"] 
+    PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(starttext)/3), text=starttext)
     #Music
-    BGvolume=.00#.05 #this is a number between 0 and 1
+    BGvolume=.05#.05 #this is a number between 0 and 1
     BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
     BackgroundMusic.play(loops=-1)
     BackgroundMusic.set_volume(BGvolume)
@@ -191,11 +202,21 @@ def main_pygame(file_name):
         clock.tick(frames_per_sec)
         time = pygame.time.get_ticks()
 
+        mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos() #mouse coordinates
+        tile_x, tile_y = mouse_pos_x// tileSize, mouse_pos_y // tileSize #note the board translates coordinates depending on the location of the camera
 
 
+        #used these if you want to be able to hold down the mouse/keys
+        pressedKeys=pygame.key.get_pressed() #actions that come from the keyboard This is for holding down
+        pressedMouse = pygame.mouse.get_pressed() # mouse pressed event 3 booleans [button1, button2, button3]
 
-        
-        
+
+        #counts the number of actors of each alignment
+        AlignmentCounter[FRIENDLY]=0
+        AlignmentCounter[HOSTILE]=0   
+        for actor in Characters:
+            AlignmentCounter[actor.Alignment()] +=1
+        #print AlignmentCounter[HOSTILE]
         #checks for levelups,
         if PlayTurn.Mode()==LEVELUP and paused==False:# we are between turns
 
@@ -217,12 +238,44 @@ def main_pygame(file_name):
         #Move the camera manually with "wasd"
 
 
-        #used these if you want to be able to hold down the mouse/keys
-        pressedKeys=pygame.key.get_pressed() #actions that come from the keyboard This is for holding down
-        pressedMouse = pygame.mouse.get_pressed() # mouse pressed event 3 booleans [button1, button2, button3]
 
-        mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos() #mouse coordinates
-        tile_x, tile_y = mouse_pos_x// tileSize, mouse_pos_y // tileSize #note the board translates coordinates depending on the location of the camera
+        ###Special Script section!!
+        if scriptCounter==0 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_y>13 and PlayTurn._moves==[]:
+            paused=True
+            
+            currentText=PlayTurn.CurrentSprite().Name()+": "+triggerText[scriptCounter]
+            PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+            GameBoard.PanCamera((25 + GameBoard._screenTileOffset_x)*GameBoard._tileSize, \
+                (22+ GameBoard._screenTileOffset_y)*GameBoard._tileSize) 
+            scriptCounter+=1
+            
+        elif scriptCounter==1 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_y>17:
+            paused=True
+            
+            currentText=PlayTurn.CurrentSprite().Name()+": "+triggerText[scriptCounter]
+            PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+            scriptCounter+=1
+
+        elif scriptCounter==2 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_<>17:
+            paused=True
+            
+            currentText=PlayTurn.CurrentSprite().Name()+": "+triggerText[scriptCounter]
+            PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+            scriptCounter+=1
+
+        elif AlignmentCounter[HOSTILE]==0:
+            paused=True
+            currentText="Congratulations on completing the abbreviated version of DEFEAT OF THE ANCIENT ONE.  Someday we'll actually add in more to the game.  Thank you for playing!!!!"
+            PauseWindow = Menu("Defeat of the Ancient One", [RESTART, QUITGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+            #print("won the game")
+
+        elif AlignmentCounter[FRIENDLY]==0:
+            paused=True
+            currentText="Your party has been defeated.  Without you to prevent the return of the Ancient One, the world was destroyed!!"
+            PauseWindow = Menu("Defeat of the Ancient One", [RESTART, QUITGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+
+            
+            
         for event in pygame.event.get():       
  
             if event.type == QUIT or event.type == pygame.QUIT or (pressedKeys[K_w] and pressedKeys[K_LMETA]):
@@ -232,20 +285,24 @@ def main_pygame(file_name):
                 
             if PlayTurn.Mode()==LEVELUP and paused:
                 action = LevelUpWindow.input(event)
-            elif startGame and paused:
-                action = StartWindow.input(event)
+            elif paused:
+                action = PauseWindow.input(event)
             else:
                 action = myMenu.input(event) #actions that come from the menu
             
-                
+            
             if not (hasattr(event, 'key') or event.type==KEYDOWN or hasattr(event, 'button') or event.type==MOUSEBUTTONUP): continue
             #print(action)
             
             #UI or turn events
-            if (action == STARTGAME):
-                print("Let's Start the Game!!", action)
-                paused=False
-                startGame=True
+            if (action == CONTINUEGAME or pressedKeys[K_ESCAPE]):
+                if gameStart==True:
+                    PauseWindow = Menu("Defeat of the Ancient One", pausetext+[CONTINUEGAME], myfont, 100,100, 600,100, text="This game can be paused at any time, bringing up this window by pressing ESC.")
+                    gameStart=False
+                else:
+                    paused= not paused
+     
+                    PauseWindow = Menu("Defeat of the Ancient One", pausetext+[CONTINUEGAME], myfont, 100,100, 600,100, text="")
             elif PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
                 pass
 
@@ -258,9 +315,15 @@ def main_pygame(file_name):
             elif(action == CANCEL or pressedKeys[K_v]):
                 PlayTurn.CancelMode()
             elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[]:#right now it brings up a target list
-                print("Entering Mode", action)
+                #print("Entering Mode", action)
                 PlayTurn.ActionMode(action)
-
+            elif action == QUITGAME:
+ 
+                running = False
+                pygame.quit()
+                sys.exit()
+            elif action == RESTART:
+                restart_program()
 
             #the level up parts
             elif (action in actionList) and PlayTurn.Mode()==LEVELUP:
@@ -311,6 +374,10 @@ def main_pygame(file_name):
                 #print("heal called")
                 PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
+            elif (GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0], GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1]) == (65,38):
+                
+                PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,100, text="Don't click here!  You have awoken the ANCIENT BEN!!!!")
+                
 
                 
                     
@@ -343,6 +410,9 @@ def main_pygame(file_name):
             for j in range(GameBoard._tileHeight):#draw horizontal lines
                 pygame.draw.line(screen, (20,0,20), (0,j*tileSize),(GameBoard._height,j*tileSize))
 
+
+
+
         #moves the menu to the right if the camera is to the far left.
         if GameBoard.camTile()[0] < (myMenu.rect[0]+myMenu.rect[2])// tileSize:
             myMenu.rect[0]=screen_width-myMenu.rect[2]-50
@@ -350,25 +420,36 @@ def main_pygame(file_name):
         else:
             myMenu.rect[0]=50
             CurrentSpriteInfo.rect[0]=0
-        if PlayTurn.CurrentSprite().Alignment()==FRIENDLY and paused==False:
-            screen.blit(myMenu.surface, myMenu.rect)
-        elif paused and PlayTurn.Mode()==LEVELUP:
-            #print("Level up window for", CurrentSprite.Name())
-            screen.blit(LevelUpWindow.surface, LevelUpWindow.rect)
-        
 
-
+        #brings up info for a sprite you are hovering over
         if GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor" and paused==False:
                 actor = GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1]
                 HoverWindow = CharacterInfo(actor, myfont, screen_height-150)
                 screen.blit(HoverWindow.surface, HoverWindow.rect)
         screen.blit(CurrentSpriteInfo.surface, CurrentSpriteInfo.rect)
+            
+        if PlayTurn.CurrentSprite().Alignment()==FRIENDLY and paused==False:
+            screen.blit(myMenu.surface, myMenu.rect)
+        elif paused and PlayTurn.Mode()==LEVELUP:
+            #print("Level up window for", CurrentSprite.Name())
+            screen.blit(LevelUpWindow.surface, LevelUpWindow.rect)
+        elif paused:
+            screen.blit(PauseWindow.surface, PauseWindow.rect)
 
 
-        if paused and startGame:
-            screen.blit(StartWindow.surface, StartWindow.rect)
+
+
+            
 
         pygame.display.flip()
+
+
+def restart_program():
+    """Restarts the current program.
+    Note: this function does not return. Any cleanup action (like
+    saving data) must be done before calling this function."""
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
 
 #  -----------------------------------------------------------------------------
 
