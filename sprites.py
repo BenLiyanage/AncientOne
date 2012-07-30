@@ -219,6 +219,7 @@ class Actor(AnimatedSprite):
 
 	def LevelUpAction(self, actionName):
                 self._Actions[actionName][3] +=1
+                self._LevelUp=False
                 #print(actionName," is now level ", self._Actions[actionName][3])
 	def GetActionNames(self):
 		return self._Actions.keys()
@@ -271,25 +272,30 @@ class Actor(AnimatedSprite):
                                 self.setImageSet(self._AttackUpImages,"revert")
                 if sound:
                         self._HitSound.play(loops=1)
-		damage = attackPower - target._Defense+random.randint(0,int(attackPower))
+		damage = attackPower - target._Defense
 		if damage <=0:
                         damage=1# you always deal at least one damage
                         
-		experience = target.RecieveDamage(damage)
+		experience = target.RecieveDamage(damage)#formula calcuated based on the level of the opponent and the damage
+		#now we factor in the level of the attacker
+		experience = int(experience*(1-.1*self.Level()))
+		if experience<0: experience=1
 		self.GetExperience(experience)
 
 		print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
 		return damage
 
 	def RecieveDamage(self, damage):
+                damage=min(self._Health,damage) #this prevents extra xp from overkill
 		self._Health = self._Health - damage
-		experience = 10 + int((damage +2*self.Level())* .1)#probably factor in level at some point
+
+		experience = 10 + int(damage*(1+.1*self.Level()))#probably factor in level at some point
 		if self._Health <= 0:
                         self.Kill()
-                        experience +=self.Level()*2
+                        experience +=self.Level()*5
 		
-                #experience=101# for testing
-		return experience
+
+		return experience#note this still needs to factor in the level of the attacker
 
 
 	def GetExperience(self, newExperience):
@@ -298,12 +304,12 @@ class Actor(AnimatedSprite):
 		if self._Experience > 100:
 			self._Experience = self._Experience % 100
 			self._Level = self._Level + 1
-			self._Power = self._Power + 1 + int(self._Power * .1)
-			self._Defense = self._Defense + 1 + int(self._Defense * .1)
-			self._Speed = self._Speed + 1 + int(self._Speed * .1)
-			HealthBonus = self._MaxHealth + 5 + int(self._MaxHealth * .1)
+			self._Power = self._Power + 1 + int(self._Power * .05)
+			self._Defense = self._Defense + 1 + int(self._Defense * .05)
+			self._Speed = self._Speed + 1 + int(self._Speed * .05)
+			HealthBonus = 2 + int(self._MaxHealth * .05)
 			self._MaxHealth = self._MaxHealth + HealthBonus
-			self._Health = self._Health + HealthBonus
+			self._Health = self._Health + int(HealthBonus/2)
 			
 			if self.Alignment()=='Friendly':
                                 self._LevelUp=True
@@ -319,8 +325,8 @@ class Actor(AnimatedSprite):
                                 self._MaxHealth = self._MaxHealth + HealthBonus
                                 self._Health = self._Health + HealthBonus
                 
-        def Heal(self, target, level):
-                healamount = level*3+random.randint(0,level+1)
+        def Heal(self, target, healamount):
+
                 target._Health +=healamount
                 if target._Health > target._MaxHealth:
                         target._Health = target._MaxHealth

@@ -253,6 +253,17 @@ class Turn(object):
 
     def CurrentActions(self):
         return self._currentActions
+
+    def LevelUpActions(self): #returns self._currentActions to only have skills that can be leveled
+        levelActions = self.CurrentSprite().GetActionNames()
+        levelActions.remove(MOVE)
+        levelActions.remove(CANCEL)
+        levelActions.remove(WAIT)
+
+        return levelActions
+
+            
+        
     def Characters(self):
         return self._characters
     def Board(self):
@@ -295,7 +306,7 @@ class Turn(object):
                 self.TargetList(1,1)#we do this for now
             LaserSound = pygame.mixer.Sound("sound/laser.wav")
             LaserSound.play()
-            self.CurrentSprite().Attack(actiontarget,self.CurrentSprite().Power())
+            self.CurrentSprite().Attack(actiontarget,int(1.5*self.CurrentSprite().Power())+random.randint(0,self.CurrentSprite().Power()))
         elif actiontype=='Move':
             self._canMove=False
             #print(actionmove[3])
@@ -373,19 +384,19 @@ class Turn(object):
             self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
             self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
             if self.Mode()==ATTACK: 
-                self._currentSprite.Attack(target, 2*self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(ATTACK))
+                self._currentSprite.Attack(target, int(1.5*self.CurrentSprite().Power())+3*self.CurrentSprite().ActionLevel(ATTACK)+random.randint(0,self.CurrentSprite().Power()))
 
             elif self.Mode()==RANGED:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(RANGED))
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(RANGED)+random.randint(0,self.CurrentSprite().Power()))
 
             elif self.Mode()==CRIPPLESTRIKE:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(RANGED))
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(RANGED)+random.randint(0,self.CurrentSprite().Power()))
                 target._Initiative -= 5*self.CurrentSprite().ActionLevel(CRIPPLESTRIKE)
 
                 if target._Initiative <0:
                     target._Initiative = 0
             else:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power())
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+random.randint(0,self.CurrentSprite().Power()))
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
 
@@ -395,7 +406,7 @@ class Turn(object):
     def HealAction(self,target):
         if target in self._targetList and target.Health()<target.MaxHealth():
             self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
-            self.CurrentSprite().Heal(target, self.CurrentSprite().ActionLevel(HEAL))
+            self.CurrentSprite().Heal(target, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(0,self.CurrentSprite().Power()))
             HealSound = pygame.mixer.Sound("sound/Heal.wav")
             HealSound.play()
 
@@ -417,22 +428,22 @@ class Turn(object):
 
             
     def AOEAttack(self,tile_x,tile_y, imagepath = 'images/magic/AOE_firelion.png'):#This is also known as Fire Lion!
-        board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
-        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, board_x,board_y)<=4:
+
+        if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, tile_x,tile_y)<=4:
             
             #print(tile_x+self.Board()._camTile_x,tile_y+self.Board()._camTile_y)
             HitAnyone=False
             for actor in self.Characters():
                 #print(actor.tile_x,actor.tile_y)
-                if dist(actor.tile_x, actor.tile_y, board_x, board_y) <=1:
+                if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1:
                     HitAnyone=True
-                    self._currentSprite.Attack(actor,2*self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(AOE))
+                    self._currentSprite.Attack(actor,3*self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(AOE)+random.randint(0,self.CurrentSprite().Power()))
                     print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
                 self._board.ClearLayer(self._board._shadowLayer)
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
                 AttackSound.play()
-                self.Board().AnimatedParticleEffect(128,128,imagepath,board_x, board_y)
+                self.Board().AnimatedParticleEffect(128,128,imagepath,tile_x, tile_y)
                 self._canAttack=False               
 
                 self.CancelMode()
@@ -441,13 +452,13 @@ class Turn(object):
     
         else:
             pass
-            #print("Target Tile is out of Range.")
+            print("Target Tile is out of Range.")
 
     def Whirlwind(self):#attacks all players (hostile or friendly) in adjacent spa
         HitAnyone=False
         for actor in self.Characters():
             if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) <=2 and actor.Alignment() != self.CurrentSprite().Alignment():
-                self._currentSprite.Attack(actor,self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(WHIRLWIND))
+                self._currentSprite.Attack(actor,self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(WHIRLWIND)+random.randint(0,self.CurrentSprite().Power()))
             if HitAnyone:                
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
                 AttackSound.play()
@@ -463,7 +474,7 @@ class Turn(object):
         SkeletonSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
             self._SkeletonImageSet[0], self._SkeletonImageSet[1], self._SkeletonImageSet[2], self._SkeletonImageSet[3], \
             self._DeathImageSet[0], self._SkeletonAttackImageSet[0], self._SkeletonAttackImageSet[1], self._SkeletonAttackImageSet[2], self._SkeletonAttackImageSet[3], \
-            "Skeleton", HOSTILE ,4, 1, 3, 4, random.randint(9,12))
+            "Skeleton", HOSTILE ,4, 3, 3, 4, random.randint(9,12))
         SkeletonSprite.ForceLevel(level)
         #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
         self.Characters().add(SkeletonSprite)
@@ -471,7 +482,7 @@ class Turn(object):
     def SpawnMage(self, board_x, board_y, level=1):
         MageSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, self._MageImageSet[0], self._MageImageSet[1], self._MageImageSet[2], self._MageImageSet[3], \
             self._MageDeathImageSet[0], self._MageAttackImageSet[0], self._MageAttackImageSet[1], self._MageAttackImageSet[2], self._MageAttackImageSet[3], \
-            "Mage", HOSTILE ,3, 3, 4, 4, random.randint(8,11))
+            "Mage", HOSTILE ,4, 3, 4, 4, random.randint(8,11))
         MageSprite.ForceLevel(level)
         self.Characters().add(MageSprite)
 
@@ -479,7 +490,7 @@ class Turn(object):
         PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
-            "Portal", HOSTILE ,0, 5, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
+            "Portal", HOSTILE ,10, 10, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
         PortalSprite.ForceLevel(level)
         PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
         PortalSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
@@ -490,7 +501,7 @@ class Turn(object):
         PigSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
             self._PigImageSet[0], self._PigImageSet[1], self._PigImageSet[2], self._PigImageSet[3], \
             self._DeathImageSet[0], self._PigAttackImageSet[0], self._PigAttackImageSet[1], self._PigAttackImageSet[2], self._PigAttackImageSet[3], \
-            "Pigman", HOSTILE ,7, 3, 5, 5, random.randint(12,15))
+            "Pigman", HOSTILE ,7, 3, 5, 6, random.randint(12,15))
         PigSprite.ForceLevel(level)
         #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
         self.Characters().add(PigSprite)

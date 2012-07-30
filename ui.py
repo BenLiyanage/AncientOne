@@ -1,3 +1,18 @@
+# <This file contains the code for the user interface windows.>
+# Copyright (C) <2012>  <Phong Le and Benjamin Liyanage>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import pygame
 from pygame.locals import *
 
@@ -8,6 +23,10 @@ BACKGROUNDCOLOR = (250,250,250)
 BLUE = (0,0,255)
 RED  =( 255,0,0)
 VIOLET = ( 130,0,255)
+
+MOVE="Move"
+CANCEL="Cancel"
+WAIT="End Turn"
 
 class InfoBox(object):
 	def __init__(self, title, font, x, y, width, height):
@@ -137,14 +156,19 @@ class Menu(InfoBox):
                 #draws the description text.
                 #eraserRect = pygame.rect(0,self._menuY,self._width, self._height-self._menuY)
 		if self._ActionItems !=[]:
-                        pygame.draw.rect(self.surface,BACKGROUNDCOLOR,(0,self._menuY,self._width, self._height-self._menuY+15))
+                        pygame.draw.rect(self.surface,BACKGROUNDCOLOR,(0,self._menuY,self._width, self._height-self._menuY+30))
 
 
                         
                         self._itemY=self._menuY
                         itemDescription = {}
                         itemDescriptionText = self._ActionItems[self._menuItems[itemNumber]['name']][1]
-                        textList= TextChunks(itemDescriptionText,15,[])
+                        itemLevel= self._ActionItems[self._menuItems[itemNumber]['name']][3]
+                        if self._menuItems[itemNumber]['name'] in [MOVE, CANCEL, WAIT]:
+                                textList= TextChunks(itemDescriptionText,int(self._width/13),[])
+                        else:
+                                levelString = [str("Level: "+  str(itemLevel)) ]
+                                textList= levelString+TextChunks(itemDescriptionText,15,[])
                         #print(textList)
                         for item in textList:
                                 #print(itemDescriptionText)
@@ -197,32 +221,6 @@ class Menu(InfoBox):
 				return itemNumber			
 
 
-class LevelUpScreen(Menu):
-	def __init__(self, actor, title, font, x, y ,width, height):
-                MOVE="Move"
-                CANCEL="Cancel"
-                WAIT="End Turn"
-                CLOSE="Close Window"
-                self._menuItems = actor.GetActions()
-                self._menuItems.remove(MOVE)
-                self._menuItems.remove(CANCEL)
-                self._menuItems.remove(WAIT)
-                #self._menuItems.append(CLOSE)
-
-                super(LevelUpScreen,self).__init__(title,self._menuItems ,font, x, y, width, height)
-                
-                
-                self._text="Choose a skill to improve"
-                self._text = font.render(self._text, 0, FONTCOLOR)
-		self._textPosition = self._text.get_rect()
-		self._textPosition.top = 15*len(self._menuItems)+20
-		self._textPosition.left = 0
-                self.surface.blit(self._text,self._textPosition )
-                
-                #displays different special attacks, you pick which to level up
-                
-                #once selected, you need to pass an action called "Next"
-		print "stub"
 
 def TextChunks(l,n,list):#still recursive
         l=l.strip()

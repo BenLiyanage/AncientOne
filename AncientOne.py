@@ -17,6 +17,7 @@
 
 import sys
 import os
+import random
 #import array
 import pygame
 
@@ -24,7 +25,7 @@ import collision
 from collision import PopBestPath, PathList
 
 import ui
-from ui import Menu, CharacterInfo, LevelUpScreen
+from ui import Menu, CharacterInfo
 
 from pygame.locals import*
 
@@ -185,10 +186,11 @@ def main_pygame(file_name):
     PlayTurn.SpawnMage(17,20)
     PlayTurn.SpawnPig(12,19)
     PlayTurn.SpawnPig(13,18, level=2)
+    PlayTurn.SpawnSkeleton(4,6, level=3)
   
-  
-    PlayTurn.SpawnPortal(2,6)
-    PlayTurn.SpawnPortal(25,22, level=2)
+    PlayTurn.SpawnPortal(2,6, level=3)
+    PlayTurn.SpawnPortal(7,18, level=2)
+    PlayTurn.SpawnPortal(25,22, level=1)
     #PlayTurn.SpawnPortal(12,41, level=2)
     #PlayTurn.SpawnPortal(42,32, level=2)
     #PlayTurn.SpawnPortal(64,8, level=3)
@@ -199,7 +201,7 @@ def main_pygame(file_name):
     CurrentSprite=PlayTurn.Next()
     CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
     #LevelUpWindow = LevelUpScreen(CurrentSprite, CurrentSprite.Name()+'has gained a level!', myfont, 100,100,100,100)#they do not really level up, this just initialized the object
-    myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 200, ActionItems = PlayTurn.CurrentSprite().GetActions())
+    myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
     starttext="ARCHIE, BUSTER and TERRA have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
                        "Just beyond the fissure they find what appears to be a green portal.  Before they can investigate they are ambushed by dark agents!"
 
@@ -243,7 +245,9 @@ def main_pygame(file_name):
                 paused=True
                 LevelUpMusic.play(loops=0)
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
-                LevelUpWindow = LevelUpScreen(PlayTurn.CurrentSprite(), PlayTurn.CurrentSprite().Name()+' has gained a level!', myfont, 100,100,300,200)
+
+                LevelUpWindow = Menu(PlayTurn.CurrentSprite().Name()+' has gained a level!', PlayTurn.LevelUpActions() ,myfont, 100,100,200,200, ActionItems= PlayTurn.CurrentSprite().GetActions(), text="Choose a skill to improve.")
+                #LevelUpWindow = LevelUpScreen(PlayTurn.CurrentSprite(), PlayTurn.CurrentSprite().Name()+' has gained a level!', myfont, 100,100,300,200)
                 continue
                     
 
@@ -251,7 +255,7 @@ def main_pygame(file_name):
         if (CurrentSprite != PlayTurn.CurrentSprite() or mode != PlayTurn.Mode() ) and PlayTurn.CurrentSprite !=[] and paused==False:
             CurrentSprite = PlayTurn.CurrentSprite()
             mode= PlayTurn.Mode()
-            myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 200, ActionItems = PlayTurn.CurrentSprite().GetActions()) #CurrentActions is a list removing unavailable actions
+            myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions()) #CurrentActions is a list removing unavailable actions
             CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
         #Move the camera manually with "wasd"
 
@@ -327,7 +331,7 @@ def main_pygame(file_name):
      
                     PauseWindow = Menu("Defeat of the Ancient One", pausetext+[CONTINUEGAME], myfont, 100,100, 600,100, text="")
                 GameBoard.PanCamera((PlayTurn.CurrentSprite().tile_x + GameBoard._screenTileOffset_x)*GameBoard._tileSize, \
-                    (PlayTurn.CurrentSprite().tile_x + GameBoard._screenTileOffset_y)*GameBoard._tileSize)
+                    (PlayTurn.CurrentSprite().tile_y + GameBoard._screenTileOffset_y)*GameBoard._tileSize)
             elif PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
                 pass
 
@@ -351,7 +355,7 @@ def main_pygame(file_name):
                 restart_program()
 
             #the level up parts
-            elif (action in actionList) and PlayTurn.Mode()==LEVELUP:
+            elif PlayTurn.Mode()==LEVELUP and (action in actionList):
                 CurrentSprite.LevelUpAction(action)
                 PlayTurn._currentSprite=[]
                 PlayTurn._mode=[]
@@ -395,7 +399,7 @@ def main_pygame(file_name):
             elif PlayTurn.Mode()==MOVE: #asks the game controller if the CurrentSprite can move there
                 PlayTurn.Move(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1] )
             elif PlayTurn.Mode()==AOE:
-                PlayTurn.AOEAttack(tile_x, tile_y)
+                PlayTurn.AOEAttack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
             elif PlayTurn.Mode()==HEAL and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
                 #print("heal called")

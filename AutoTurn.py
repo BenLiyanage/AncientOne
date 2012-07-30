@@ -1,5 +1,22 @@
+# <This is the file contains functions that dictate NPC actions.>
+# Copyright (C) <2012>  <Phong Le and Benjamin Liyanage>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import pygame
 import sprites
+import random
 from sprites import AnimatedSprite, Actor
 import GameBoard
 from GameBoard import Board
@@ -22,18 +39,19 @@ def PortalAI(Turn):#this is how the portal thinks
     AdjacentCount=0
     HostileNearby=False
     targetOpponent=[]
+    coinflip=random.randint(0,1) 
     #first check if the surrounding spaces are occupied
     for actor in Turn.Characters():
         if actorDist(actor, Turn.CurrentSprite())==1:
             AdjacentCount+=1
         if actor.Alignment()==Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<SpawnRadius:
            AllyCount+=1
-        elif actorDist(actor, Turn.CurrentSprite())<AttackRadius: #these are the non allies
+        elif actor.Alignment()!= Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<AttackRadius: #these are the non allies
             HostileNearby=True
             targetOpponent=actor
         elif actorDist(actor, Turn.CurrentSprite())<SpawnRadius: #these are the non allies
             HostileNearby=True
-    if targetOpponent !=[]:
+    if targetOpponent !=[] and coinflip:
         print("target for tentacle:", targetOpponent.Name())
         Turn.addQueue('Tentacle',targetOpponent,[])
         
@@ -47,7 +65,7 @@ def PortalAI(Turn):#this is how the portal thinks
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x-1,tile_y, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x-1,tile_ylevel=PortalLevel)
+            Turn.SpawnSkeleton(tile_x-1,tile_y,level=PortalLevel)
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x,tile_y+1, tiled=True)[0]=="Clear":
