@@ -25,6 +25,7 @@ import AutoTurn
 from AutoTurn import TurnAI
 
 MAP="images/map02.tmx"
+STARTGAME="Start Game"
 
 #alignments
 FRIENDLY='Friendly'
@@ -71,7 +72,7 @@ def main_pygame(file_name):
 
     pygame.init()
 
-    print(" x/c/v = move/wait/cancel, wasd=camera movement, '[]' control the volume of the background music")
+    print(" x/c/v = move/wait/cancel, wasd=camera movement, '+/-' control the volume of the background music")
 
 
     myfont = pygame.font.Font("petme/PetMe128.ttf", 10)
@@ -99,39 +100,17 @@ def main_pygame(file_name):
 
     DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
     
-    '''
-    #Obligatory Female Supporting Character (with sassyness!)
-    PrincessImageSet = sprites.load_sliced_sprites(64,64,'images/princess.png')
-    PrincessSprite = Actor((23-.5)*tileSize, (21-1)*tileSize,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], \
-                               'Peach', FRIENDLY, 3, 0, 2, 6, 1, DeathImages=DeathImageSet[0])
-    Characters.add(PrincessSprite)
 
-    #Bebop's Legacy
-    PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman_walkcycle.png')
-    PigSprite = Actor((24-.5)*tileSize, (21-1)*tileSize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3], 'Bebop',HOSTILE, 2, 0, 5, 5, 60 ,DeathImages=PrincessImageSet[1])
-    Characters.add(PigSprite)
-    
-    #Solider of Fortune
-    SoldierImageSet = sprites.load_sliced_sprites(64, 64, 'images/base_assets/soldier.png')
-    SoldierSprite = Actor((25-.5)*tileSize, (21-1)*tileSize, SoldierImageSet[1], SoldierImageSet[0], SoldierImageSet[2], SoldierImageSet[3], "Bald Cloud", FRIENDLY ,3, 0, 3, 0, 1, DeathImages=DeathImageSet[0])
-    Characters.add(SoldierSprite)
-
-    #www.whoisthemask.com
-    MaskImageSet = sprites.load_sliced_sprites(64, 64, 'images/maskman.png')
-    MaskSprite = Actor((26-.5)*tileSize, (21-1)*tileSize, MaskImageSet[1], MaskImageSet[0], MaskImageSet[2], MaskImageSet[3],"Tuxedo Mask" ,HOSTILE,2, 2, 5, 5, 75, DeathImages=DeathImageSet[0])
-    Characters.add(MaskSprite)
-    '''
-
-
-    SuitImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_walk.png')
-    SuitAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/Suit/Suit_attack.png')
-    SuitSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, SuitImageSet[0], SuitImageSet[1], SuitImageSet[2], SuitImageSet[3], \
-        DeathImageSet[0], SuitAttackImageSet[0], SuitAttackImageSet[1], SuitAttackImageSet[2], SuitAttackImageSet[3], \
-        "Buster", FRIENDLY ,10, 5, 5, 5, 15)
-    #SuitSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
-    SuitSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against adjacent target.',[],[])
-    SuitSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all adjacent targets.', [],[])
-    Characters.add(SuitSprite)
+    KnightDeathImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_death.png')
+    KnightImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_walk.png')
+    KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
+    KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
+        KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
+        "Buster", FRIENDLY ,10, 5, 5, 6, 16)
+    #KnightSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
+    KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against adjacent target.',[],[])
+    KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
+    Characters.add(KnightSprite)
     
 
     ArcherDeathImageSet=sprites.load_sliced_sprites(64,64,'images/archer/archer_death.png')    
@@ -139,7 +118,7 @@ def main_pygame(file_name):
     ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
-        "Archie", FRIENDLY ,7, 4, 6, 6, 13)
+        "Archie", FRIENDLY ,6, 4, 5, 5, 13)
     #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ArcherSprite.RegisterAction(RANGED, 'The character fires and arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
@@ -150,7 +129,7 @@ def main_pygame(file_name):
     ForestMageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/forestmage/forestmage_spell.png')
     ForestMageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, ForestMageImageSet[0], ForestMageImageSet[1], ForestMageImageSet[2], ForestMageImageSet[3], \
         ForestMageDeathImageSet[0], ForestMageAttackImageSet[0], ForestMageAttackImageSet[1], ForestMageAttackImageSet[2], ForestMageAttackImageSet[3], \
-        "Terra", FRIENDLY ,3, 3, 5, 4, 11)
+        "Terra", FRIENDLY ,5, 3, 4, 5, 11)
     #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
     ForestMageSprite.RegisterAction(HEAL, 'Restores the healt of yourself or an ally.', [], [])
@@ -171,15 +150,22 @@ def main_pygame(file_name):
     mode=PlayTurn.Mode()#used to detect when the mode changes for updating purposes
 
     #the Bad gusys
-    PlayTurn.SpawnSkeleton(16,7)
-    PlayTurn.SpawnSkeleton(17,8)
-    PlayTurn.SpawnMage(18,9)
+    PlayTurn.SpawnSkeleton(16,9)
+    PlayTurn.SpawnSkeleton(22,13)
+    PlayTurn.SpawnSkeleton(21,12)
+    PlayTurn.SpawnMage(15,16)
+
+    PlayTurn.SpawnPig(12,19)
+    PlayTurn.SpawnPig(13,18)
+  
+  
     PlayTurn.SpawnPortal(2,6)
     PlayTurn.SpawnPortal(25,22)
-    PlayTurn.SpawnPortal(12,41)
-    PlayTurn.SpawnPortal(42,32)
-    PlayTurn.SpawnPortal(64,8)
-    PlayTurn.SpawnPortal(65,38)# eventually this will be the ancient one
+    PlayTurn.SpawnPortal(12,41, level=2)
+    PlayTurn.SpawnPortal(42,32, level=2)
+    PlayTurn.SpawnPortal(64,8, level=3)
+    PlayTurn.SpawnPortal(65,38, level=3)# eventually this will be the ancient one
+    
     
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
@@ -187,10 +173,10 @@ def main_pygame(file_name):
     #LevelUpWindow = LevelUpScreen(CurrentSprite, CurrentSprite.Name()+'has gained a level!', myfont, 100,100,100,100)#they do not really level up, this just initialized the object
     myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentSprite().GetActionNames(), myfont, 50, 150, 200, 200, ActionItems = PlayTurn.CurrentSprite().GetActions())
     
-    StartWindow = Menu("Defeat of the Ancient One", ["Start Game"], myfont, 100,100, 600,160, \
-                       text="Archie, Buster and Terra have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
+    StartWindow = Menu("Defeat of the Ancient One", [STARTGAME], myfont, 100,100, 600,160, \
+                       text="ARCHIE, BUSTER and TERRA have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
                        "Just beyond the fissure they find what appears to be a green portal.  Before they can investigate they are ambushed by dark agents!"+\
-                        "Control the players using the mouse. WASD keys move the camera.  + and - control the volume of the background music.")
+                        " Control the players using the mouse. WASD keys move the camera.  + and - control the volume of the background music.")
     
     #Music
     BGvolume=.00#.05 #this is a number between 0 and 1
@@ -256,7 +242,11 @@ def main_pygame(file_name):
             #print(action)
             
             #UI or turn events
-            if PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
+            if (action == STARTGAME):
+                print("Let's Start the Game!!", action)
+                paused=False
+                startGame=True
+            elif PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
                 pass
 
                 
@@ -270,9 +260,7 @@ def main_pygame(file_name):
             elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[]:#right now it brings up a target list
                 print("Entering Mode", action)
                 PlayTurn.ActionMode(action)
-            elif (action == "Start Game"):
-                paused=False
-                startGame=True
+
 
             #the level up parts
             elif (action in actionList) and PlayTurn.Mode()==LEVELUP:
@@ -298,10 +286,10 @@ def main_pygame(file_name):
         elif pressedKeys[K_w]: GameBoard.MoveCamera(0,-tileSize, relative=True) #up
         elif pressedKeys[K_s]: GameBoard.MoveCamera(0,tileSize, relative=True) #down
 
-        elif pressedKeys[K_RIGHTBRACKET]:
+        elif pressedKeys[K_PLUS] or pressedKeys[K_EQUALS]:
             if BGvolume<1:
                 BGvolume+=.05
-        elif pressedKeys[K_LEFTBRACKET]:
+        elif pressedKeys[K_MINUS] or pressedKeys[K_UNDERSCORE]:
             if BGvolume>0:
                 BGvolume-=.05
         BackgroundMusic.set_volume(BGvolume)
@@ -320,7 +308,7 @@ def main_pygame(file_name):
                 PlayTurn.AOEAttack(tile_x, tile_y)
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
             elif PlayTurn.Mode()==HEAL and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
-                print("heal called")
+                #print("heal called")
                 PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
 
@@ -342,7 +330,7 @@ def main_pygame(file_name):
         Characters.update(time)  
         GameBoard.update(time)
         if GameBoard.Animating() or paused:
-            #print('Gameboard is animating! Please be patient!')
+            #print('Gameboard is animating or paused! Please be patient!', GameBoard.Animating(), paused)
             pass
         else:
             PlayTurn.update(time)

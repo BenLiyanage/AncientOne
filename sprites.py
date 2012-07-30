@@ -203,7 +203,7 @@ class Actor(AnimatedSprite):
 
 	def LevelUpAction(self, actionName):
                 self._Actions[actionName][3] +=1
-                print(actionName," is now level ", self._Actions[actionName][3])
+                #print(actionName," is now level ", self._Actions[actionName][3])
 	def GetActionNames(self):
 		return self._Actions.keys()
 	def GetActions(self):
@@ -259,7 +259,7 @@ class Actor(AnimatedSprite):
 		if damage <=0:
                         damage=1# you always deal at least one damage
                         
-		experience = target.RecieveDamage(damage)#ONLY CHANGING THIS FOR DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		experience = target.RecieveDamage(damage)
 		self.GetExperience(experience)
 
 		print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
@@ -267,9 +267,11 @@ class Actor(AnimatedSprite):
 
 	def RecieveDamage(self, damage):
 		self._Health = self._Health - damage
+		experience = 10 + int((damage +2*self.Level())* .1)#probably factor in level at some point
 		if self._Health <= 0:
                         self.Kill()
-		experience = 10 + (damage * .1)#probably factor in level at some point
+                        experience +=self.Level()*2
+		
                 #experience=101# for testing
 		return experience
 
@@ -280,22 +282,34 @@ class Actor(AnimatedSprite):
 		if self._Experience > 100:
 			self._Experience = self._Experience % 100
 			self._Level = self._Level + 1
-			self._Power = self._Power + 1 + (self._Power * .1)
-			self._Defense = self._Defense + 1 + (self._Defense * .1)
-			self._Speed = self._Speed + 1 + (self._Speed * .1)
-			HealthBonus = self._MaxHealth + 10 + (self._MaxHealth * .1)
+			self._Power = self._Power + 1 + int(self._Power * .1)
+			self._Defense = self._Defense + 1 + int(self._Defense * .1)
+			self._Speed = self._Speed + 1 + int(self._Speed * .1)
+			HealthBonus = self._MaxHealth + 5 + int(self._MaxHealth * .1)
 			self._MaxHealth = self._MaxHealth + HealthBonus
 			self._Health = self._Health + HealthBonus
 			
 			if self.Alignment()=='Friendly':
                                 self._LevelUp=True
+        def ForceLevel(self,level):#forces a player to have a given level.
+                #print("forcelevel called to promote to level", level)
+                if level-1>1:
+                        for i in range(level-1):
+                                self._Level = self._Level + 1
+                                self._Power = self._Power + 1 + int(self._Power * .1)
+                                self._Defense = self._Defense + 1 + int(self._Defense * .1)
+                                self._Speed = self._Speed + 1 + int(self._Speed * .1)
+                                HealthBonus =  5 + int(self._MaxHealth * .1)
+                                self._MaxHealth = self._MaxHealth + HealthBonus
+                                self._Health = self._Health + HealthBonus
+                
         def Heal(self, target, level):
                 healamount = level*3+random.randint(0,level+1)
                 target._Health +=healamount
                 if target._Health > target._MaxHealth:
                         target._Health = target._MaxHealth
                 print(target.Name(),"healed for", healamount)
-                self.GetExperience(healamount)
+                self.GetExperience(int(1.5*healamount)+4)
 
 	def Move(self, direction):
 		if not self._MidAnimation:

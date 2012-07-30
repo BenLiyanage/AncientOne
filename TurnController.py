@@ -24,6 +24,10 @@ SPECIAL="Special"
 AOE="Fire Lion"
 HEAL="Heal"
 
+MOVE="Move"
+CANCEL="Cancel"
+WAIT="End Turn"
+
 #alignments
 FRIENDLY='Friendly'
 HOSTILE='Hostile'
@@ -58,7 +62,8 @@ class Turn(object):
         self._DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton_death.png')
         self._SkeletonImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_walk.png')
         self._SkeletonAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/skeleton/skeleton_attack.png')
-        self._PigImageSet = sprites.load_sliced_sprites(128, 128, 'images/magic/turtleshell_large.png')
+        self._PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman/pigman_walk.png')
+        self._PigAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman/pigman_walk.png')
         self._PortalImageSet = sprites.load_sliced_sprites(128,128,'images/magic/turtleshell_large.png')
 
         self._MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
@@ -66,6 +71,7 @@ class Turn(object):
         self._MageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_spell.png')
         self._MageMinRange = 2
         self._MageMaxRange=5
+
 
         self._LastActionTimer=0
         self._ActionDelay=700 #delay in ms between AI actions
@@ -81,6 +87,7 @@ class Turn(object):
             self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
             #print(self._moves)
             self._board.DrawPossibleMoves(self._moves)
+            self._currentActions.append(CANCEL)
 
 
         
@@ -92,6 +99,8 @@ class Turn(object):
         self._path=[]
         self._targetList=[]
         self._mode=[]
+        if CANCEL in self._currentActions:
+            self._currentActions.remove(CANCEL)
         #if len(self.CurrentActions()) <=2:
         #    print("The endTurn is nigh")
         #    self.EndTurn()
@@ -156,6 +165,7 @@ class Turn(object):
    
         self._currentSprite=highestActor
         self._currentActions=self.CurrentSprite().GetActionNames()
+        self._currentActions.remove(CANCEL)
         if self._currentSprite.Alignment==FRIENDLY:
             self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
                 (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
@@ -182,14 +192,17 @@ class Turn(object):
     
     def Move(self, tile_x, tile_y):
         #print("looking for a way to", tile_x, tile_y)
-        if self._moves !=[]:
+        if self._moves !=[] and self.Mode()==MOVE:
             self._path = PopBestPath(tile_x, tile_y, self._moves)
         #print(self._moves)
         
         
-        if self._path == []:
+        if self._path == [] and self.Mode()==MOVE:
             pass
         elif self._canMove==True: #player has selected a possible path
+            if CANCEL in self._currentActions:
+                self._currentActions.remove(CANCEL)
+            self._currentActions.remove(MOVE)
             
             self._board.ClearLayer(self._board._shadowLayer)
             self._currentSprite.MultiMove(self._path)
@@ -198,7 +211,7 @@ class Turn(object):
             self._path=[]#just in case we reset
             self._moves=[]#again, just in case.
             self._mode=[]
-            self._currentActions.remove(MOVE)
+
 
 
     def Mode(self):
@@ -306,6 +319,8 @@ class Turn(object):
                 self.TargetList(0,2, Opponent=False)
             else:
                 print('Action', action, 'not recognized.')
+            if CANCEL not in self._currentActions and action !=WHIRLWIND:
+                self._currentActions.append(CANCEL)
                 
     def Attack(self,target):#all purpose attack, used for both ranged and melee attacks
         if target in self._targetList:
@@ -316,7 +331,7 @@ class Turn(object):
                 self._currentActions.remove(ATTACK)
                 self._currentActions.remove(WHIRLWIND)
             elif self.Mode()==RANGED:
-                self._currentSprite.Attack(target, self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(RANGED))
+                self._currentSprite.Attack(target, self.CurrentSprite().Power()+*self.CurrentSprite().ActionLevel(RANGED))
                 self._currentActions.remove(CRIPPLESTRIKE)
                 self._currentActions.remove(RANGED)
             elif self.Mode()==CRIPPLESTRIKE:
@@ -328,6 +343,8 @@ class Turn(object):
                     target._Initiative = 0
             else:
                 self._currentSprite.Attack(target, self.CurrentSprite().Power())
+            if CANCEL in self._currentActions:
+                self._currentActions.remove(CANCEL)
             self._canAttack=False
             self.CancelMode()
 
@@ -339,7 +356,8 @@ class Turn(object):
             HealSound.play()
             self._currentActions.remove(HEAL)
             self._currentActions.remove(AOE)
-            
+            if CANCEL in self._currentActions:
+                self._currentActions.remove(CANCEL)
             self._canAttack=False
             self.CancelMode()
 
@@ -349,6 +367,8 @@ class Turn(object):
             specialRange=4
             self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, 0, specialRange,'images/alpha_box.png')            
             self.Board().ChangeCursor("images/area01.png", -1, -1)
+            if CANCEL not in self._currentActions:
+                self._currentActions.append(CANCEL)
             
     def AOEAttack(self,tile_x,tile_y):#This is also known as Fire Lion!
         board_x, board_y =tile_x+self.Board()._camTile_x, tile_y+self.Board()._camTile_y
@@ -371,45 +391,62 @@ class Turn(object):
                 self._currentActions.remove(HEAL)
                 self._currentActions.remove(AOE)
                 self.CancelMode()
+                if CANCEL in self._currentActions:
+                    self._currentActions.remove(CANCEL)
         else:
             print("Target Tile is out of Range.")
-
-    def SpawnSkeleton(self, board_x, board_y):#since this should only happen with the bad guys we will not have a mode
-
-        SkeletonSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
-            self._SkeletonImageSet[0], self._SkeletonImageSet[1], self._SkeletonImageSet[2], self._SkeletonImageSet[3], \
-            self._DeathImageSet[0], self._SkeletonAttackImageSet[0], self._SkeletonAttackImageSet[1], self._SkeletonAttackImageSet[2], self._SkeletonAttackImageSet[3], \
-            "Skeleton", HOSTILE ,4, 1, 3, 4, random.randint(9,14))
-        #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
-        self.Characters().add(SkeletonSprite)
-
-    def SpawnMage(self, board_x, board_y):
-        MageSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, self._MageImageSet[0], self._MageImageSet[1], self._MageImageSet[2], self._MageImageSet[3], \
-            self._MageDeathImageSet[0], self._MageAttackImageSet[0], self._MageAttackImageSet[1], self._MageAttackImageSet[2], self._MageAttackImageSet[3], \
-            "Mage", HOSTILE ,3, 3, 4, 4, random.randint(8,11))
-        self.Characters().add(MageSprite)
-
-    def SpawnPortal(self, board_x, board_y):
-        PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
-            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
-            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
-            "Portal", HOSTILE ,0, 2, 2, 0, random.randint(11,16), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
-        PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
-        self.Characters().add(PortalSprite)
-    #def VampiricStrike(actor,target):# a special attack that also heals you.
-
-#def PassiveHeal(actor):
 
     def Whirlwind(self):#attacks all players (hostile or friendly) in adjacent spa
         HitAnyone=False
         for actor in self.Characters():
-            if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) ==1:# and actor.Alignment() != self.CurrentSprite().Alignment():
+            if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) <=2 and actor.Alignment() != self.CurrentSprite().Alignment():
                 self._currentSprite.Attack(actor,self.CurrentSprite().Power()+self.CurrentSprite().ActionLevel(WHIRLWIND))
             if HitAnyone:                
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
                 AttackSound.play()
                 self._canAttack=False
-                self.CancelMode()                  
+                self.CancelMode()    
+
+    def SpawnSkeleton(self, board_x, board_y, level=1):#since this should only happen with the bad guys we will not have a mode
+
+        SkeletonSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
+            self._SkeletonImageSet[0], self._SkeletonImageSet[1], self._SkeletonImageSet[2], self._SkeletonImageSet[3], \
+            self._DeathImageSet[0], self._SkeletonAttackImageSet[0], self._SkeletonAttackImageSet[1], self._SkeletonAttackImageSet[2], self._SkeletonAttackImageSet[3], \
+            "Skeleton", HOSTILE ,4, 1, 3, 4, random.randint(9,12))
+        SkeletonSprite.ForceLevel(level)
+        #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
+        self.Characters().add(SkeletonSprite)
+
+    def SpawnMage(self, board_x, board_y, level=1):
+        MageSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, self._MageImageSet[0], self._MageImageSet[1], self._MageImageSet[2], self._MageImageSet[3], \
+            self._MageDeathImageSet[0], self._MageAttackImageSet[0], self._MageAttackImageSet[1], self._MageAttackImageSet[2], self._MageAttackImageSet[3], \
+            "Mage", HOSTILE ,3, 3, 4, 4, random.randint(8,11))
+        MageSprite.ForceLevel(level)
+        self.Characters().add(MageSprite)
+
+    def SpawnPortal(self, board_x, board_y, level =1):
+        PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
+            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
+            self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
+            "Portal", HOSTILE ,0, 2, 2, 0, random.randint(11,16), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
+        PortalSprite.ForceLevel(level)
+        PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
+        self.Characters().add(PortalSprite)
+
+
+    def SpawnPig(self, board_x, board_y, level=1):#since this should only happen with the bad guys we will not have a mode
+        PigSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
+            self._PigImageSet[0], self._PigImageSet[1], self._PigImageSet[2], self._PigImageSet[3], \
+            self._DeathImageSet[0], self._PigAttackImageSet[0], self._PigAttackImageSet[1], self._PigAttackImageSet[2], self._PigAttackImageSet[3], \
+            "Pigman", HOSTILE ,7, 3, 5, 5, random.randint(12,15))
+        PigSprite.ForceLevel(level)
+        #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
+        self.Characters().add(PigSprite)
+    #def VampiricStrike(actor,target):# a special attack that also heals you.
+
+#def PassiveHeal(actor):
+
+              
                                
 
 

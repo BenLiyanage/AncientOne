@@ -7,3 +7,7 @@ Johannes Sjolund, various, skeleton, dagger…, archer
 
 
 Many map assets from LPC _base assets
+
+sword_in_walking_animation.png provided by Dethe Elza
+
+

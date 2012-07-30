@@ -14,7 +14,7 @@ from collision import PopBestPath, PathList
             
 def PortalAI(Turn):#this is how the portal thinks
     #should modify so that if the portal is deserted it spawns a stronger enemy
-    print('PortalAI called to control', Turn.CurrentSprite().Name())
+    #print('PortalAI called to control', Turn.CurrentSprite().Name())
     SpawnRadius=15#this is how far it looks for bad guys
     SpawnThreshold=6# if too many of the same alignment are nearby the portal will not spawn a badguy
     AllyCount=0#how many allies are neaby
@@ -32,19 +32,29 @@ def PortalAI(Turn):#this is how the portal thinks
         #First find a free tile, then spawn a baddie in it
         tile_x=Turn.CurrentSprite().tile_x
         tile_y=Turn.CurrentSprite().tile_y
+        PortalLevel=Turn.CurrentSprite().Level()
         if Turn.Board().getTile(tile_x+1,tile_y, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x+1,tile_y)
+            Turn.SpawnSkeleton(tile_x+1,tile_y, level=PortalLevel)
+            PortalMusic =pygame.mixer.Sound("sound/portal.wav")
+            PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x-1,tile_y, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x-1,tile_y)
+            Turn.SpawnSkeleton(tile_x-1,tile_ylevel=PortalLevel)
+            PortalMusic =pygame.mixer.Sound("sound/portal.wav")
+            PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x,tile_y+1, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x,tile_y+1)
+            Turn.SpawnSkeleton(tile_x,tile_y+1,level=PortalLevel)
+            PortalMusic =pygame.mixer.Sound("sound/portal.wav")
+            PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x,tile_y-1, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x,tile_y-1)
+            Turn.SpawnSkeleton(tile_x,tile_y-1, level=PortalLevel)
+            PortalMusic =pygame.mixer.Sound("sound/portal.wav")
+            PortalMusic.play(loops=0)
         else:
             print('Something crazy must have happened with the PortalAI')
+    else:
+        Turn.CurrentSprite().GetExperience(10+int(Turn.CurrentSprite().Level()/2))
 
-        PortalMusic =pygame.mixer.Sound("sound/portal.wav")
-        PortalMusic.play(loops=0)
+
 
     Turn.addQueue('Wait',[],[])
 
