@@ -408,7 +408,11 @@ def main_pygame(file_name):
             elif (GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0], GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1]) == (65,38):
                 paused=True
                 PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,100, text="Don't click here!  You have awoken the ANCIENT BEN!!!!")
-                
+                PlayTurn.SpawnSpecial(15,3, level=1)
+                PlayTurn.SpawnSpecial(12,41, level=2)
+                PlayTurn.SpawnSpecial(42,32, level=2)
+                PlayTurn.SpawnSpecial(64,8, level=3)
+                PlayTurn.SpawnSpecial(65,38, level=3)# eventually this will be the ancient one
 
                 
                     
