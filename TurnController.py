@@ -362,11 +362,12 @@ class Turn(object):
                 self._currentActions.remove(ATTACK)
                 self._currentActions.remove(WHIRLWIND)
             elif action == AOE:
-                self.AOEMode()
+                self.AOEMode(AOE, 4)
                 self._currentActions.remove(AOE)
                 self._currentActions.remove(HEAL)
             elif action == HEAL:
-                self.TargetList(0,2, Opponent=False)
+                self.AOEMode(HEAL,2)
+                #self.TargetList(0,2, Opponent=False)
                 self._currentActions.remove(AOE)
                 self._currentActions.remove(HEAL)
             elif action == RANGED or self.Mode()==CRIPPLESTRIKE:
@@ -404,6 +405,26 @@ class Turn(object):
             self._canAttack=False
             self.CancelMode()
 
+    def HealAction(self, tile_x, tile_y):
+
+            if dist(self.CurrentSprite().tile_x,self.CurrentSprite().tile_y, tile_x,tile_y)<=2:
+                HitAnyone=False
+                for actor in self.Characters():
+                    #print(actor.tile_x,actor.tile_y)
+                    if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1:
+                        HitAnyone=True
+                        self.CurrentSprite().Heal(actor, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(0,self.CurrentSprite().Power()))
+                if HitAnyone:#check if anyone was damaged, if not then don't do anything
+                    self._board.ClearLayer(self._board._shadowLayer)
+                    HealSound = pygame.mixer.Sound("sound/Heal.wav")
+                    HealSound.play()
+                    #self.Board().AnimatedParticleEffect(128,128,imagepath,tile_x, tile_y)
+                    self._canAttack=False               
+
+                    self.CancelMode()
+                    if CANCEL in self._currentActions:
+                        self._currentActions.remove(CANCEL)
+    '''        
     def HealAction(self,target):
         if target in self._targetList and target.Health()<target.MaxHealth():
             self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
@@ -416,12 +437,12 @@ class Turn(object):
 
             self._canAttack=False
             self.CancelMode()
-
-    def AOEMode(self):
+    '''
+    def AOEMode(self, AOEtype, AOErange):
         if self._canAttack:
-            self._mode=AOE
-            specialRange=5
-            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, 0, specialRange,'images/alpha_box.png')            
+            self._mode=AOEtype
+            
+            self._board.HighlightArea(self._currentSprite.tile_x, self._currentSprite.tile_y, 0, AOErange+1,'images/alpha_box.png')            
             self.Board().ChangeCursor("images/area01.png", -1, -1)
 
             if CANCEL not in self._currentActions:
@@ -439,7 +460,7 @@ class Turn(object):
                 if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1:
                     HitAnyone=True
                     self._currentSprite.Attack(actor,2*self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(AOE)+random.randint(0,self.CurrentSprite().Power()))
-                    print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
+                    #print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
                 self._board.ClearLayer(self._board._shadowLayer)
                 AttackSound = pygame.mixer.Sound("sound/explosion.wav")
@@ -460,13 +481,12 @@ class Turn(object):
         for actor in self.Characters():
             if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) <=2 and actor.Alignment() != self.CurrentSprite().Alignment():
                 self._currentSprite.Attack(actor,self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(WHIRLWIND)+random.randint(0,self.CurrentSprite().Power()))
-            if HitAnyone:                
-                AttackSound = pygame.mixer.Sound("sound/explosion.wav")
-                AttackSound.play()
-                self._canAttack=False
-                self._currentActions.remove(ATTACK)
-                self._currentActions.remove(WHIRLWIND)
-                self.CancelMode()
+                HitAnyone=True
+        if HitAnyone:                
+            AttackSound = pygame.mixer.Sound("sound/explosion.wav")
+            AttackSound.play()
+        self._canAttack=False
+        self.CancelMode()
 
                 
 

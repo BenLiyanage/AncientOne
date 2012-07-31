@@ -159,7 +159,7 @@ def TurnAI(Turn, minRange=1, maxRange=1):
             currentMoveAllyDist = dist(currentMove[0], currentMove[1], closeAlly.tile_x, closeAlly.tile_y)
             newMoveAllyDist = dist(move[0], move[1], closeAlly.tile_x, closeAlly.tile_y)
         else:
-            currentMoveallyDist=0
+            currentMoveAllyDist=0
             newMoveAllyDist=0
             
         #print(move)

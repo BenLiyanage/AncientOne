@@ -171,8 +171,7 @@ def main_pygame(file_name):
     AlignmentCounter={}
     AlignmentCounter[FRIENDLY]=0
     AlignmentCounter[HOSTILE]=0
-    gameWon=False
-    gameLost=False
+    gameOver=False
 
     #Game Turns Controller
     PlayTurn=Turn(GameBoard)
@@ -180,6 +179,7 @@ def main_pygame(file_name):
 
     #the Bad gusys
     PlayTurn.SpawnSkeleton(16,9)
+    
     PlayTurn.SpawnSkeleton(22,13)
     PlayTurn.SpawnSkeleton(21,12, level=2)
     PlayTurn.SpawnMage(15,16)
@@ -210,7 +210,7 @@ def main_pygame(file_name):
     triggerText   = ["These portals must be how the creatures are passing to this realm!", "We must destroy all of the portals!", "There is another one in the graveyard!"] 
     PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(starttext)/3), text=starttext)
     #Music
-    BGvolume=.05#.05 #this is a number between 0 and 1
+    BGvolume=.15#.05 #this is a number between 0 and 1
     BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
     BackgroundMusic.play(loops=-1)
     BackgroundMusic.set_volume(BGvolume)
@@ -236,7 +236,8 @@ def main_pygame(file_name):
         AlignmentCounter[HOSTILE]=0   
         for actor in Characters:
             AlignmentCounter[actor.Alignment()] +=1
-        #print AlignmentCounter[HOSTILE]
+
+   
         #checks for levelups,
         if PlayTurn.Mode()==LEVELUP and paused==False:# we are between turns
 
@@ -289,13 +290,15 @@ def main_pygame(file_name):
             PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
             scriptCounter+=1
 
-        elif AlignmentCounter[HOSTILE]==0:
+        elif AlignmentCounter[HOSTILE]==0 and gameOver==False:
+            gameOver=True
             paused=True
             currentText="Congratulations on completing the abbreviated version of DEFEAT OF THE ANCIENT ONE.  Someday we'll actually add in more to the game.  Thank you for playing!!!!"
             PauseWindow = Menu("Defeat of the Ancient One", [RESTART, QUITGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
             #print("won the game")
 
-        elif AlignmentCounter[FRIENDLY]==0:
+        elif AlignmentCounter[FRIENDLY]==0 and gameOver==False:
+            gameOver=True
             paused=True
             currentText="Your party has been defeated.  Without you to prevent the return of the Ancient One, the world was destroyed!!"
             PauseWindow = Menu("Defeat of the Ancient One", [RESTART, QUITGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
@@ -314,11 +317,10 @@ def main_pygame(file_name):
             elif paused:
                 action = PauseWindow.input(event)
             else:
+                
                 action = myMenu.input(event) #actions that come from the menu
-            
-            
             if not (hasattr(event, 'key') or event.type==KEYDOWN or hasattr(event, 'button') or event.type==MOUSEBUTTONUP): continue
-            #print(action)
+            print(action)
             
             #UI or turn events
             if (action == CONTINUEGAME or pressedKeys[K_ESCAPE]):
@@ -332,26 +334,13 @@ def main_pygame(file_name):
                     PauseWindow = Menu("Defeat of the Ancient One", pausetext+[CONTINUEGAME], myfont, 100,100, 600,100, text="")
                 GameBoard.PanCamera((PlayTurn.CurrentSprite().tile_x + GameBoard._screenTileOffset_x)*GameBoard._tileSize, \
                     (PlayTurn.CurrentSprite().tile_y + GameBoard._screenTileOffset_y)*GameBoard._tileSize)
-            elif PlayTurn.CurrentSprite().Alignment() == HOSTILE:#if it is the enemy turn then turn off the inputs
-                pass
-
                 
-            elif (action == MOVE or pressedKeys[K_x]) and PlayTurn.Mode()==[]:
-                PlayTurn.MoveMode()
-
-            elif (action == WAIT or pressedKeys[K_c]): #note right now this overrides whatever mode you were in, a back button might be nice 
-                PlayTurn.EndTurn()
-            elif(action == CANCEL or pressedKeys[K_v]):
-                PlayTurn.CancelMode()
-            elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[]:#right now it brings up a target list
-                #print("Entering Mode", action)
-                PlayTurn.ActionMode(action)
             elif action == QUITGAME:
- 
                 running = False
                 pygame.quit()
                 sys.exit()
             elif action == RESTART:
+                print("restart called")
                 restart_program()
 
             #the level up parts
@@ -361,6 +350,20 @@ def main_pygame(file_name):
                 PlayTurn._mode=[]
                 PlayTurn.Next()
                 paused=False
+
+                
+            elif (action == MOVE or pressedKeys[K_x]) and PlayTurn.Mode()==[] and PlayTurn.CurrentSprite().Alignment() != HOSTILE:
+                PlayTurn.MoveMode()
+
+            elif (action == WAIT or pressedKeys[K_c]) and PlayTurn.CurrentSprite().Alignment() != HOSTILE: #note right now this overrides whatever mode you were in, a back button might be nice 
+                PlayTurn.EndTurn()
+            elif(action == CANCEL or pressedKeys[K_v]) and PlayTurn.CurrentSprite().Alignment() != HOSTILE:
+                PlayTurn.CancelMode()
+            elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[] and PlayTurn.CurrentSprite().Alignment() != HOSTILE:#right now it brings up a target list
+                #print("Entering Mode", action)
+                PlayTurn.ActionMode(action)
+
+
 
 
             '''
@@ -403,7 +406,7 @@ def main_pygame(file_name):
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
             elif PlayTurn.Mode()==HEAL and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
                 #print("heal called")
-                PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[1])
+                PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
             elif (GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0], GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1]) == (65,38):
                 paused=True
@@ -415,19 +418,7 @@ def main_pygame(file_name):
                 PlayTurn.SpawnSpecial(65,38, level=3)# eventually this will be the ancient one
 
                 
-                    
-                    
-        '''
-            #Debugging Spawn a PigMan
-            #Bebop's Brood
-            elif event.key == K_1: 
-                NewPigSprite = Actor((20-.5)*tileSize, (20-1)*tileSize, PigImageSet[1], PigImageSet[0], PigImageSet[2], PigImageSet[3],"Pig Spawn" ,2, 2, 5, 5, 60)
-                Characters.add(NewPigSprite)                  
-                sprite_layers[objectlayer].add_sprites(Characters)
-            elif event.key == K_2:
-                Characters.remove(NewPigSprite)
-                sprite_layers[objectlayer].remove_sprite(NewPigSprite)
-        '''
+                
         
         Characters.update(time)  
         GameBoard.update(time)
