@@ -61,25 +61,25 @@ def PortalAI(Turn):#this is how the portal thinks
         tile_y=Turn.CurrentSprite().tile_y
         PortalLevel=Turn.CurrentSprite().Level()
         if Turn.Board().getTile(tile_x+1,tile_y, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x+1,tile_y, level=PortalLevel)
+            Turn.SpawnRandomEnemy(tile_x+1,tile_y, level=PortalLevel)
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x-1,tile_y, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x-1,tile_y,level=PortalLevel)
+            Turn.SpawnRandomEnemy(tile_x-1,tile_y,level=PortalLevel)
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x,tile_y+1, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x,tile_y+1,level=PortalLevel)
+            Turn.SpawnRandomEnemy(tile_x,tile_y+1,level=PortalLevel)
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         elif Turn.Board().getTile(tile_x,tile_y-1, tiled=True)[0]=="Clear":
-            Turn.SpawnSkeleton(tile_x,tile_y-1, level=PortalLevel)
+            Turn.SpawnRandomEnemy(tile_x,tile_y-1, level=PortalLevel)
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         else:
             print('Something crazy must have happened with the PortalAI')
     else:
-        Turn.CurrentSprite().GetExperience(10+int(Turn.CurrentSprite().Level()/2))
+        Turn.CurrentSprite().GetExperience(10-int(Turn.CurrentSprite().Level()/2))
 
 
 

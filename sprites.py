@@ -299,6 +299,8 @@ class Actor(AnimatedSprite):
 
 
 	def GetExperience(self, newExperience):
+                if newExperience<0:
+                        newExperience=1
 		self._Experience = self._Experience + newExperience
 
 		if self._Experience > 100:

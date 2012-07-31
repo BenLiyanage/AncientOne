@@ -127,7 +127,7 @@ def main_pygame(file_name):
     KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
     KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
         KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
-        "Buster", FRIENDLY ,10, 5, 5, 6, 16)
+        "Buster", FRIENDLY ,10, 5, 5, 30, 16)#movement is usually 6
     #KnightSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
     KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against  an --adjacent target.',[],[])
     KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
@@ -139,7 +139,7 @@ def main_pygame(file_name):
     ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
-        "Archie", FRIENDLY ,6, 4, 5, 5, 13)
+        "Archie", FRIENDLY ,6, 4, 5, 5, 13)#movement is usually 5
     #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ArcherSprite.RegisterAction(RANGED, 'The character fires an arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
@@ -155,7 +155,6 @@ def main_pygame(file_name):
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
     ForestMageSprite.RegisterAction(HEAL, 'Restores the health of yourself or an ally.', [], [])
     Characters.add(ForestMageSprite)
-    
     
 
     # mainloop variables for gameplay
@@ -188,13 +187,13 @@ def main_pygame(file_name):
     PlayTurn.SpawnPig(13,18, level=2)
     PlayTurn.SpawnSkeleton(4,6, level=3)
   
-    PlayTurn.SpawnPortal(2,6, level=3)
-    PlayTurn.SpawnPortal(7,18, level=2)
+    PlayTurn.SpawnPortal(2,6, level=1)
+    PlayTurn.SpawnPortal(7,18, level=1)
     PlayTurn.SpawnPortal(25,22, level=1)
-    #PlayTurn.SpawnPortal(12,41, level=2)
-    #PlayTurn.SpawnPortal(42,32, level=2)
-    #PlayTurn.SpawnPortal(64,8, level=3)
-    #PlayTurn.SpawnPortal(65,38, level=3)# eventually this will be the ancient one
+    PlayTurn.SpawnPortal(12,41, level=1)
+    PlayTurn.SpawnPortal(42,32, level=1)
+    PlayTurn.SpawnPortal(64,8, level=1)
+    PlayTurn.SpawnPortal(65,38, level=1)# eventually this will be the ancient one
     
     
     #Picks the first character
@@ -283,7 +282,7 @@ def main_pygame(file_name):
                 PortalMusic.play(loops=0)
                 PlayTurn.SpawnSkeleton(25,21)
 
-        elif scriptCounter==2 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_x<12 and GameBoard.Animating()==False:
+        elif scriptCounter==2 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_x<10 and GameBoard.Animating()==False:
             paused=True
             
             currentText=PlayTurn.CurrentSprite().Name()+": "+triggerText[scriptCounter]
