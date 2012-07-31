@@ -206,7 +206,7 @@ class Menu(InfoBox):
 			if itemNumber is not None:
 				self.setActive(itemNumber)
 
-		elif (event.type == MOUSEBUTTONUP):
+		elif (event.type == MOUSEBUTTONDOWN):
                         
 			itemNumber = self.mouseOverItem()
                         #itemNumber = self._currentMenuItem

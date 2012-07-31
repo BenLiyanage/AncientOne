@@ -246,7 +246,7 @@ def main_pygame(file_name):
                 LevelUpMusic.play(loops=0)
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
 
-                LevelUpWindow = Menu(PlayTurn.CurrentSprite().Name()+' has gained a level!', PlayTurn.LevelUpActions() ,myfont, 100,100,200,200, ActionItems= PlayTurn.CurrentSprite().GetActions(), text="Choose a skill to improve.")
+                LevelUpWindow = Menu(PlayTurn.CurrentSprite().Name()+' levels up!', PlayTurn.LevelUpActions() ,myfont, 100,100,200,200, ActionItems= PlayTurn.CurrentSprite().GetActions(), text="Choose a skill to improve.")
                 #LevelUpWindow = LevelUpScreen(PlayTurn.CurrentSprite(), PlayTurn.CurrentSprite().Name()+' has gained a level!', myfont, 100,100,300,200)
                 continue
                     
