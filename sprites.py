@@ -309,7 +309,7 @@ class Actor(AnimatedSprite):
 			self._Speed = self._Speed + 1 + int(self._Speed * .05)
 			HealthBonus = 2 + int(self._MaxHealth * .05)
 			self._MaxHealth = self._MaxHealth + HealthBonus
-			self._Health = self._Health + int(HealthBonus/2)
+			self._Health = self._Health + int(HealthBonus)
 			
 			if self.Alignment()=='Friendly':
                                 self._LevelUp=True

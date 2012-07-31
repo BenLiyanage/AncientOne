@@ -438,7 +438,7 @@ class Turn(object):
                 #print(actor.tile_x,actor.tile_y)
                 if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1:
                     HitAnyone=True
-                    self._currentSprite.Attack(actor,3*self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(AOE)+random.randint(0,self.CurrentSprite().Power()))
+                    self._currentSprite.Attack(actor,2*self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(AOE)+random.randint(0,self.CurrentSprite().Power()))
                     print(self._currentSprite._Name, "attacked", actor._Name, 'with', AOE)
             if HitAnyone:#check if anyone was damaged, if not then don't do anything
                 self._board.ClearLayer(self._board._shadowLayer)

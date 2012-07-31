@@ -141,7 +141,7 @@ def main_pygame(file_name):
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
         "Archie", FRIENDLY ,6, 4, 5, 5, 13)
     #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
-    ArcherSprite.RegisterAction(RANGED, 'The character fires and arrow!', [],[])
+    ArcherSprite.RegisterAction(RANGED, 'The character fires an arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
     Characters.add(ArcherSprite)
     
@@ -153,7 +153,7 @@ def main_pygame(file_name):
         "Terra", FRIENDLY ,5, 3, 4, 5, 11)
     #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
-    ForestMageSprite.RegisterAction(HEAL, 'Restores the healt of yourself or an ally.', [], [])
+    ForestMageSprite.RegisterAction(HEAL, 'Restores the health of yourself or an ally.', [], [])
     Characters.add(ForestMageSprite)
     
     
