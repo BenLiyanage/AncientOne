@@ -1,18 +1,33 @@
-Code authors
-============
+=========================
+Defeat of the Ancient One
+=========================
 
-This program was written by the following people:
+Game Authors:
+=============
  - Phong N. Le
  - Benjamin S. Liyanage
  - Christopher Pennington
  - Emma Roach
 
-
+Code authors
+============
+-Phong N. Le
+-Benjamin S. Liyanage
 
 Asset attribution
 =================
 
-Assets were authored by the following people:
+Phong N. Le
+-ActiveShadow.png
+-alpha_box.png
+-area01.png
+-area02.png
+-area03.png
+-blip.wav
+-blue_box.png
+-collision.png-explosion.wav-explosion2.wav-heal.wav-hit.wav-hit2.wav-laser.wav-levelup.wav
+-map01.tmx-newturn.wav-portal.wav
+-red_box.png-slash.wav-staticroar.wav-walk.wav
 
 Christopher Pennington
 -pigman_walk.png
@@ -20,6 +35,46 @@ Christopher Pennington
 Emma Roach
 -wandering_around.wav
 
+
+Additional Asset Authors
+========================
+
+Cody Boisclair (SIL Open Font License (OFL))
+-PressStart2P.ttf
+
+Stephen Challener
+-male_walkcycle.png
+-male_hurt.png
+-male_slash.png
+-male_spellcast.png
+-mage_death.png-mage_spell.png-mage_walk.png
+
+Daniel Eddeland
+-AOE_firelion.png
+-farming_fishing.png
+-fence.png
+-fence_alt.png
+-magic_snakebite_large.png-magic_snakebite_small.png
+-sword_sheet_128.png-torrentacle_large.png-torrentacle_small.png-turtleshell_large.png-turtleshell_small.png
+
+Jonas Klinger
+-building.png
+
+Luke Mehl
+-forestmage_death.png-forestmage_slash.png-forestmage_spell.png-forestmage_walk.png
+
+Casper Nilsson
+-grassalt_flowers.png
+-gravestones.png
+-stonepattern.png
+-tree_stump.png
+
+Johannes Sjolund
+-archer_attack.png-archer_death.png-archer_walk.png
+-knight_attack.png-knight_death.png-knight_walk.png
+-skeleton_attack.png
+-skeleton_death.png
+-skeleton_walk.png
 
 Lanea Zimmerman
 -barrel.png
@@ -38,55 +93,5 @@ Lanea Zimmerman
 -trunk.png
 -water.png
 -watergrass.png
-
-Phong N. Le
--ActiveShadow.png
--area01.png
--area02.png
--area03.png
--collision.png
--map01.tmx
--alpha_box.png
--blue_box.png
--red_box.png
--blip.wav-explosion.wav-explosion2.wav-heal.wav-hit.wav-hit2.wav-laser.wav-levelup.wav-newturn.wav-portal.wav-slash.wav-staticroar.wav-walk.wav
-
-Daniel Eddeland
--farming_fishing.png
--fence.png
--fence_alt.png
--sword_sheet_128.png
--AOE_firelion.png-magic_snakebite_large.png-magic_snakebite_small.png-torrentacle_large.png-torrentacle_small.png-turtleshell_large.png-turtleshell_small.png
-
-
-Jonas Klinger
--building.png
-
-Johannes Sjolund
--archer_attack.png-archer_death.png-archer_walk.png
--forestmage_death.png-forestmage_slash.png-forestmage_spell.png-forestmage_walk.png
--knight_attack.png-knight_death.png-knight_walk.png
--skeleton_attack.png
--skeleton_death.png
--skeleton_walk.png
-
-
-Stephen Challener
--male_walkcycle.png
--male_hurt.png
--male_slash.png
--male_spellcast.png
--mage_death.png-mage_spell.png-mage_walk.png
-
-Casper Nilsson
--grassalt_flowers.png
--gravestones.png
--stonepattern.png
--tree_stump.png
-
-Cody Boisclair (SIL Open Font License (OFL))
--PressStart2P.ttf
-
-
 
 

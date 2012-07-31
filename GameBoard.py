@@ -282,8 +282,11 @@ class Board(object):
     
         self._particles.add(Particle)
         
+    def ObjectLayer(self):
+        return self._objectLayer
 
-
+    def CollisionLayer(self):
+        return self._collisionLayer
     '''
       
     def drawActiveShadow() #draws the active shadow tile on the shadow layer under the active character.

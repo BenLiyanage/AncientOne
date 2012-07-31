@@ -131,8 +131,10 @@ class Turn(object):
             for action in ATTACKLIST:#adds back in attacks that you can still do
                 if action in self.CurrentSprite().GetActionNames():
                     self._currentActions.append(action)
-
-        
+        elif self._canAttack == False:
+            for action in ATTACKLIST:#adds back in attacks that you can still do
+                if action in self.CurrentActions():
+                    self._currentActions.remove(action)
     def EndTurn(self):
 
 
@@ -358,9 +360,10 @@ class Turn(object):
                 self._currentActions.remove(ATTACK)
                 self._currentActions.remove(WHIRLWIND)
             elif action ==WHIRLWIND:
-                self.Whirlwind()
                 self._currentActions.remove(ATTACK)
                 self._currentActions.remove(WHIRLWIND)
+                self.Whirlwind()
+
             elif action == AOE:
                 self.AOEMode(AOE, 4)
                 self._currentActions.remove(AOE)
@@ -377,7 +380,7 @@ class Turn(object):
             else:
                 print('Action', action, 'not recognized.')
             if CANCEL not in self._currentActions and action !=WHIRLWIND:
-                self._currentActions.append(CANCEL)
+                self._currentActions.append(CANCEL)#you can cancel out of any action but whirlwind
             if self._canMove:
                 self._currentActions.remove(MOVE)
                 
@@ -411,7 +414,7 @@ class Turn(object):
                 HitAnyone=False
                 for actor in self.Characters():
                     #print(actor.tile_x,actor.tile_y)
-                    if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1:
+                    if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1 and actor.Health()<actor.MaxHealth():
                         HitAnyone=True
                         self.CurrentSprite().Heal(actor, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(0,self.CurrentSprite().Power()))
                 if HitAnyone:#check if anyone was damaged, if not then don't do anything
@@ -424,20 +427,7 @@ class Turn(object):
                     self.CancelMode()
                     if CANCEL in self._currentActions:
                         self._currentActions.remove(CANCEL)
-    '''        
-    def HealAction(self,target):
-        if target in self._targetList and target.Health()<target.MaxHealth():
-            self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
-            self.CurrentSprite().Heal(target, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(0,self.CurrentSprite().Power()))
-            HealSound = pygame.mixer.Sound("sound/Heal.wav")
-            HealSound.play()
 
-            if CANCEL in self._currentActions:
-                self._currentActions.remove(CANCEL)
-
-            self._canAttack=False
-            self.CancelMode()
-    '''
     def AOEMode(self, AOEtype, AOErange):
         if self._canAttack:
             self._mode=AOEtype
@@ -482,10 +472,12 @@ class Turn(object):
             if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) <=2 and actor.Alignment() != self.CurrentSprite().Alignment():
                 self._currentSprite.Attack(actor,self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(WHIRLWIND)+random.randint(0,self.CurrentSprite().Power()))
                 HitAnyone=True
-        if HitAnyone:                
+        if HitAnyone:
             AttackSound = pygame.mixer.Sound("sound/explosion.wav")
             AttackSound.play()
+
         self._canAttack=False
+
         self.CancelMode()
 
                 

@@ -216,7 +216,6 @@ def main_pygame(file_name):
     BackgroundMusic.set_volume(BGvolume)
     LevelUpMusic = pygame.mixer.Sound("sound/levelup.wav")
 
-
     ##The Main Game Loop 
     while running:
         clock.tick(frames_per_sec)
@@ -256,7 +255,8 @@ def main_pygame(file_name):
         if (CurrentSprite != PlayTurn.CurrentSprite() or mode != PlayTurn.Mode() ) and PlayTurn.CurrentSprite !=[] and paused==False:
             CurrentSprite = PlayTurn.CurrentSprite()
             mode= PlayTurn.Mode()
-            myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions()) #CurrentActions is a list removing unavailable actions
+            myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
+            #CurrentActions is a list removing unavailable actions
             CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
         #Move the camera manually with "wasd"
 
@@ -391,7 +391,7 @@ def main_pygame(file_name):
 
         
         if pressedMouse[0]:
-            
+            myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
             print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
             
             #Seed what you clicked on and what turn mode you are in, then determins what to do
@@ -404,7 +404,7 @@ def main_pygame(file_name):
             elif PlayTurn.Mode()==AOE:
                 PlayTurn.AOEAttack(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
-            elif PlayTurn.Mode()==HEAL and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
+            elif PlayTurn.Mode()==HEAL: #and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
                 #print("heal called")
                 PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)

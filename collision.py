@@ -16,6 +16,8 @@
 
 import pygame
 import tiledtmxloader
+import copy
+from copy import deepcopy
 '''
 class CollisionFinder(object):
     def __init__(self, board):
@@ -35,21 +37,11 @@ class CollisionFinder(object):
 '''        
 
 
-def PossibleMovesPath(board, tile_x, tile_y, movement_value,dirs=[]):
+def PossibleMovesPath(Collisions, tile_x, tile_y, movement_value,dirs=[]):
 #returns a list of possible move positions, their cost and the best path there.  Note the cost may be redundant
-    tilesize=32 
-    baselayer=0
-    fringelayer=1
-    shadowlayer=2
-    objectlayer=3
-    overhanglayer=4
-    collisionlayer=5
-    characters=board.Characters()
-    layers=board.getLayers()
-    coll_layer=layers[collisionlayer]
-    obj_layer=layers[objectlayer]
-    map_tile_x = len(layers[collisionlayer].content2D[0])
-    map_tile_y = len(layers[collisionlayer].content2D)
+
+    map_tile_x = len(Collisions[0])
+    map_tile_y = len(Collisions)
     tile_rects = [(tile_x,tile_y,movement_value,dirs)]#initial position costs nothing and you do not need to move to get there
     if movement_value==0:
         return tile_rects          
@@ -61,19 +53,12 @@ def PossibleMovesPath(board, tile_x, tile_y, movement_value,dirs=[]):
         
         for (dirx,diry) in lookset: #[(1,0), (-1,0), (0,1), (0,-1)]:
             #If one of isClear, isFree, isEfficient does not hold then we shouldn't check the others.
-            isClear = coll_layer.content2D[tile_y+diry][tile_x + dirx] is None
-            
-            isFree=True #may be set to be true even though it is not because it doesn't matter if isClear is false
-            if isClear:
-                for actor in characters:
-                    if actor.tile_x==tile_x + dirx and actor.tile_y==tile_y + diry:
-                        isFree=False
-                        break
+            isClear = Collisions[tile_y+diry][tile_x + dirx] is None
                 
             isEfficient=True
             
             #checks if there was a previously discovered more expensive path, which it will remove
-            if isFree and isClear:
+            if isClear:
                 for t in tile_rects:
                     #print("comparing:",tile_x+dirx, tile_y+diry,"to",t)
                     #print(t[0]==tile_x + dirx, t[1]==tile_y+diry, t[2]>movement_value)
@@ -88,16 +73,19 @@ def PossibleMovesPath(board, tile_x, tile_y, movement_value,dirs=[]):
                         #print(t in tile_rects)
                        
             
-            if isClear and isFree and isEfficient:
+            if isClear and isEfficient:
     
-                tile_rects=tile_rects+PossibleMovesPath(board, tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
-
+                tile_rects=tile_rects+PossibleMovesPath(Collisions, tile_x + dirx, tile_y+diry, movement_value-1,dirs+[(dirx,diry)])
 
                 
         return tile_rects #these are the moves each possible move looks like a string of these (tile_x,tile_y,movement_value,dirs)
         
 def PathList(board, tile_x, tile_y, movement_value):
-    return cleanPathList(PossibleMovesPath(board, tile_x, tile_y, movement_value,[]))
+
+    Collisions = CollisionArray(board)
+    
+    
+    return cleanPathList(PossibleMovesPath(Collisions, tile_x, tile_y, movement_value,[]))
 
 def cleanPathList(path_list):#removes bad entries from a list
     new_list=[]
@@ -136,22 +124,43 @@ def PopBestPath(x,y,path_list): #returns a list of directions that is the best w
     return path
     
 '''
-    def PossibleMoves(self, tile_x, tile_y, movement_value):
-    #returns a list of possible move positions
-        tile_rects = [(tile_x,tile_y)]
-        if movement_value==0:
-           return tile_rects
-        else:
-            for (dirx,diry) in [(1,0), (-1,0), (0,1), (0,-1)]:
-                look_tile=self._coll_layer.content2D[tile_y+diry][tile_x + dirx]
+def SmarterMoves(board,tile_x,tile_y, depth):
+    #returns and array of all the possible moves you can get to,(possibly with the nearest ally/enemy labeled)
+    #depth is how far it will search,  this it sort of how many steps it can think ahead,  this should be somewhow based on the level and movement value of the actor
+    #possibly depth=2*(movement+level)
 
-                if look_tile is None:
-                    tile_rects.append((tile_x + dirx, tile_y+diry))
-                    tile_rects=list(set(tile_rects+self.PossibleMoves(tile_x + dirx, tile_y+diry, movement_value-1)))
-            return tile_rects
+    collisionlayer=board.collisionLayer()
+    characters=board.Characters()
+    layers=board.getLayers()
+    coll_layer=layers[collisionlayer]
+    map_tile_x = len(layers[collisionlayer].content2D[0])#number of tiles the map is across
+    map_tile_y = len(layers[collisionlayer].content2D)
+    
+    costMap={}
+    xdepth_min = max(0,tile_x-depth)
+    xdepth_max = min(map_tile_x, tile_x+depth)
+    ydepth_min = max(0,tile_y-depth)
+    ydepth_max = min(map_tile_y, tile_y+depth)
 
-    #def PossibleMoves2(self, tile_x, tile_y, movement_value):
-    #    #a simple way to do this we make a matrix, then just flip adjacent tiles with numbers in them
-    #    tilearray=[][]
-    #    for i
+    #first we initialize the array of values.  
+    for i in range(xdepth_min, xdepth_max):
+        for j in range(ydepth_min,y_depthmax):
+            costMap[i][j]=[i,j,None]#the x and y coordinates, along with a 'None' value meaning that it has not been visited.
 '''
+
+def CollisionArray(board,depth=0):
+
+    collisionlayer=board.CollisionLayer()
+    characters=board.Characters()
+    layers=board.getLayers()
+    coll_layer=deepcopy(layers[collisionlayer].content2D)#makes a copy
+    #map_tile_x = len(layers[collisionlayer].content2D[0])#number of tiles the map is across
+    #map_tile_y = len(layers[collisionlayer].content2D)
+    
+
+    for actor in characters:
+        coll_layer[actor.tile_y][actor.tile_x]=actor.Name()
+    #print coll_layer[15][4]
+    return coll_layer
+            
+

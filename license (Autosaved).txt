@@ -15,3 +15,6 @@ https://code.google.com/p/pytmxloader/
 The font: PressStart2P.ttf 
 http://scripts.sil.org/OFL
 (SIL Open Font License)
+
+When applicable, licensing for files not created by the authors of this game are contained in the folder
+
