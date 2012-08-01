@@ -1,4 +1,0 @@
-import pygame
-import sprites
-from sprites import AnimatedSprite, Actor
-
