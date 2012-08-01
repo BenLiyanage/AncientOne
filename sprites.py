@@ -272,7 +272,7 @@ class Actor(AnimatedSprite):
                                 self.setImageSet(self._AttackUpImages,"revert")
                 if sound:
                         self._HitSound.play(loops=1)
-		damage = attackPower - target._Defense
+		damage = attackPower
 		if damage <=0:
                         damage=1# you always deal at least one damage
                         
@@ -286,10 +286,11 @@ class Actor(AnimatedSprite):
 		return damage
 
 	def RecieveDamage(self, damage):
+                damage=damage-self.Defense()
                 damage=min(self._Health,damage) #this prevents extra xp from overkill
 		self._Health = self._Health - damage
 
-		experience = 10 + int(damage*(1+.1*self.Level()))#probably factor in level at some point
+		experience = 5 + int(damage*(1+..05*self.Level()))#probably factor in level at some point
 		if self._Health <= 0:
                         self.Kill()
                         experience +=self.Level()*5
@@ -303,7 +304,7 @@ class Actor(AnimatedSprite):
                         newExperience=1
 		self._Experience = self._Experience + newExperience
 
-		if self._Experience > 100:
+		if self._Experience > 100 and self.Health()>0:
 			self._Experience = self._Experience % 100
 			self._Level = self._Level + 1
 			self._Power = self._Power + 1 + int(self._Power * .05)
@@ -311,7 +312,7 @@ class Actor(AnimatedSprite):
 			self._Speed = self._Speed + 1 + int(self._Speed * .05)
 			HealthBonus = 2 + int(self._MaxHealth * .05)
 			self._MaxHealth = self._MaxHealth + HealthBonus
-			self._Health = self._Health + int(HealthBonus)
+			self._Health = self._Health + HealthBonus
 			
 			if self.Alignment()=='Friendly':
                                 self._LevelUp=True
@@ -333,7 +334,7 @@ class Actor(AnimatedSprite):
                 if target._Health > target._MaxHealth:
                         target._Health = target._MaxHealth
                 #print(target.Name(),"healed for", healamount)
-                self.GetExperience(int(1.5*healamount)+4)
+                self.GetExperience(5+int(1.5*healamount))
 
 	def Move(self, direction):
 		if not self._MidAnimation:

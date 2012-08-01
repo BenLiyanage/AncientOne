@@ -319,6 +319,7 @@ class Turn(object):
             #print(actionmove[3])
             self._board.ClearLayer(self._board._shadowLayer)
             self._path = actionmove#PopBestPath(actionmove[0],actionmove[1], [actionmove])
+            
             self._currentSprite.MultiMove(self._path)
         elif actiontype=='Wait':
             #print(self.CurrentSprite().Name(), 'is done with turn!')
@@ -420,7 +421,7 @@ class Turn(object):
                     #print(actor.tile_x,actor.tile_y)
                     if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1 and actor.Health()<actor.MaxHealth():
                         HitAnyone=True
-                        self.CurrentSprite().Heal(actor, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(int(self._CurrentSprite().Power()),self.CurrentSprite().Power()))
+                        self.CurrentSprite().Heal(actor, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(int(self.CurrentSprite().Power()),self.CurrentSprite().Power()))
                 if HitAnyone:#check if anyone was damaged, if not then don't do anything
                     self._board.ClearLayer(self._board._shadowLayer)
                     HealSound = pygame.mixer.Sound("sound/Heal.wav")
@@ -500,7 +501,7 @@ class Turn(object):
     def SpawnMage(self, board_x, board_y, level=1):
         MageSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, self._MageImageSet[0], self._MageImageSet[1], self._MageImageSet[2], self._MageImageSet[3], \
             self._MageDeathImageSet[0], self._MageAttackImageSet[0], self._MageAttackImageSet[1], self._MageAttackImageSet[2], self._MageAttackImageSet[3], \
-            "Mage", HOSTILE ,7, 3, 4, 4, random.randint(9,12))
+            "Mage", HOSTILE ,4, 3, 3, 4, random.randint(9,12))
         MageSprite.ForceLevel(level)
         self.Characters().add(MageSprite)
 
@@ -508,7 +509,7 @@ class Turn(object):
         PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
-            "Portal", HOSTILE ,4, 4, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
+            "Portal", HOSTILE ,3, 4, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
         PortalSprite.ForceLevel(level)
         PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
         PortalSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
@@ -529,7 +530,7 @@ class Turn(object):
         PigSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
             self._PigImageSet[0], self._PigImageSet[1], self._PigImageSet[2], self._PigImageSet[3], \
             self._DeathImageSet[0], self._PigAttackImageSet[0], self._PigAttackImageSet[1], self._PigAttackImageSet[2], self._PigAttackImageSet[3], \
-            "Pigman", HOSTILE ,7, 3, 5, 6, random.randint(12,15))
+            "Pigman", HOSTILE ,6, 4, 4, 5, random.randint(12,15))
         PigSprite.ForceLevel(level)
         #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
         self.Characters().add(PigSprite)

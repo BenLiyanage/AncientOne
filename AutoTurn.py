@@ -91,38 +91,39 @@ def TurnAI(Turn, minRange=1, maxRange=1):
     #if you begin with a target in range, take the shot then move toward the nearest ally, if no ally is near, move away from enemies that are too close (<2) if possible
     #if you begin with no targets in range, figure out if you can move an attack, if you can, do so, if not , move toward the nearest ally, if no ally is near, stay put.
 
-    #print('RangedAI called to control', Turn.CurrentSprite().Name())
+    #print('TurnAI called to control', Turn.CurrentSprite().Name(), 'at', Turn.CurrentSprite().tile_x, Turn.CurrentSprite().tile_y)
     #def __init__(Turn, board):
         #super(Turn, Turn).__init__(Turn, board)
 
     #first we find a potential target/ally
-    distanceThreshold= 2*(Turn.CurrentSprite().Movement()+Turn.CurrentSprite().Level())+20
+    distanceThreshold= min(2*(Turn.CurrentSprite().Movement()+Turn.CurrentSprite().Level())+10,40)
     closeAlly=[]
     allyDist = 0
     targetOpponent=[]
     targetDist = 0
+    moveAlly=[]
+    moveAllyDist=0
+    moveAllyPoint={}
+    moveOpponent=[]
+    moveOpponentDist=0
+    moveOpponentPoint={}
     AttackFirst=False #check to see if you should move then attack or vice versa
-    NoAttack=True
-    Ranged=False
+    NoAttack=True #checks to see if you can attack at all this round
+    Ranged=False # are you a ranged attacker?
 
     if minRange<1: minRange=1
     if minRange>maxRange: maxRange=minRange
     if maxRange>1:
         Ranged=True
-
     
-    
-    #(removed for new pathfinding) Turn._moves = PathList(Turn._board, Turn._currentSprite.tile_x,Turn._currentSprite.tile_y, Turn._currentSprite._Movement)
-    movePoint={} #the point (as defined in collision.py) that the character will move toward
-    moveDistance=0
-    retreatPoint={}
-    retreatDistance={}#the retreats are simply moving toward an ally
     boundarySet= [{'x':Turn.CurrentSprite().tile_x,'y':Turn.CurrentSprite().tile_y, 'cost':0, 'previous_x':Turn.CurrentSprite().tile_x,'previous_y':Turn.CurrentSprite().tile_y }]
-    Turn._moves= MovesArray(CollisionArray(Turn._board), boundarySet,[],Turn.CurrentSprite()._Movement,0)
+    Turn._moves= MovesArray(CollisionArray(Turn._board), boundarySet,[],distanceThreshold,0)
     #Find the cheapest to get to ally and opponent, also find out if you can attack.
     for actor in Turn.Characters():
         #ally
-        if actor.Alignment() == Turn.CurrentSprite().Alignment() and actor !=Turn.CurrentSprite():
+        if actor ==Turn.CurrentSprite():
+            pass
+        elif actor.Alignment() == Turn.CurrentSprite().Alignment() and actor !=Turn.CurrentSprite():
             if allyDist==0: #this means you have no closest ally 
                 closeAlly=actor
                 allyDist = actorDist(Turn.CurrentSprite(), actor)
@@ -145,110 +146,88 @@ def TurnAI(Turn, minRange=1, maxRange=1):
                 NoAttack=False
                 
             #if no target can be hit without moving, then find the closest actor you can walk to:
-
+        #find the ally and opponent where it would be cheapest to walk to.
         for point in Turn._moves:
-            if movePoint=={}: movePoint=point
-            if retreatPoint=={}: retreatPoint=point
-            currentMoveDistance = dist(actor.tile_x, actor.tile_y, point['x'], point['y'])
+            if moveOpponentPoint=={}: moveOpponentPoint=point
+            if moveAllyPoint=={}: moveAllyPoint=point
+            currentMoveDist = dist(actor.tile_x, actor.tile_y, point['x'], point['y'])
             if actor == Turn.CurrentSprite():
-                continue
-            
-            if AttackFirst==False and actor.Alignment() != Turn.CurrentSprite().Alignment() and minRange<= moveDistance and maxRange <=moveDistance: #if you can move within range
-                targetOpponent=actor
-                MovePoint=point
-                moveDistance=currentMoveDistance
-                NoAttack=False
-                targetOpponent=actor
+                pass 
+            elif actor.Alignment() != Turn.CurrentSprite().Alignment():
+                if moveOpponent==[]:
+                    moveOpponent=actor
+                    moveOpponentDist=currentMoveDist
+                    moveOpponentPoint=point
+                if minRange<= currentMoveDist and maxRange >=currentMoveDist and point['cost']<= Turn.CurrentSprite().Movement(): #if you can move within stiking range this turn
+                    #if you have not targeted anyone yet, target this person
+                    if NoAttack==True:
+                        moveOpponent=actor
+                        moveOpponentPoint=point
+                        moveDist=currentMoveDist
+                    elif AttackFirst and actor.Health()<=moveOpponent.Health() and actor.Health()<targetOpponent.Health():
+                        #If you can move and attack someone weaker than the person you can attack without moving then do that.
+                        AttackFirst=False 
+                        moveOpponent=actor
+                        moveOpponentPoint=point
+                        moveDistance=currentMoveDist
+                    elif actor.Health()<=moveOpponent.Health():
+                        #if you are already moving you should find the weakest target you can move and attack
+                        moveOpponent=actor
+                        moveOpponentPoint=point
+                        moveDistance=currentMoveDist
+                    NoAttack=False
+                elif NoAttack and minRange<= currentMoveDist and maxRange >=currentMoveDist:#this means you can eventually move to the target
+                    #No one to attack? just move closer to an opponent
+                    movetOpponent=actor
+                    moveOpponentPoint=point
+                    moveOpponentDist=currentMoveDist
                     
-                
-            
-            elif NoAttack and actor.Alignment() != Turn.CurrentSprite().Alignment() and currentMoveDistance<moveDistance: #if you cant attack then move closer
-                currentMovePoint=point
-                moveDistance=currentMoveDistance
-            elif actor.Alignment() == Turn.CurrentSprite().Alignment() and retreatDistance> currentMoveDistance:
-                retreatPoint=point
-                retreatDistance=currentMoveDistance
+            elif actor.Alignment() == Turn.CurrentSprite().Alignment():
+                if moveAlly == []:
+                    moveAlly=actor
+                    moveAllyDist=currentMoveDist
+                    moveAllyPoint=point
+                elif moveAllyDist> currentMoveDist and point['cost']<moveAllyPoint['cost']:
+                    moveAlly=actor
+                    moveAllyDist=currentMoveDist
+                    moveAllyPoint=point
                 
                             
-                        
-    '''    
-            elif targetDist > actorDist(Turn.CurrentSprite(), actor):
-                targetOpponent=actor
-                targetDist = actorDist(Turn.CurrentSprite(), actor)
-
-
-    
-    for move in Turn._moves:
-
-        if currentMove=={}:
-            currentMove=move
-       
-        
-        currentMoveOpponentDist = dist(currentMove['x'], currentMove['y'], targetOpponent.tile_x, targetOpponent.tile_y)
-        newMoveOpponentDist = dist(move['x'], move['y'], targetOpponent.tile_x, targetOpponent.tile_y)
-        if closeAlly !=[]:
-            currentMoveAllyDist = dist(currentMove['x'], currentMove['y'], closeAlly.tile_x, closeAlly.tile_y)
-            newMoveAllyDist = dist(move['x'], move['y'], closeAlly.tile_x, closeAlly.tile_y)
-        else:
-            currentMoveAllyDist=0
-            newMoveAllyDist=0
-
-        
-
-        
-        if AttackFirst and newMoveOpponentDist<=maxRange and newMoveAllyDist <= currentMoveAllyDist:
-            currentMove=move
-            
-        if AttackFirst==False:
-            if NoAttack==False  and newMoveOpponentDist<=maxRange and newMoveOpponentDist >=minRange and newMoveOpponentDist>=currentMoveOpponentDist:
-                currentMove=move
-            elif newMoveOpponentDist<=maxRange and newMoveOpponentDist >=minRange:
-                currentMove=move
-                NoAttack=False
-            # if you cannot attack that round, walk toward the closest/cheapest opponent within distanceThreshold
-
-                currentMove=move
-    '''
     #These next variables cuts off the movement generated to only provide the number of directions
     #equal to the characters movement
-    targetMoveFull=TracePath(Turn._moves, targetOpponent.tile_x,targetOpponent.tile_y)
-    if len(targetMoveFull)>=Turn.CurrentSprite().Movement():
-        targetMove=targetMoveFull
-    else:
-        targetMove=targetMoveFull[len(targetMoveFull)-Turn.CurrentSprite().Movement():len(targetMoveFull)]
+    opponentMove=TracePath(Turn._moves, moveOpponentPoint['x'], moveOpponentPoint['y'], movement = Turn.CurrentSprite().Movement())
 
-    retreatMoveFull=TracePath(Turn._moves, retreatPoint['x'],retreatPoint['y'])
-    print("Full AutoTurn action", targetMoveFull, "will be cut down to", Turn.CurrentSprite().Movement())
-    print("AutoTurn wants",Turn.CurrentSprite().Name(), "to ", targetMove)
-    if len(retreatMoveFull)>=Turn.CurrentSprite().Movement():
-        retreatMove=retreatMoveFull
-    else:
-        retreatMove=targetMoveFull[len(retreatMoveFull)-Turn.CurrentSprite().Movement():len(retreatMoveFull)]    
-
+    allyMove=TracePath(Turn._moves, moveAllyPoint['x'],moveAllyPoint['y'], movement = Turn.CurrentSprite().Movement())
+    #print("AutoTurn opponentMove:", opponentMove)
+    #print("AutoTurn allyMove:", allyMove)
     #now we add to the queue
     if targetDist==0:#No good guys on the board
-        Turn.addQueue('Wait', targetOpponent, targetMove)
+        Turn.addQueue('Wait', [], [])
         
     elif AttackFirst:# and attackType != "Ranged"
-        Turn.addQueue('Attack', targetOpponent, retreatMove)
-        Turn.addQueue('Move', targetOpponent, retreatMove)
-        Turn.addQueue('Wait', targetOpponent, retreatMove)
+        #print("Attack then move")
+        Turn.addQueue('Attack', targetOpponent, [])
+        Turn.addQueue('Move', [], allyMove)
+        Turn.addQueue('Wait', [], [])
         
     elif AttackFirst==False and NoAttack==False:
+        #print("move then attack")
+        Turn.addQueue('Move', [], opponentMove)
+        Turn.addQueue("Attack", moveOpponent, [])
+        Turn.addQueue('Wait', [], [])
 
-        Turn.addQueue('Move', targetOpponent, targetMove)
-        Turn.addQueue("Attack", targetOpponent, targetMove)
-        Turn.addQueue('Wait', targetOpponent, targetMove)
-
-    elif NoAttack and targetDist < 2*Turn.CurrentSprite().Movement():
-        Turn.addQueue('Move', targetOpponent, targetMove)
-        Turn.addQueue('Wait', targetOpponent, targetMove)
-    elif NoAttack and targetDist > 2*Turn.CurrentSprite().Movement():
-        Turn.addQueue('Move', targetOpponent, retreatMove)
-        Turn.addQueue('Wait', targetOpponent, targetMove)
+    elif NoAttack and targetDist <= 3*Turn.CurrentSprite().Movement():
+        #print("just move to target")
+        Turn.addQueue('Move', [], opponentMove)
+        Turn.addQueue('Wait', [], [])
+    elif NoAttack and targetDist > 3*Turn.CurrentSprite().Movement():
+        #print("just move to ally")     
+        Turn.addQueue('Move', [], allyMove)
+        Turn.addQueue('Wait', [], [])
     else:
+        #print("just wait")
         #this means you are far from everyone
-        Turn.addQueue('Wait', targetOpponent, targetMove)                  
+        Turn.addQueue('Wait', [], [])                  
   
 
 

@@ -115,7 +115,7 @@ def main_pygame(file_name):
     KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
     KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
         KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
-        "Buster", FRIENDLY ,10, 7, 5, 6, 16)#movement is usually 6
+        "Buster", FRIENDLY ,9, 7, 5, 6, 16)#movement is usually 6
     KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against  an --adjacent target.',[],[])
     KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
     Characters.add(KnightSprite)
@@ -326,14 +326,14 @@ def main_pygame(file_name):
                 paused=False
 
                 
-            elif (action == MOVE or pressedKeys[K_x]) and PlayTurn.Mode()==[] and PlayTurn.CurrentSprite().Alignment() != HOSTILE:
+            elif paused==False and (action == MOVE or pressedKeys[K_x]) and PlayTurn.Mode()==[] and PlayTurn.CurrentSprite().Alignment() != HOSTILE :
                 PlayTurn.MoveMode()
 
-            elif (action == WAIT or pressedKeys[K_c]) and PlayTurn.CurrentSprite().Alignment() != HOSTILE: #note right now this overrides whatever mode you were in, a back button might be nice 
+            elif paused==False and (action == WAIT or pressedKeys[K_c]) and PlayTurn.CurrentSprite().Alignment() != HOSTILE: #note right now this overrides whatever mode you were in, a back button might be nice 
                 PlayTurn.EndTurn()
-            elif(action == CANCEL or pressedKeys[K_v]) and PlayTurn.CurrentSprite().Alignment() != HOSTILE:
+            elif paused==False and (action == CANCEL or pressedKeys[K_v]) and PlayTurn.CurrentSprite().Alignment() != HOSTILE:
                 PlayTurn.CancelMode()
-            elif (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[] and PlayTurn.CurrentSprite().Alignment() != HOSTILE:#right now it brings up a target list
+            elif paused==False and (action in actionList or pressedKeys[K_z]) and PlayTurn.Mode()==[] and PlayTurn.CurrentSprite().Alignment() != HOSTILE:#right now it brings up a target list
                 #print("Entering Mode", action)
                 PlayTurn.ActionMode(action)
 

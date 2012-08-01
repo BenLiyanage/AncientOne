@@ -187,7 +187,7 @@ def MovesArray(collisions, boundarySet, closedSet,maxCost, currentCost):
     return MovesArray(collisions, boundarySet, closedSet ,maxCost, currentCost+1)
         
                     
-def TracePath(closedSet, target_x,target_y): #Returns a path that takes you from one point to another
+def TracePath(closedSet, target_x,target_y, movement=0): #Returns a path that takes you from one point to another
     currentPoint={}
     #print(closedSet)
     for point in closedSet:
@@ -221,8 +221,12 @@ def TracePath(closedSet, target_x,target_y): #Returns a path that takes you from
                 currentPoint=point
         current_x, current_y=currentPoint['x'], currentPoint['y']
  
-    print pathlist
-    return pathlist
+    #This cuts off the number of moves (usually movement=CurrentSprite().Movement())
+    if movement>0:
+        
+        return pathlist[len(pathlist)-movement:len(pathlist)]
+    else:
+        return pathlist
             
         
                 
