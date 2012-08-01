@@ -15,22 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
 import pygame
-
-
-
 import sprites
 from sprites import AnimatedSprite, Actor
-
 import tiledtmxloader #this reads .tmx files
 
-
 class Board(object):
-#class Board(tiledtmxloader.helperspygame):
     def __init__(self, worldMap, characters, tileSize, screen):
-
-        
         #Layers, lower renders first
         self._baseLayer=0 # the ground
         self._fringeLayer=1 #grass etc
@@ -46,7 +37,6 @@ class Board(object):
 
         #Variables
         self._worldMap = worldMap
-
         self._screenWidth = min(1024, self._worldMap.pixel_width)
         self._screenHeight = min(768, self._worldMap.pixel_height)
         self._width = self._worldMap.pixel_width
@@ -70,15 +60,10 @@ class Board(object):
         self._camMax_y = self._height - self._screenHeight 
         self._midAnimation = 0
         
-
-        
         self._resources = tiledtmxloader.helperspygame.ResourceLoaderPygame()
         self._resources.load(self._worldMap)
         
         self._renderer = tiledtmxloader.helperspygame.RendererPygame()
-
-        
-
         self._renderer.set_camera_position_and_size(self._camPos_x, self._camPos_y, \
                                         self._screenWidth, self._screenHeight, "topleft")
         
@@ -90,13 +75,6 @@ class Board(object):
         #different hover cursors indicate different things to see.Maybe add an ally enemy etc later.
         self._cursorBox= pygame.image.load("images/alpha_box.png")
         self._activeBox = pygame.image.load("images/ActiveShadow.png")
-        #self._activeBox = pygame.image.load("images/ActiveShadow.png")
-        
-        
-        #self.sprite_layers[self._objectLayer].add_sprite(self._Cursor)
-
-        
-        
 
         #Renders the layers to the screen
         for sprite_layer in self.sprite_layers:
@@ -113,10 +91,9 @@ class Board(object):
 
         #removes dead characters: We will probably have to check for animation later.
         for actor in self._characters:
-            #if actor.Health()<=0 and actor._MidAnimation==0:
-                #Right now we are just removing the character, we may do something different later.
+            #Right now we are just removing the character, we may do something different later.
             if actor.PostAnimationAction()=="remove":# and actor.Animating()==False and actor._frame >= len(actor._images):
-                print(" GameBoard Removing", actor.Name(),"from the board.")
+                #print(" GameBoard Removing", actor.Name(),"from the board.")
                 self._characters.remove(actor)
         for particle in self._particles:
             if particle.PostAnimationAction()=="remove":
@@ -124,7 +101,6 @@ class Board(object):
                 self.ClearLayer(self._particleLayer)#both this an removing the individual particle might be overkill
         
         self.ClearLayer(self._objectLayer)
-        #self.sprite_layers[self._particleLayer].add_sprite(self._particles)
         self.sprite_layers[self._objectLayer].add_sprites(self._characters)
         
         self._characters.update(pygame.time.get_ticks())
@@ -140,9 +116,6 @@ class Board(object):
         #draws a cursor
         
         self._screen.blit(self._cursorBox,((tile_x+self._cursorTileOffset_x)*self._tileSize, (tile_y+self._cursorTileOffset_y)*self._tileSize))
-
-        
- 
 
         #maybe update the camera if necessary
         self.CameraUpdate()
@@ -163,18 +136,7 @@ class Board(object):
         BoxRect.midbottom=(tile_x*self._tileSize+self._tileSize/2,tile_y*self._tileSize+self._tileSize)#again we need to translate 
         self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
 
-
-    
-
     def HighlightArea(self, tile_x,tile_y, minRange, maxRange,imagepath): #highlights an entire area with a max and min radius
-        '''
-        for i in range(-maxRange,maxRange):
-            for j in range(maxRange-abs(i)):
-                
-                self.HighlightTile(tile_x+i, tile_y+j, imagepath)
-                if j != 0:
-                    self.HighlightTile(tile_x+i, tile_y-j, imagepath)
-        '''
         #print("highlight area called")
         for i in range(-maxRange,maxRange):
             upper = maxRange-abs(i)
@@ -262,8 +224,6 @@ class Board(object):
             
             BoxRect.midbottom=(moves[i]['x']*self._tileSize+self._tileSize/2,moves[i]['y']*self._tileSize+self._tileSize)#again we need to translate
             
-            #BoxRect.midbottom=(moves[i][0]*self._tileSize+self._tileSize/2,moves[i][1]*self._tileSize+self._tileSize)#again we need to translate
-            
             self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
 
     def getTile(self, mouse_pos_x,mouse_pos_y, tiled=False):# returns a tuple
@@ -293,19 +253,3 @@ class Board(object):
 
     def CollisionLayer(self):
         return self._collisionLayer
-    '''
-      
-    def drawActiveShadow() #draws the active shadow tile on the shadow layer under the active character.
-
-    def moveCharacter()
-
-    def collisions():#exports a 2d array of collision information.  It might be useful.
-
-    def pauseBoard(): #everything will stop ticking, including walk animations and such.
-
-    '''
-
-        
-    
-
-        
