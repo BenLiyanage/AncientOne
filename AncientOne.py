@@ -139,7 +139,7 @@ def main_pygame(file_name):
     ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
-        "Archie", FRIENDLY ,6, 4, 5, 5, 13)#movement is usually 5
+        "Archie", FRIENDLY ,6, 4, 5, 6, 13)#movement is usually 5
     #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ArcherSprite.RegisterAction(RANGED, 'The character fires an arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])

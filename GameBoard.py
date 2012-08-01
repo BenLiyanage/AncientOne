@@ -258,9 +258,12 @@ class Board(object):
         for i in range(len(moves)):
             #print("Gameboard is drawing on",moves[i]) 
             BoxImage=pygame.image.load("images/alpha_box.png")
-            BoxRect=BoxImage.get_rect()  
-            #BoxRect.midbottom=(moves[i]['x']*self._tileSize+self._tileSize/2,moves[i]['y']*self._tileSize+self._tileSize)#again we need to translate
-            BoxRect.midbottom=(moves[i][0]*self._tileSize+self._tileSize/2,moves[i][1]*self._tileSize+self._tileSize)#again we need to translate 
+            BoxRect=BoxImage.get_rect()
+            
+            BoxRect.midbottom=(moves[i]['x']*self._tileSize+self._tileSize/2,moves[i]['y']*self._tileSize+self._tileSize)#again we need to translate
+            
+            #BoxRect.midbottom=(moves[i][0]*self._tileSize+self._tileSize/2,moves[i][1]*self._tileSize+self._tileSize)#again we need to translate
+            
             self.sprite_layers[self._shadowLayer].add_sprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite(BoxImage, BoxRect))
 
     def getTile(self, mouse_pos_x,mouse_pos_y, tiled=False):# returns a tuple

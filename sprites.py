@@ -100,9 +100,9 @@ class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modif
 		    	#self._frame+=1
 
                 if self._path !=[]and self._MidAnimation ==0:
-                        self._path.reverse()#since pop() pulls the last element
+                        #self._path.reverse()#since pop() pulls the last element
                         nextmove=self._path.pop()
-                        self._path.reverse()
+                        #self._path.reverse()
                         self.Move(nextmove)
                 
                         

@@ -214,8 +214,8 @@ class Turn(object):
     def Move(self, tile_x, tile_y):
         #print("looking for a way to", tile_x, tile_y)
         if self._moves !=[] and self.Mode()==MOVE:
-            self._path = PopBestPath(tile_x, tile_y, self._moves)#removed for new path testing
-            #self._path = TracePath(self._moves, tile_x,tile_y)          
+            #self._path = PopBestPath(tile_x, tile_y, self._moves)#removed for new path testing
+            self._path = TracePath(self._moves, tile_x,tile_y)          
         #print(self._moves)
         
         
@@ -238,9 +238,9 @@ class Turn(object):
     def MoveMode(self):
         if self._canMove:
             self._mode = MOVE
-            self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
-            #boundarySet= [{'x':self._currentSprite.tile_x,'y':self._currentSprite.tile_y, 'cost':0, 'previous_x':self._currentSprite.tile_x,'previous_y':self._currentSprite.tile_y }]
-            #self._moves= MovesArray(CollisionArray(self._board), boundarySet,[],self._currentSprite._Movement,0)
+            #self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
+            boundarySet= [{'x':self._currentSprite.tile_x,'y':self._currentSprite.tile_y, 'cost':0, 'previous_x':self._currentSprite.tile_x,'previous_y':self._currentSprite.tile_y }]
+            self._moves= MovesArray(CollisionArray(self._board), boundarySet,[],self._currentSprite._Movement,0)
             #print(self._moves)
             #self._board.ClearLayer(self._board._shadowLayer)
             self._board.DrawPossibleMoves(self._moves)
@@ -539,11 +539,11 @@ class Turn(object):
     def SpawnRandomEnemy(self,board_x,board_y, level=1):
         randomRoll=random.randint(0,2)
         if randomRoll==0:
-            SpawnSkeleton(board_x,board_y,level)
+            self.SpawnSkeleton(board_x,board_y,level)
         elif randomRoll==1:
-            SpawnMage(board_x,board_y,level)
+            self.SpawnMage(board_x,board_y,level)
         elif randomRoll==2:
-            SpawnPig(board_x,board_y,level)  
+            self.SpawnPig(board_x,board_y,level)  
 
 #def PassiveHeal(actor):
 

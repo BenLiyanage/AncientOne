@@ -149,7 +149,7 @@ def MovesArray(collisions, boundarySet, closedSet,maxCost, currentCost):
     #the array is filled with collisions, occupied spaces, empty spaces or visited spaces.
     #visited spaces will look like point = ['x':xcoordinate,'y':ycoordinate,'cost':costsofar,'old_x'=thepreviousxcoord,'previous_y':prev_y_coord]
     #print("movearray called with cost", currentCost, "and maxcost", maxCost)
-    if currentCost==maxCost or boundarySet==[]:#if you've looked too far or cannot look anywhere else just give up!
+    if currentCost==maxCost+1 or boundarySet==[]:#if you've looked too far or cannot look anywhere else just give up!
         #print("size of closedSet",len(closedSet))
         return closedSet+boundarySet
 
@@ -191,14 +191,12 @@ def TracePath(closedSet, target_x,target_y): #Returns a path that takes you from
         print("Something when wrong looking for a way to get to",target_x, target_y)
         return []
     pathlist=[]
-    i=0
+
     current_x, current_y= target_x, target_y
-    #currentPoint=Array[current_x][current_y]
-    #maxCost=currentPoint['cost']
-    #currentCost=0 #these cost variables are just to make sure we aren't looking too far, it shouldn't happen
+
     while currentPoint['cost']!=0:
         #currentPoint=Array[current_x][current_y]
-        print("Current Point",currentPoint)
+        #print("Current Point",currentPoint)
         dx,dy = current_x-currentPoint['previous_x'], current_y-currentPoint['previous_y']
         #print("dx,dy",dx,dy)
         if (dx,dy) == (-1,0):
@@ -213,11 +211,12 @@ def TracePath(closedSet, target_x,target_y): #Returns a path that takes you from
             print("Dang you messed up somewhere with Tracepath, somewhere around:", current_x, current_y)
         for point in closedSet:
             if currentPoint['previous_x']==point['x'] and currentPoint['previous_y']==point['y']:
+                #print("new point found",point)
                 currentPoint=point
         current_x, current_y=currentPoint['x'], currentPoint['y']
-        i+=1
-    print("TracePath", pathlist.reverse())
-    return pathlist.reverse()
+ 
+    print pathlist
+    return pathlist
             
         
                 
