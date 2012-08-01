@@ -21,7 +21,7 @@ from sprites import AnimatedSprite, Actor
 import GameBoard
 from GameBoard import Board
 import collision
-from collision import PopBestPath, PathList
+from collision import PopBestPath, PathList, MovesArray, CollisionArray, TracePath
 
 import AutoTurn
 from AutoTurn import TurnAI, PortalAI, actorDist, dist
@@ -97,19 +97,7 @@ class Turn(object):
         
 
                 
-    def MoveMode(self):
-        if self._canMove:
-            self._mode = MOVE
-            self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
-            #print(self._moves)
-            #self._board.ClearLayer(self._board._shadowLayer)
-            self._board.DrawPossibleMoves(self._moves)
-            self._currentActions.append(CANCEL)
-            self._currentActions.remove(MOVE)
-            if self._canAttack:
-                for action in ATTACKLIST:#adds back in attacks that you can still do
-                    if action in self.CurrentSprite().GetActionNames():
-                        self._currentActions.remove(action)
+
 
 
 
@@ -226,7 +214,8 @@ class Turn(object):
     def Move(self, tile_x, tile_y):
         #print("looking for a way to", tile_x, tile_y)
         if self._moves !=[] and self.Mode()==MOVE:
-            self._path = PopBestPath(tile_x, tile_y, self._moves)
+            self._path = PopBestPath(tile_x, tile_y, self._moves)#removed for new path testing
+            #self._path = TracePath(self._moves, tile_x,tile_y)          
         #print(self._moves)
         
         
@@ -245,6 +234,22 @@ class Turn(object):
             self._canMove=False
 
             self.CancelMode(highlight=False)
+
+    def MoveMode(self):
+        if self._canMove:
+            self._mode = MOVE
+            self._moves = PathList(self._board, self._currentSprite.tile_x,self._currentSprite.tile_y, self._currentSprite._Movement)
+            #boundarySet= [{'x':self._currentSprite.tile_x,'y':self._currentSprite.tile_y, 'cost':0, 'previous_x':self._currentSprite.tile_x,'previous_y':self._currentSprite.tile_y }]
+            #self._moves= MovesArray(CollisionArray(self._board), boundarySet,[],self._currentSprite._Movement,0)
+            #print(self._moves)
+            #self._board.ClearLayer(self._board._shadowLayer)
+            self._board.DrawPossibleMoves(self._moves)
+            self._currentActions.append(CANCEL)
+            self._currentActions.remove(MOVE)
+            if self._canAttack:
+                for action in ATTACKLIST:#adds back in attacks that you can still do
+                    if action in self.CurrentSprite().GetActionNames():
+                        self._currentActions.remove(action)
 
 
 
@@ -396,7 +401,7 @@ class Turn(object):
 
             elif self.Mode()==CRIPPLESTRIKE:
                 self._currentSprite.Attack(target, self.CurrentSprite().Power()+2*self.CurrentSprite().ActionLevel(RANGED)+random.randint(0,self.CurrentSprite().Power()))
-                target._Initiative -= 5*self.CurrentSprite().ActionLevel(CRIPPLESTRIKE)
+                target._Initiative -= 10+ 5*self.CurrentSprite().ActionLevel(CRIPPLESTRIKE)
 
                 if target._Initiative <0:
                     target._Initiative = 0
@@ -468,6 +473,7 @@ class Turn(object):
 
     def Whirlwind(self):#attacks all players (hostile or friendly) in adjacent spa
         HitAnyone=False
+        
         for actor in self.Characters():
             if dist(actor.tile_x, actor.tile_y, self.CurrentSprite().tile_x, self.CurrentSprite().tile_y) <=2 and actor.Alignment() != self.CurrentSprite().Alignment():
                 self._currentSprite.Attack(actor,self.CurrentSprite().Power()+3*self.CurrentSprite().ActionLevel(WHIRLWIND)+random.randint(0,self.CurrentSprite().Power()))
@@ -495,7 +501,7 @@ class Turn(object):
     def SpawnMage(self, board_x, board_y, level=1):
         MageSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, self._MageImageSet[0], self._MageImageSet[1], self._MageImageSet[2], self._MageImageSet[3], \
             self._MageDeathImageSet[0], self._MageAttackImageSet[0], self._MageAttackImageSet[1], self._MageAttackImageSet[2], self._MageAttackImageSet[3], \
-            "Mage", HOSTILE ,4, 3, 4, 4, random.randint(8,11))
+            "Mage", HOSTILE ,7, 3, 4, 4, random.randint(9,12))
         MageSprite.ForceLevel(level)
         self.Characters().add(MageSprite)
 
@@ -503,7 +509,7 @@ class Turn(object):
         PortalSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
             self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], self._PortalImageSet[0], \
-            "Portal", HOSTILE ,10, 10, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
+            "Portal", HOSTILE ,4, 4, 3, 0, random.randint(18,21), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
         PortalSprite.ForceLevel(level)
         PortalSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
         PortalSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
@@ -529,7 +535,15 @@ class Turn(object):
         #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
         self.Characters().add(PigSprite)
     #def VampiricStrike(actor,target):# a special attack that also heals you.
-        
+
+    def SpawnRandomEnemy(self,board_x,board_y, level=1):
+        randomRoll=random.randint(0,2)
+        if randomRoll==0:
+            SpawnSkeleton(board_x,board_y,level)
+        elif randomRoll==1:
+            SpawnMage(board_x,board_y,level)
+        elif randomRoll==2:
+            SpawnPig(board_x,board_y,level)  
 
 #def PassiveHeal(actor):
 

@@ -127,7 +127,7 @@ def main_pygame(file_name):
     KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
     KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
         KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
-        "Buster", FRIENDLY ,10, 5, 5, 30, 16)#movement is usually 6
+        "Buster", FRIENDLY ,10, 5, 5, 6, 16)#movement is usually 6
     #KnightSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
     KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against  an --adjacent target.',[],[])
     KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
@@ -180,12 +180,12 @@ def main_pygame(file_name):
     PlayTurn.SpawnSkeleton(16,9)
     
     PlayTurn.SpawnSkeleton(22,13)
-    PlayTurn.SpawnSkeleton(21,12, level=2)
+    PlayTurn.SpawnSkeleton(21,12, level=1)
     PlayTurn.SpawnMage(15,16)
     PlayTurn.SpawnMage(17,20)
     PlayTurn.SpawnPig(12,19)
-    PlayTurn.SpawnPig(13,18, level=2)
-    PlayTurn.SpawnSkeleton(4,6, level=3)
+    PlayTurn.SpawnPig(13,18, level=1)
+    PlayTurn.SpawnSkeleton(4,6, level=1)
   
     PlayTurn.SpawnPortal(2,6, level=1)
     PlayTurn.SpawnPortal(7,18, level=1)

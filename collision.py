@@ -40,8 +40,8 @@ class CollisionFinder(object):
 def PossibleMovesPath(Collisions, tile_x, tile_y, movement_value,dirs=[]):
 #returns a list of possible move positions, their cost and the best path there.  Note the cost may be redundant
 
-    map_tile_x = len(Collisions[0])
-    map_tile_y = len(Collisions)
+    #map_tile_x = len(Collisions[0])
+    #map_tile_y = len(Collisions)
     tile_rects = [(tile_x,tile_y,movement_value,dirs)]#initial position costs nothing and you do not need to move to get there
     if movement_value==0:
         return tile_rects          
@@ -122,33 +122,11 @@ def PopBestPath(x,y,path_list): #returns a list of directions that is the best w
             else:
                 print("Error in PopBestPath list translation. Found a ",j,"at", n)
     return path
-    
-'''
-def SmarterMoves(board,tile_x,tile_y, depth):
-    #returns and array of all the possible moves you can get to,(possibly with the nearest ally/enemy labeled)
-    #depth is how far it will search,  this it sort of how many steps it can think ahead,  this should be somewhow based on the level and movement value of the actor
-    #possibly depth=2*(movement+level)
 
-    collisionlayer=board.collisionLayer()
-    characters=board.Characters()
-    layers=board.getLayers()
-    coll_layer=layers[collisionlayer]
-    map_tile_x = len(layers[collisionlayer].content2D[0])#number of tiles the map is across
-    map_tile_y = len(layers[collisionlayer].content2D)
-    
-    costMap={}
-    xdepth_min = max(0,tile_x-depth)
-    xdepth_max = min(map_tile_x, tile_x+depth)
-    ydepth_min = max(0,tile_y-depth)
-    ydepth_max = min(map_tile_y, tile_y+depth)
 
-    #first we initialize the array of values.  
-    for i in range(xdepth_min, xdepth_max):
-        for j in range(ydepth_min,y_depthmax):
-            costMap[i][j]=[i,j,None]#the x and y coordinates, along with a 'None' value meaning that it has not been visited.
-'''
 
-def CollisionArray(board,depth=0):
+
+def CollisionArray(board):
 
     collisionlayer=board.CollisionLayer()
     characters=board.Characters()
@@ -162,5 +140,92 @@ def CollisionArray(board,depth=0):
         coll_layer[actor.tile_y][actor.tile_x]=actor.Name()
     #print coll_layer[15][4]
     return coll_layer
+
+#this is a breadth first search
+def MovesArray(collisions, boundarySet, closedSet,maxCost, currentCost):
+    #DO NOT FORGET THAT THE COORDINATES ARE REVERSED IN COLLISIONS THAT IS COLLISIONS[Y][X] IS CORRECT NOT THE OTHER WAY AROUND!!!
+    #maxCost is how deep you want to arrange the array
+    # open set these are things we want to expand upon
+    #the array is filled with collisions, occupied spaces, empty spaces or visited spaces.
+    #visited spaces will look like point = ['x':xcoordinate,'y':ycoordinate,'cost':costsofar,'old_x'=thepreviousxcoord,'previous_y':prev_y_coord]
+    #print("movearray called with cost", currentCost, "and maxcost", maxCost)
+    if currentCost==maxCost or boundarySet==[]:#if you've looked too far or cannot look anywhere else just give up!
+        #print("size of closedSet",len(closedSet))
+        return closedSet+boundarySet
+
+    for point in boundarySet:
+
+        #print("collisions is checking",point)
+        lookset=[(1,0), (-1,0), (0,1), (0,-1)]
+        if point['cost'] !=0:#do not check the direction of origin
+            lookset.remove((point['previous_x']-point['x'],point['previous_y']-point['y']))
+        for dir in lookset:
+            new_x = point['x']+dir[0]
+            new_y = point['y']+dir[1]
+            newPoint={'x':new_x, 'y': new_y, 'cost':point['cost']+1, 'previous_x': point['x'],'previous_y':point['y']}
+            if collisions[new_y][new_x] is None:
+                collisions[new_y][new_x] = newPoint
+                if newPoint['cost']==maxCost:#if the point has no movement left
+                    closedSet.append(newPoint)
+                else:#if there is some movement left
+                    boundarySet.append(newPoint)
+                             
+            #If we are returning the dictionary
+            #elif returnCollisionArray and collisions[new_y][new_x].__class__ is dict:#this means it is a point we've added
+            #       if collisions[new_y][new_x]['cost']>newPoint['cost']:
+            #           collisions[new_y][new_x] = newPoint
+                       
+        closedSet.append(point)
+        boundarySet.remove(point)
+
+    return MovesArray(collisions, boundarySet, closedSet ,maxCost, currentCost+1)
+        
+                    
+def TracePath(closedSet, target_x,target_y): #Returns a path that takes you from one point to another
+    currentPoint={}
+    print(closedSet)
+    for point in closedSet:
+        if target_x==point['x'] and target_y==point['y']:
+            currentPoint=point
+    if currentPoint=={}:
+        print("Something when wrong looking for a way to get to",target_x, target_y)
+        return []
+    pathlist=[]
+    i=0
+    current_x, current_y= target_x, target_y
+    #currentPoint=Array[current_x][current_y]
+    #maxCost=currentPoint['cost']
+    #currentCost=0 #these cost variables are just to make sure we aren't looking too far, it shouldn't happen
+    while currentPoint['cost']!=0:
+        #currentPoint=Array[current_x][current_y]
+        print("Current Point",currentPoint)
+        dx,dy = current_x-currentPoint['previous_x'], current_y-currentPoint['previous_y']
+        #print("dx,dy",dx,dy)
+        if (dx,dy) == (-1,0):
+            pathlist.append("Left")
+        elif (dx, dy) == (1,0):
+            pathlist.append("Right")
+        elif (dx, dy) == (0,1):
+            pathlist.append("Down")
+        elif (dx, dy) == (0,-1):
+            pathlist.append("Up")
+        else:
+            print("Dang you messed up somewhere with Tracepath, somewhere around:", current_x, current_y)
+        for point in closedSet:
+            if currentPoint['previous_x']==point['x'] and currentPoint['previous_y']==point['y']:
+                currentPoint=point
+        current_x, current_y=currentPoint['x'], currentPoint['y']
+        i+=1
+    print("TracePath", pathlist.reverse())
+    return pathlist.reverse()
+            
+        
+                
+      
+
+    
+
+
+    
             
 
