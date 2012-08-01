@@ -171,9 +171,15 @@ def MovesArray(collisions, boundarySet, closedSet,maxCost, currentCost):
                     boundarySet.append(newPoint)
                              
             #If we are returning the dictionary
-            #elif returnCollisionArray and collisions[new_y][new_x].__class__ is dict:#this means it is a point we've added
-            #       if collisions[new_y][new_x]['cost']>newPoint['cost']:
-            #           collisions[new_y][new_x] = newPoint
+            elif collisions[new_y][new_x].__class__ is dict:#this means it is a point we've added
+                if collisions[new_y][new_x]['cost']>newPoint['cost']:
+                    if collisions[new_y][new_x] in closedSet:
+                        closedSet.remove(collisions[new_y][new_x])
+                    if collisions[new_y][new_x] in boundarySet:
+                        boundarySet.remove(collisions[new_y][new_x])
+                    collisions[new_y][new_x] = newPoint
+                    if newPoint not in boundarySet:
+                        boundarySet.append(newPoint)
                        
         closedSet.append(point)
         boundarySet.remove(point)
@@ -183,12 +189,12 @@ def MovesArray(collisions, boundarySet, closedSet,maxCost, currentCost):
                     
 def TracePath(closedSet, target_x,target_y): #Returns a path that takes you from one point to another
     currentPoint={}
-    print(closedSet)
+    #print(closedSet)
     for point in closedSet:
         if target_x==point['x'] and target_y==point['y']:
             currentPoint=point
     if currentPoint=={}:
-        print("Something when wrong looking for a way to get to",target_x, target_y)
+        #print("Something when wrong looking for a way to get to",target_x, target_y)
         return []
     pathlist=[]
 
