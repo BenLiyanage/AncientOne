@@ -11,11 +11,17 @@ screen = pygame.display.set_mode((800,600))
 background = pygame.Surface([800,600])
 background.fill([0,0,0]) #'''black background'''
 
-PrincessImageSet = sprites.load_sliced_sprites(64,64,'princess.png')
-PrincessSprite = Actor(150,100,PrincessImageSet[1], PrincessImageSet[0], PrincessImageSet[2], PrincessImageSet[3], 0, 0, 0, 0, 0)
+PrincessImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman/pigman_walk.png')
+PrincessSprite = Actor(150,400,PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], PrincessImageSet[0], 'princess', 'friendly', 0, 0, 0, 0, 0)
+
+BossImageSet = sprites.load_sliced_sprites(192, 128, 'images/wiggly5.png')
+BossSprite = Actor(150,100,BossImageSet[0], BossImageSet[0], BossImageSet[0], BossImageSet[0], BossImageSet[0], BossImageSet[0], BossImageSet[0], BossImageSet[0], BossImageSet[0], 'wiggly', 'friendly', 0, 0, 0, 0, 0)
+
+
 
 Characters = pygame.sprite.RenderUpdates()
 Characters.add(PrincessSprite)
+Characters.add(BossSprite)
 
 clock = pygame.time.Clock()
 
