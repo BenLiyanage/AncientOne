@@ -81,7 +81,7 @@ class Turn(object):
         self._PigImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman/pigman_walk.png')
         self._PigAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/pigman/pigman_walk.png')
         self._PortalImageSet = sprites.load_sliced_sprites(128,128,'images/magic/turtleshell_large.png')
-        self._SpecialImageSet = sprites.load_sliced_sprites(128,128,'images/magic/special_large.png')
+        self._SpecialImageSet = sprites.load_sliced_sprites(64,96,'images/AncientOne_image.png')
 
         self._MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
         self._MageImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_walk.png')
@@ -200,10 +200,10 @@ class Turn(object):
             #TurnAI(self)#only do this if you want them to fight each other
             return self.CurrentSprite()
         
-        elif self.CurrentSprite().Name()=='AncientBen' or self.CurrentSprite().Name()=='Portal':
+        elif self.CurrentSprite().Name()=='Portal':
             PortalAI(self)
             return self.CurrentSprite()
-        elif self.CurrentSprite().Name() == "Mage":
+        elif self.CurrentSprite().Name() == "Mage" or self.CurrentSprite().Name()=='Ancient One':
             TurnAI(self,self._mageMinRange,self._mageMaxRange)
         else:
             #print('Found a hostile')
@@ -519,10 +519,10 @@ class Turn(object):
         self.Characters().add(PortalSprite)
 
     def SpawnSpecial(self, board_x, board_y, level =3):
-        SpecialSprite = Actor((board_x-1.25)*self.Board()._tileSize, (board_y-1.4)*self.Board()._tileSize, \
-            self._SpecialImageSet[0], self._SpecialImageSet[0], self._SpecialImageSet[0], self._SpecialImageSet[0], \
-            self._SpecialImageSet[0], self._SpecialImageSet[0], self._SpecialImageSet[0], self._SpecialImageSet[0], self._SpecialImageSet[0], \
-            "AncientBen", HOSTILE ,10, 10, 3, 0, random.randint(28,31), x=-1.25*self.Board()._tileSize, y=-1.4*self.Board()._tileSize)
+        SpecialSprite = Actor((board_x-.5-0)*self.Board()._tileSize, (board_y-2)*self.Board()._tileSize, \
+            self._SpecialImageSet[0], self._SpecialImageSet[1], self._SpecialImageSet[2], self._SpecialImageSet[3], \
+            self._SpecialImageSet[0], self._SpecialImageSet[0], self._SpecialImageSet[1], self._SpecialImageSet[2], self._SpecialImageSet[3], \
+            "Ancient One", HOSTILE ,10, 10, 3, 10, random.randint(28,31), x=-.4*self.Board()._tileSize, y=-1*self.Board()._tileSize)
         SpecialSprite.ForceLevel(level)
         SpecialSprite.RegisterAction("Spawn","Spawn a skeleton from the Abyss", [],[])
         SpecialSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])

@@ -69,6 +69,10 @@ Casper Nilsson
 -stonepattern.png
 -tree_stump.png
 
+Charles Sanchez
+-AncientOne_image.png based on:
+	-big_worm.png
+	-man_eater_flower
 Johannes Sjolund
 -archer_attack.png-archer_death.png-archer_walk.png
 -knight_attack.png-knight_death.png-knight_walk.png

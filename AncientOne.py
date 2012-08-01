@@ -155,6 +155,7 @@ def main_pygame(file_name):
     AlignmentCounter[FRIENDLY]=0
     AlignmentCounter[HOSTILE]=0
     gameOver=False
+    AncientAwoken=False
 
     #Game Turns Controller
     PlayTurn=Turn(GameBoard)
@@ -184,7 +185,8 @@ def main_pygame(file_name):
     PlayTurn.SpawnPortal(34,38, level=1)
     PlayTurn.SpawnPortal(18,47, level=1)
     PlayTurn.SpawnPortal(9,42, level=1)
-
+    
+    #PlayTurn.SpawnSpecial(18,38,level=5)
     
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
@@ -195,7 +197,7 @@ def main_pygame(file_name):
 
     pausetext = ["Control the players using the mouse.", "WASD keys move the camera." , "+/- control the volume of the background music."]
     
-    triggerText   = ["These portals must be how the creatures are passing to this realm!", "We must destroy all of the portals!", "There is another one in the graveyard!"] 
+    triggerText   = ["These portals must be how the creatures are passing to this realm!", "We must destroy all of the portals!", "There is another one in the graveyard!", "Up ahead is a strange altar!"] 
     PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(starttext)/3), text=starttext)
 
     #Music
@@ -263,7 +265,7 @@ def main_pygame(file_name):
             if GameBoard.getTile(28,24,tiled=True)[0]!="Collision":
                 PortalMusic =pygame.mixer.Sound("sound/portal.wav")
                 PortalMusic.play(loops=0)
-                PlayTurn.SpawnSkeleton(25,21)
+                PlayTurn.SpawnSkeleton(28,24)
 
         elif scriptCounter==2 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_x<10 and GameBoard.Animating()==False:
             paused=True
@@ -272,7 +274,22 @@ def main_pygame(file_name):
             PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
             scriptCounter+=1
 
-        elif AlignmentCounter[HOSTILE]==0 and gameOver==False:
+        elif scriptCounter==3 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_y>29 and GameBoard.Animating()==False:
+            paused=True
+            
+            currentText=PlayTurn.CurrentSprite().Name()+": "+triggerText[scriptCounter]
+            PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+            scriptCounter+=1
+
+        elif AlignmentCounter[HOSTILE]==0 and gameOver==False and AncientAwoken==False:
+            AncientAwoken=True
+            paused=True
+            currentText="You have disturbed an ancient villain, behold the ANCIENT ONE!!!!"
+            PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
+            PlayTurn.SpawnSpecial(18,38,level=5)
+            #print("won the game")
+
+        elif AlignmentCounter[HOSTILE]==0 and gameOver==False and AncientAwoken==True:
             gameOver=True
             paused=True
             currentText="Congratulations on completing the abbreviated version of DEFEAT OF THE ANCIENT ONE.  Someday we'll actually add in more to the game.  Thank you for playing!!!!"
@@ -374,7 +391,7 @@ def main_pygame(file_name):
         
         if pressedMouse[0]:
             myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
-            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2])
+            print(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2])
             
             #Seed what you clicked on and what turn mode you are in, then determins what to do
             if (PlayTurn.Mode()==ATTACK or PlayTurn.Mode()==RANGED or PlayTurn.Mode()==CRIPPLESTRIKE) and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
@@ -390,6 +407,7 @@ def main_pygame(file_name):
                 #print("heal called")
                 PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
+            '''
             elif (GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0], GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1]) == (65,38):
                 paused=True
                 PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,100, text="Don't click here!  You have awoken the ANCIENT BEN!!!!")
@@ -398,6 +416,7 @@ def main_pygame(file_name):
                 PlayTurn.SpawnSpecial(42,32, level=2)
                 PlayTurn.SpawnSpecial(64,8, level=3)
                 PlayTurn.SpawnSpecial(65,38, level=3)# eventually this will be the ancient one
+            '''
 
         Characters.update(time)  
         GameBoard.update(time)
