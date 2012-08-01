@@ -41,7 +41,7 @@ from TurnController import Turn
 import AutoTurn
 from AutoTurn import TurnAI
 
-MAP="images/map01.tmx"
+MAP="images/map02.tmx"
 CONTINUEGAME="Continue Game"
 QUITGAME="Quit Game"
 RESTART="Restart Game"
@@ -173,15 +173,18 @@ def main_pygame(file_name):
     PlayTurn.SpawnSkeleton(4,6, level=1)
     
     PlayTurn.SpawnMage(5,6)
+    PlayTurn.SpawnMage(22,31)
+    PlayTurn.SpawnPig(26,24)
+    PlayTurn.SpawnPig(20,37)
+    PlayTurn.SpawnPig(20,39)
     
     PlayTurn.SpawnPortal(2,6, level=1)
     PlayTurn.SpawnPortal(7,18, level=1)
-    PlayTurn.SpawnPortal(25,22, level=1)
-    
-    PlayTurn.SpawnPortal(12,41, level=1)
-    PlayTurn.SpawnPortal(42,32, level=1)
-    PlayTurn.SpawnPortal(64,8, level=1)
-    PlayTurn.SpawnPortal(65,38, level=1)# eventually this will be the ancient one
+    PlayTurn.SpawnPortal(28,25, level=1)
+    PlayTurn.SpawnPortal(34,38, level=1)
+    PlayTurn.SpawnPortal(18,47, level=1)
+    PlayTurn.SpawnPortal(9,42, level=1)
+
     
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
@@ -257,7 +260,7 @@ def main_pygame(file_name):
             currentText=PlayTurn.CurrentSprite().Name()+": "+triggerText[scriptCounter]
             PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
             scriptCounter+=1
-            if GameBoard.getTile(25,21,tiled=True)[0]!="Collision":
+            if GameBoard.getTile(28,24,tiled=True)[0]!="Collision":
                 PortalMusic =pygame.mixer.Sound("sound/portal.wav")
                 PortalMusic.play(loops=0)
                 PlayTurn.SpawnSkeleton(25,21)
@@ -412,7 +415,7 @@ def main_pygame(file_name):
                 pygame.draw.line(screen, (20,0,20), (0,j*tileSize),(GameBoard._height,j*tileSize))
 
         #moves the menu to the right if the camera is to the far left.
-        if GameBoard.camTile()[0] < (myMenu.rect[0]+myMenu.rect[2])// tileSize:
+        if GameBoard.camTile()[0] < (myMenu.rect[2])// tileSize:
             myMenu.rect[0]=screen_width-myMenu.rect[2]-50
             CurrentSpriteInfo.rect[0]=screen_width-CurrentSpriteInfo.rect[2]
         else:

@@ -91,7 +91,7 @@ def TurnAI(Turn, minRange=1, maxRange=1):
     #if you begin with a target in range, take the shot then move toward the nearest ally, if no ally is near, move away from enemies that are too close (<2) if possible
     #if you begin with no targets in range, figure out if you can move an attack, if you can, do so, if not , move toward the nearest ally, if no ally is near, stay put.
 
-    print('TurnAI called to control', Turn.CurrentSprite().Name(), 'at', Turn.CurrentSprite().tile_x, Turn.CurrentSprite().tile_y)
+    #print('TurnAI called to control', Turn.CurrentSprite().Name(), 'at', Turn.CurrentSprite().tile_x, Turn.CurrentSprite().tile_y)
     #def __init__(Turn, board):
         #super(Turn, Turn).__init__(Turn, board)
 
@@ -175,7 +175,7 @@ def TurnAI(Turn, minRange=1, maxRange=1):
                         moveOpponent=actor
                         moveOpponentPoint=point
                         moveDist=currentMoveDist
-                    elif actor.Health()<moveOpponent.Health():
+                    elif actor.Health()<moveOpponent.Health() and Turn.CurrentSprite().Level()>1:
                         #if you are already moving you should find the weakest target you can move and attack
                         #print("Switching target from,", moveOpponent.Name(),"to", actor.Name())
                         #print("Point was", moveOpponentPoint, "but now is", point)
