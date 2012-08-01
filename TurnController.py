@@ -86,8 +86,8 @@ class Turn(object):
         self._MageDeathImageSet=sprites.load_sliced_sprites(64,64,'images/mage/mage_death.png')
         self._MageImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_walk.png')
         self._MageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/mage/mage_spell.png')
-        self._MageMinRange = 2
-        self._MageMaxRange=5
+        self._mageMinRange = 2
+        self._mageMaxRange= 5
 
 
         self._LastActionTimer=0
@@ -204,7 +204,7 @@ class Turn(object):
             PortalAI(self)
             return self.CurrentSprite()
         elif self.CurrentSprite().Name() == "Mage":
-            TurnAI(self,2,5)
+            TurnAI(self,self._mageMinRange,self._mageMaxRange)
         else:
             #print('Found a hostile')
             TurnAI(self, 1, 1)
@@ -307,13 +307,14 @@ class Turn(object):
         if actiontype=='Attack':
             self._canAttack=False
             if self.CurrentSprite().Name()=='Mage':
-                self.TargetList(self._MageMinRange, self._MageMaxRange)
+                self.TargetList(self._mageMinRange, self._mageMaxRange)
                 self.Board().AnimatedParticleEffect(64,64,'images/magic/magic_snakebite_small.png',actiontarget.tile_x+.5, actiontarget.tile_y)
             else:
                 self.TargetList(1,1)#we do this for now
             LaserSound = pygame.mixer.Sound("sound/laser.wav")
             LaserSound.play()
-            self.CurrentSprite().Attack(actiontarget,int(1.5*self.CurrentSprite().Power())+random.randint(0,self.CurrentSprite().Power()))
+            
+            self.CurrentSprite().Attack(actiontarget,int(1.5*self.CurrentSprite().Power())+self.CurrentSprite().Level()+random.randint(0,self.CurrentSprite().Power()))
         elif actiontype=='Move':
             self._canMove=False
             #print(actionmove[3])
@@ -327,7 +328,8 @@ class Turn(object):
         elif actiontype=='Tentacle':
             self.AOEAttack(actiontarget.tile_x, actiontarget.tile_y,imagepath='images/magic/torrentacle_large.png')
         else:
-            print('You should not be here. An action called', actiontype, 'was called.')
+            pass
+            #print('You should not be here. An action called', actiontype, 'was called.')
         
         
 
@@ -383,7 +385,8 @@ class Turn(object):
                 self._currentActions.remove(RANGED)
                 self._currentActions.remove(CRIPPLESTRIKE)
             else:
-                print('Action', action, 'not recognized.')
+                pass
+                #print('Action', action, 'not recognized.')
             if CANCEL not in self._currentActions and action !=WHIRLWIND:
                 self._currentActions.append(CANCEL)#you can cancel out of any action but whirlwind
             if self._canMove:
@@ -469,7 +472,7 @@ class Turn(object):
     
         else:
             pass
-            print("Target Tile is out of Range.")
+            #print("Target Tile is out of Range.")
 
     def Whirlwind(self):#attacks all players (hostile or friendly) in adjacent spa
         HitAnyone=False
@@ -530,7 +533,7 @@ class Turn(object):
         PigSprite = Actor((board_x-.5)*self.Board()._tileSize, (board_y-1)*self.Board()._tileSize, \
             self._PigImageSet[0], self._PigImageSet[1], self._PigImageSet[2], self._PigImageSet[3], \
             self._DeathImageSet[0], self._PigAttackImageSet[0], self._PigAttackImageSet[1], self._PigAttackImageSet[2], self._PigAttackImageSet[3], \
-            "Pigman", HOSTILE ,6, 4, 4, 5, random.randint(12,15))
+            "Pigman", HOSTILE ,5, 4, 4, 6, random.randint(12,15))
         PigSprite.ForceLevel(level)
         #SkeletonSprite.RegisterAction("Slash","The skeleton lashes out at the target", self.Attack, self._SkeletonImageSet[3])
         self.Characters().add(PigSprite)

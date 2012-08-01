@@ -290,7 +290,7 @@ class Actor(AnimatedSprite):
                 damage=min(self._Health,damage) #this prevents extra xp from overkill
 		self._Health = self._Health - damage
 
-		experience = 5 + int(damage*(1+..05*self.Level()))#probably factor in level at some point
+		experience = 5 + int(damage*(1+.05*self.Level()))#probably factor in level at some point
 		if self._Health <= 0:
                         self.Kill()
                         experience +=self.Level()*5

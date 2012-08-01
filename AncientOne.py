@@ -115,7 +115,7 @@ def main_pygame(file_name):
     KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
     KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
         KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
-        "Buster", FRIENDLY ,9, 7, 5, 6, 16)#movement is usually 6
+        "Buster", FRIENDLY ,8, 7, 5, 6, 16)#movement is usually 6
     KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against  an --adjacent target.',[],[])
     KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
     Characters.add(KnightSprite)
@@ -126,7 +126,7 @@ def main_pygame(file_name):
     ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
-        "Archie", FRIENDLY ,6, 4, 5, 6, 13)#movement is usually 5
+        "Archie", FRIENDLY ,5, 4, 5, 6, 13)#movement is usually 5
     ArcherSprite.RegisterAction(RANGED, 'The character fires an arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
     Characters.add(ArcherSprite)
@@ -161,6 +161,7 @@ def main_pygame(file_name):
     mode=PlayTurn.Mode()#used to detect when the mode changes for updating purposes
 
     #the Bad gusys
+    
     PlayTurn.SpawnSkeleton(16,9)
     
     PlayTurn.SpawnSkeleton(22,13)
@@ -170,14 +171,18 @@ def main_pygame(file_name):
     PlayTurn.SpawnPig(12,19)
     PlayTurn.SpawnPig(13,18, level=1)
     PlayTurn.SpawnSkeleton(4,6, level=1)
-  
+    
+    PlayTurn.SpawnMage(5,6)
+    
     PlayTurn.SpawnPortal(2,6, level=1)
     PlayTurn.SpawnPortal(7,18, level=1)
     PlayTurn.SpawnPortal(25,22, level=1)
+    
     PlayTurn.SpawnPortal(12,41, level=1)
     PlayTurn.SpawnPortal(42,32, level=1)
     PlayTurn.SpawnPortal(64,8, level=1)
     PlayTurn.SpawnPortal(65,38, level=1)# eventually this will be the ancient one
+    
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
     CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
@@ -366,7 +371,7 @@ def main_pygame(file_name):
         
         if pressedMouse[0]:
             myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
-            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
+            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2])
             
             #Seed what you clicked on and what turn mode you are in, then determins what to do
             if (PlayTurn.Mode()==ATTACK or PlayTurn.Mode()==RANGED or PlayTurn.Mode()==CRIPPLESTRIKE) and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":

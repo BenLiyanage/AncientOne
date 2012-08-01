@@ -222,7 +222,7 @@ def TracePath(closedSet, target_x,target_y, movement=0): #Returns a path that ta
         current_x, current_y=currentPoint['x'], currentPoint['y']
  
     #This cuts off the number of moves (usually movement=CurrentSprite().Movement())
-    if movement>0:
+    if movement>0 and len(pathlist)>movement:
         
         return pathlist[len(pathlist)-movement:len(pathlist)]
     else:
