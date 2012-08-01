@@ -187,9 +187,9 @@ class Turn(object):
         self._currentActions=self.CurrentSprite().GetActionNames()
         self._currentActions.remove(CANCEL)
 
-        if self._currentSprite.Alignment()==FRIENDLY:
-            self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
-                (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
+        #if self._currentSprite.Alignment()==FRIENDLY:
+        self._board.PanCamera((self._currentSprite.tile_x + self._board._screenTileOffset_x)*self._board._tileSize, \
+            (self._currentSprite.tile_y+ self._board._screenTileOffset_y)*self._board._tileSize) 
 
         self._board.ClearLayer(self._board._shadowLayer)#clears off any shadow junk
         self._board.HighlightTile(self._currentSprite.tile_x, self._currentSprite.tile_y, "images/ActiveShadow.png")
@@ -216,7 +216,7 @@ class Turn(object):
         if self._moves !=[] and self.Mode()==MOVE:
             #self._path = PopBestPath(tile_x, tile_y, self._moves)#removed for new path testing
             self._path = TracePath(self._moves, tile_x,tile_y)          
-        #print(self._moves)
+
         
         
         if self._path == [] and self.Mode()==MOVE:
@@ -225,8 +225,7 @@ class Turn(object):
             self._board.ClearLayer(self._board._shadowLayer)
             if CANCEL in self._currentActions:
                 self._currentActions.remove(CANCEL)
-            #MOVE should have been removed in MOVEMODE
-            #self._currentActions.remove(MOVE)
+ 
             
   
             self._currentSprite.MultiMove(self._path)
@@ -319,7 +318,7 @@ class Turn(object):
             self._canMove=False
             #print(actionmove[3])
             self._board.ClearLayer(self._board._shadowLayer)
-            self._path = PopBestPath(actionmove[0],actionmove[1], [actionmove])
+            self._path = actionmove#PopBestPath(actionmove[0],actionmove[1], [actionmove])
             self._currentSprite.MultiMove(self._path)
         elif actiontype=='Wait':
             #print(self.CurrentSprite().Name(), 'is done with turn!')
@@ -536,14 +535,14 @@ class Turn(object):
         self.Characters().add(PigSprite)
     #def VampiricStrike(actor,target):# a special attack that also heals you.
 
-    def SpawnRandomEnemy(self,board_x,board_y, level=1):
+    def SpawnRandomEnemy(self,board_x,board_y, spawnlevel):
         randomRoll=random.randint(0,2)
         if randomRoll==0:
-            self.SpawnSkeleton(board_x,board_y,level)
+            self.SpawnSkeleton(board_x,board_y,level = spawnlevel)
         elif randomRoll==1:
-            self.SpawnMage(board_x,board_y,level)
+            self.SpawnMage(board_x,board_y,level=spawnlevel)
         elif randomRoll==2:
-            self.SpawnPig(board_x,board_y,level)  
+            self.SpawnPig(board_x,board_y,level = spawnlevel)  
 
 #def PassiveHeal(actor):
 
