@@ -18,7 +18,6 @@
 import sys
 import os
 import random
-#import array
 import pygame
 
 import collision
@@ -87,18 +86,11 @@ def main():
     main_pygame(path_to_map)
 
 def main_pygame(file_name):
-
-    
-
     pygame.init()
 
-    print(" x/c/v = move/wait/cancel, wasd=camera movement, '+/-' control the volume of the background music")
-
+    #print(" x/c/v = move/wait/cancel, wasd=camera movement, '+/-' control the volume of the background music")
 
     myfont = pygame.font.Font("press-start-2p/PressStart2P.ttf", 11)
-    #myfont  = pygame.font.SysFont("couriernew", 15, "bold")
-    #print(pygame.font.get_fonts())
-
     
     worldMap = tiledtmxloader.tmxreader.TileMapParser().parse_decode(file_name)
     assert worldMap.orientation == "orthogonal"
@@ -110,25 +102,20 @@ def main_pygame(file_name):
     GameBoard = Board(worldMap, Characters, tileSize, screen)
     pygame.display.set_caption("Ancient Juan")
 
-
     #UI sprite container
-    #UImenu = pygame.sprite.RenderUpdates()
     menuItems = ["Attack", "Move" ,"Wait", "Cancel"]#thse will be changed later
     myMenu = Menu("Action:", menuItems, myfont, 50, 150, 200, 200)
   
-
     #CHARACTERS!
 
     DeathImageSet=sprites.load_sliced_sprites(64,64,'images/skeleton/skeleton_death.png')
-    
 
     KnightDeathImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_death.png')
     KnightImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_walk.png')
     KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
     KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
         KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
-        "Buster", FRIENDLY ,10, 5, 5, 6, 16)#movement is usually 6
-    #KnightSprite.RegisterAction(AOEAttack, 'The character conjures Feline Flames!', [],[])
+        "Buster", FRIENDLY ,10, 7, 5, 6, 16)#movement is usually 6
     KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against  an --adjacent target.',[],[])
     KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
     Characters.add(KnightSprite)
@@ -140,7 +127,6 @@ def main_pygame(file_name):
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
         "Archie", FRIENDLY ,6, 4, 5, 6, 13)#movement is usually 5
-    #ArcherSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ArcherSprite.RegisterAction(RANGED, 'The character fires an arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
     Characters.add(ArcherSprite)
@@ -151,11 +137,9 @@ def main_pygame(file_name):
     ForestMageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, ForestMageImageSet[0], ForestMageImageSet[1], ForestMageImageSet[2], ForestMageImageSet[3], \
         ForestMageDeathImageSet[0], ForestMageAttackImageSet[0], ForestMageAttackImageSet[1], ForestMageAttackImageSet[2], ForestMageAttackImageSet[3], \
         "Terra", FRIENDLY ,5, 3, 4, 5, 11)
-    #MageSprite.RegisterAction(ATTACK, 'The character hits an adjacent target with the butt of his pistol',[],[])
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
     ForestMageSprite.RegisterAction(HEAL, 'Restores the health of yourself or an ally.', [], [])
     Characters.add(ForestMageSprite)
-    
 
     # mainloop variables for gameplay
     frames_per_sec = 60.0
@@ -194,12 +178,9 @@ def main_pygame(file_name):
     PlayTurn.SpawnPortal(42,32, level=1)
     PlayTurn.SpawnPortal(64,8, level=1)
     PlayTurn.SpawnPortal(65,38, level=1)# eventually this will be the ancient one
-    
-    
     #Picks the first character
     CurrentSprite=PlayTurn.Next()
     CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
-    #LevelUpWindow = LevelUpScreen(CurrentSprite, CurrentSprite.Name()+'has gained a level!', myfont, 100,100,100,100)#they do not really level up, this just initialized the object
     myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
     starttext="ARCHIE, BUSTER and TERRA have been following a disturbance in arcane energies to the edge of a deep fissure in the earth."+ \
                        "Just beyond the fissure they find what appears to be a green portal.  Before they can investigate they are ambushed by dark agents!"
@@ -208,6 +189,7 @@ def main_pygame(file_name):
     
     triggerText   = ["These portals must be how the creatures are passing to this realm!", "We must destroy all of the portals!", "There is another one in the graveyard!"] 
     PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(starttext)/3), text=starttext)
+
     #Music
     BGvolume=.15#.05 #this is a number between 0 and 1
     BackgroundMusic =pygame.mixer.Sound("sound/wandering_around.wav")
@@ -223,18 +205,15 @@ def main_pygame(file_name):
         mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos() #mouse coordinates
         tile_x, tile_y = mouse_pos_x// tileSize, mouse_pos_y // tileSize #note the board translates coordinates depending on the location of the camera
 
-
         #used these if you want to be able to hold down the mouse/keys
         pressedKeys=pygame.key.get_pressed() #actions that come from the keyboard This is for holding down
         pressedMouse = pygame.mouse.get_pressed() # mouse pressed event 3 booleans [button1, button2, button3]
-
 
         #counts the number of actors of each alignment
         AlignmentCounter[FRIENDLY]=0
         AlignmentCounter[HOSTILE]=0   
         for actor in Characters:
             AlignmentCounter[actor.Alignment()] +=1
-
    
         #checks for levelups,
         if PlayTurn.Mode()==LEVELUP and paused==False:# we are between turns
@@ -246,9 +225,7 @@ def main_pygame(file_name):
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
 
                 LevelUpWindow = Menu(PlayTurn.CurrentSprite().Name()+' levels up!', PlayTurn.LevelUpActions() ,myfont, 100,100,200,200, ActionItems= PlayTurn.CurrentSprite().GetActions(), text="Choose a skill to improve.")
-                #LevelUpWindow = LevelUpScreen(PlayTurn.CurrentSprite(), PlayTurn.CurrentSprite().Name()+' has gained a level!', myfont, 100,100,300,200)
                 continue
-                    
 
         #update the UI
         if (CurrentSprite != PlayTurn.CurrentSprite() or mode != PlayTurn.Mode() ) and PlayTurn.CurrentSprite !=[] and paused==False:
@@ -258,8 +235,6 @@ def main_pygame(file_name):
             #CurrentActions is a list removing unavailable actions
             CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
         #Move the camera manually with "wasd"
-
-
 
         ###Special Script section!!
         if scriptCounter==0 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_y>13 and PlayTurn._moves==[] and GameBoard.Animating()==False:
@@ -319,7 +294,7 @@ def main_pygame(file_name):
                 
                 action = myMenu.input(event) #actions that come from the menu
             if not (hasattr(event, 'key') or event.type==KEYDOWN or hasattr(event, 'button') or event.type==MOUSEBUTTONUP): continue
-            print(action)
+            #print(action)
             
             #UI or turn events
             if (action == CONTINUEGAME or pressedKeys[K_ESCAPE]):
@@ -339,7 +314,7 @@ def main_pygame(file_name):
                 pygame.quit()
                 sys.exit()
             elif action == RESTART:
-                print("restart called")
+                #print("restart called")
                 restart_program()
 
             #the level up parts
@@ -391,7 +366,7 @@ def main_pygame(file_name):
         
         if pressedMouse[0]:
             myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
-            print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
+            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y))
             
             #Seed what you clicked on and what turn mode you are in, then determins what to do
             if (PlayTurn.Mode()==ATTACK or PlayTurn.Mode()==RANGED or PlayTurn.Mode()==CRIPPLESTRIKE) and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
@@ -416,9 +391,6 @@ def main_pygame(file_name):
                 PlayTurn.SpawnSpecial(64,8, level=3)
                 PlayTurn.SpawnSpecial(65,38, level=3)# eventually this will be the ancient one
 
-                
-                
-        
         Characters.update(time)  
         GameBoard.update(time)
         if GameBoard.Animating() or paused:
@@ -427,16 +399,12 @@ def main_pygame(file_name):
         else:
             PlayTurn.update(time)
 
-
         #DEBUGGING: Grid
         if grid:#on a press of "g" the grid will be toggled
             for i in range(GameBoard._tileWidth):#draw vertical lines
                 pygame.draw.line(screen, (0,0,0), (i*tileSize,0),(i*tileSize,GameBoard._width))
             for j in range(GameBoard._tileHeight):#draw horizontal lines
                 pygame.draw.line(screen, (20,0,20), (0,j*tileSize),(GameBoard._height,j*tileSize))
-
-
-
 
         #moves the menu to the right if the camera is to the far left.
         if GameBoard.camTile()[0] < (myMenu.rect[0]+myMenu.rect[2])// tileSize:
@@ -461,11 +429,6 @@ def main_pygame(file_name):
         elif paused:
             screen.blit(PauseWindow.surface, PauseWindow.rect)
 
-
-
-
-            
-
         pygame.display.flip()
 
 
@@ -476,14 +439,7 @@ def restart_program():
     python = sys.executable
     os.execl(python, python, * sys.argv)
 
-#  -----------------------------------------------------------------------------
 
-
-    
-
-
-#  -----------------------------------------------------------------------------
-#  -----------------------------------------------------------------------------
 if __name__ == '__main__':
 
     main()

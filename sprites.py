@@ -17,10 +17,10 @@
 import pygame
 import random
 import tiledtmxloader
-#class AnimatedSprite(pygame.sprite.Sprite):
-class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):#PLE modification
+
+class AnimatedSprite(tiledtmxloader.helperspygame.SpriteLayer.Sprite):
 	def __init__(self, images, x, y, fps = 20,tileoffset_x=0, tileoffset_y=0):             
-		#pygame.sprite.Sprite.__init__(self)
+
                 tiledtmxloader.helperspygame.SpriteLayer.Sprite.__init__(self,x,y)#PLE
 		self._images = images
                 self._DefaultImages = images
@@ -250,7 +250,7 @@ class Actor(AnimatedSprite):
 		#if not self._MidAnimation:
 		#	self._MidAnimation = 1;
                 #        self._images = self._DeathImages
-                print(self.Name(), 'has been killed!')
+                # print(self.Name(), 'has been killed!')
 	def Wait(self):
 		#Personal call:  
 		#Making no offensive action lets you take your next action sooner, based on how fast you are.
@@ -282,7 +282,7 @@ class Actor(AnimatedSprite):
 		if experience<0: experience=1
 		self.GetExperience(experience)
 
-		print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
+		#print(self.Name(), 'has damaged', target.Name(),'for', damage, 'damage!')
 		return damage
 
 	def RecieveDamage(self, damage):
@@ -332,7 +332,7 @@ class Actor(AnimatedSprite):
                 target._Health +=healamount
                 if target._Health > target._MaxHealth:
                         target._Health = target._MaxHealth
-                print(target.Name(),"healed for", healamount)
+                #print(target.Name(),"healed for", healamount)
                 self.GetExperience(int(1.5*healamount)+4)
 
 	def Move(self, direction):
