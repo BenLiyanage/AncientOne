@@ -421,7 +421,7 @@ class Turn(object):
                     #print(actor.tile_x,actor.tile_y)
                     if dist(actor.tile_x, actor.tile_y, tile_x, tile_y) <=1 and actor.Health()<actor.MaxHealth():
                         HitAnyone=True
-                        self.CurrentSprite().Heal(actor, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(0,self.CurrentSprite().Power()))
+                        self.CurrentSprite().Heal(actor, 3*self.CurrentSprite().ActionLevel(HEAL)+random.randint(int(self._CurrentSprite().Power()),self.CurrentSprite().Power()))
                 if HitAnyone:#check if anyone was damaged, if not then don't do anything
                     self._board.ClearLayer(self._board._shadowLayer)
                     HealSound = pygame.mixer.Sound("sound/Heal.wav")
