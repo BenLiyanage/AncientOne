@@ -19,6 +19,7 @@ Asset attribution
 
 Phong N. Le
 -ActiveShadow.png
+-AncientOne_image.png
 -alpha_box.png
 -area01.png
 -area02.png

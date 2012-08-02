@@ -21,7 +21,7 @@ from sprites import AnimatedSprite, Actor
 import GameBoard
 from GameBoard import Board
 import collision
-from collision import PopBestPath, PathList, MovesArray, TracePath, CollisionArray
+from collision import MovesArray, TracePath, CollisionArray
 
 #import TurnController
 #from TurnController import Turn
@@ -39,20 +39,20 @@ def PortalAI(Turn):#this is how the portal thinks
     AdjacentCount=0
     HostileNearby=False
     targetOpponent=[]
-    coinflip=random.randint(0,1) 
+    coinflip=random.randint(0,3) 
     #first check if the surrounding spaces are occupied
     for actor in Turn.Characters():
         if actorDist(actor, Turn.CurrentSprite())==1:
             AdjacentCount+=1
         if actor.Alignment()==Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<SpawnRadius:
            AllyCount+=1
-        elif actor.Alignment()!= Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<AttackRadius: #these are the non allies
+        elif actor.Alignment()!= Turn.CurrentSprite().Alignment() and actorDist(actor, Turn.CurrentSprite())<=AttackRadius: #these are the non allies
             HostileNearby=True
             targetOpponent=actor
         elif actorDist(actor, Turn.CurrentSprite())<SpawnRadius: #these are the non allies
             HostileNearby=True
-    if targetOpponent !=[] and coinflip:
-        print("target for tentacle:", targetOpponent.Name())
+    if targetOpponent !=[] and coinflip<2:
+        #print("target for tentacle:", targetOpponent.Name())
         Turn.addQueue('Tentacle',targetOpponent,[])
         
     elif AdjacentCount<4 and AllyCount<SpawnThreshold and HostileNearby:
@@ -78,7 +78,8 @@ def PortalAI(Turn):#this is how the portal thinks
             PortalMusic =pygame.mixer.Sound("sound/portal.wav")
             PortalMusic.play(loops=0)
         else:
-            print('Something crazy must have happened with the PortalAI')
+            pass
+            #print('Something crazy must have happened with the PortalAI')
     else:
         Turn.CurrentSprite().GetExperience(10-int(Turn.CurrentSprite().Level()/2))
 
@@ -168,7 +169,7 @@ def TurnAI(Turn, minRange=1, maxRange=1):
                         moveOpponent=actor
                         moveOpponentPoint=point
                         moveOpponentDist=currentMoveDist
-                        print("AutoTurn targeting:", actor.Name())
+                        #print("AutoTurn targeting:", actor.Name())
                     elif AttackFirst and actor.Health()<=targetOpponent.Health():
                         #If you can move and attack someone weaker than the person you can attack without moving then do that.
                         AttackFirst=False 

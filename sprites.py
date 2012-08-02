@@ -318,13 +318,13 @@ class Actor(AnimatedSprite):
                                 self._LevelUp=True
         def ForceLevel(self,level):#forces a player to have a given level.
                 #print("forcelevel called to promote to level", level)
-                if level-1>1:
+                if level>1:
                         for i in range(level-1):
                                 self._Level = self._Level + 1
-                                self._Power = self._Power + 1 + int(self._Power * .1)
-                                self._Defense = self._Defense + 1 + int(self._Defense * .1)
-                                self._Speed = self._Speed + 1 + int(self._Speed * .1)
-                                HealthBonus =  5 + int(self._MaxHealth * .1)
+                                self._Power = self._Power + 1 + int(self._Power * .05)
+                                self._Defense = self._Defense + 1 + int(self._Defense * .05)
+                                self._Speed = self._Speed + 1 + int(self._Speed * .05)
+                                HealthBonus = 2 + int(self._MaxHealth * .05)
                                 self._MaxHealth = self._MaxHealth + HealthBonus
                                 self._Health = self._Health + HealthBonus
                 

@@ -20,8 +20,8 @@ import os
 import random
 import pygame
 
-import collision
-from collision import PopBestPath, PathList
+#import collision
+#from collision import PopBestPath, PathList
 
 import ui
 from ui import Menu, CharacterInfo
@@ -115,7 +115,7 @@ def main_pygame(file_name):
     KnightAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/knight/knight_attack.png')
     KnightSprite = Actor((14-.5)*tileSize, (4-1)*tileSize, KnightImageSet[0], KnightImageSet[1], KnightImageSet[2], KnightImageSet[3], \
         KnightDeathImageSet[0], KnightAttackImageSet[0], KnightAttackImageSet[1], KnightAttackImageSet[2], KnightAttackImageSet[3], \
-        "Buster", FRIENDLY ,8, 7, 5, 6, 16)#movement is usually 6
+        "Buster", FRIENDLY ,8, 8, 4, 6, 20)#movement is usually 6
     KnightSprite.RegisterAction(ATTACK, 'The character makes a powerful slash against  an --adjacent target.',[],[])
     KnightSprite.RegisterAction(WHIRLWIND, 'the character spins in a flurry hitting all enemies up to two tiles away.', [],[])
     Characters.add(KnightSprite)
@@ -126,7 +126,7 @@ def main_pygame(file_name):
     ArcherAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/archer/archer_attack.png')
     ArcherSprite = Actor((15-.5)*tileSize, (4-1)*tileSize, ArcherImageSet[0], ArcherImageSet[1], ArcherImageSet[2], ArcherImageSet[3], \
         DeathImageSet[0], ArcherAttackImageSet[0], ArcherAttackImageSet[1], ArcherAttackImageSet[2], ArcherAttackImageSet[3], \
-        "Archie", FRIENDLY ,5, 4, 5, 6, 13)#movement is usually 5
+        "Archie", FRIENDLY ,5, 6, 5, 5, 17)#movement is usually 5
     ArcherSprite.RegisterAction(RANGED, 'The character fires an arrow!', [],[])
     ArcherSprite.RegisterAction(CRIPPLESTRIKE, 'The character aims for a sensitive area, postponing the targets next turn.', [],[])
     Characters.add(ArcherSprite)
@@ -136,7 +136,7 @@ def main_pygame(file_name):
     ForestMageAttackImageSet = sprites.load_sliced_sprites(64, 64, 'images/forestmage/forestmage_spell.png')
     ForestMageSprite = Actor((16-.5)*tileSize, (4-1)*tileSize, ForestMageImageSet[0], ForestMageImageSet[1], ForestMageImageSet[2], ForestMageImageSet[3], \
         ForestMageDeathImageSet[0], ForestMageAttackImageSet[0], ForestMageAttackImageSet[1], ForestMageAttackImageSet[2], ForestMageAttackImageSet[3], \
-        "Terra", FRIENDLY ,5, 3, 4, 5, 11)
+        "Terra", FRIENDLY ,5, 4, 4, 5, 15)
     ForestMageSprite.RegisterAction(AOE, 'The character conjures Feline Flames!', [],[])
     ForestMageSprite.RegisterAction(HEAL, 'Restores the health of yourself or an ally.', [], [])
     Characters.add(ForestMageSprite)
@@ -163,28 +163,30 @@ def main_pygame(file_name):
 
     #the Bad gusys
     
-    PlayTurn.SpawnSkeleton(16,9)
+    PlayTurn.SpawnSkeleton(16,9,1)
     
-    PlayTurn.SpawnSkeleton(22,13)
-    PlayTurn.SpawnSkeleton(21,12, level=1)
-    PlayTurn.SpawnMage(15,16)
-    PlayTurn.SpawnMage(17,20)
-    PlayTurn.SpawnPig(12,19)
-    PlayTurn.SpawnPig(13,18, level=1)
-    PlayTurn.SpawnSkeleton(4,6, level=1)
+    PlayTurn.SpawnSkeleton(22,13,1)
+    PlayTurn.SpawnSkeleton(21,12, 1)
+    PlayTurn.SpawnMage(15,16,1)
+    PlayTurn.SpawnMage(17,20,1)
+    PlayTurn.SpawnPig(12,19,1)
+    PlayTurn.SpawnPig(13,18,1)
+    PlayTurn.SpawnSkeleton(4,6,2)
     
-    PlayTurn.SpawnMage(5,6)
-    PlayTurn.SpawnMage(22,31)
-    PlayTurn.SpawnPig(26,24)
-    PlayTurn.SpawnPig(20,37)
-    PlayTurn.SpawnPig(20,39)
+    PlayTurn.SpawnMage(5,6,1)
+    PlayTurn.SpawnMage(22,31,2)
+    PlayTurn.SpawnPig(26,24,1)
+    PlayTurn.SpawnPig(20,37,2)
+    PlayTurn.SpawnPig(20,39,2)
     
-    PlayTurn.SpawnPortal(2,6, level=1)
-    PlayTurn.SpawnPortal(7,18, level=1)
-    PlayTurn.SpawnPortal(28,25, level=1)
-    PlayTurn.SpawnPortal(34,38, level=1)
-    PlayTurn.SpawnPortal(18,47, level=1)
-    PlayTurn.SpawnPortal(9,42, level=1)
+    PlayTurn.SpawnPortal(2,6, 1)
+    PlayTurn.SpawnPortal(7,18, 1)
+    PlayTurn.SpawnPortal(28,25, 1)
+    PlayTurn.SpawnPortal(34,38, 1)
+    PlayTurn.SpawnPortal(18,47, 1)
+    PlayTurn.SpawnPortal(9,42, 1)
+    
+    #PlayTurn.SpawnPortal(17,3,1)
     
     #PlayTurn.SpawnSpecial(18,38,level=5)
     
@@ -265,7 +267,7 @@ def main_pygame(file_name):
             if GameBoard.getTile(28,24,tiled=True)[0]!="Collision":
                 PortalMusic =pygame.mixer.Sound("sound/portal.wav")
                 PortalMusic.play(loops=0)
-                PlayTurn.SpawnSkeleton(28,24)
+                PlayTurn.SpawnSkeleton(28,24,2)
 
         elif scriptCounter==2 and PlayTurn.CurrentSprite().Alignment()==FRIENDLY and PlayTurn.CurrentSprite().tile_x<10 and GameBoard.Animating()==False:
             paused=True
@@ -286,7 +288,7 @@ def main_pygame(file_name):
             paused=True
             currentText="You have disturbed an ancient villain, behold the ANCIENT ONE!!!!"
             PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,int(len(currentText)/3)+30, text=currentText)
-            PlayTurn.SpawnSpecial(18,38,level=5)
+            PlayTurn.SpawnSpecial(18,38,4)
             #print("won the game")
 
         elif AlignmentCounter[HOSTILE]==0 and gameOver==False and AncientAwoken==True:
@@ -391,7 +393,7 @@ def main_pygame(file_name):
         
         if pressedMouse[0]:
             myMenu = Menu("Turn:"+PlayTurn.CurrentSprite().Name(), PlayTurn.CurrentActions(), myfont, 50, 150, 200, 220, ActionItems = PlayTurn.CurrentSprite().GetActions())
-            print(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2])
+            #print(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2])
             
             #Seed what you clicked on and what turn mode you are in, then determins what to do
             if (PlayTurn.Mode()==ATTACK or PlayTurn.Mode()==RANGED or PlayTurn.Mode()==CRIPPLESTRIKE) and GameBoard.getTile(mouse_pos_x, mouse_pos_y)[0]=="Actor":
@@ -407,16 +409,8 @@ def main_pygame(file_name):
                 #print("heal called")
                 PlayTurn.HealAction(GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0],GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1])
                 CurrentSpriteInfo = CharacterInfo(PlayTurn.CurrentSprite(), myfont, screen_height)
-            '''
-            elif (GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][0], GameBoard.getTile(mouse_pos_x, mouse_pos_y)[2][1]) == (65,38):
-                paused=True
-                PauseWindow = Menu("Defeat of the Ancient One", [CONTINUEGAME], myfont, 100,100, 600,100, text="Don't click here!  You have awoken the ANCIENT BEN!!!!")
-                PlayTurn.SpawnSpecial(15,3, level=1)
-                PlayTurn.SpawnSpecial(12,41, level=2)
-                PlayTurn.SpawnSpecial(42,32, level=2)
-                PlayTurn.SpawnSpecial(64,8, level=3)
-                PlayTurn.SpawnSpecial(65,38, level=3)# eventually this will be the ancient one
-            '''
+
+
 
         Characters.update(time)  
         GameBoard.update(time)
